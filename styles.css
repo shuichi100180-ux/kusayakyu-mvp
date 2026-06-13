@@ -581,6 +581,166 @@ main {
   gap: 13px;
 }
 
+.mobile-entry-panel {
+  padding-bottom: 92px;
+}
+
+.mobile-entry-form {
+  display: grid;
+  gap: 12px;
+}
+
+.mobile-card {
+  display: grid;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+
+.mobile-card.is-disabled {
+  display: none;
+}
+
+.mobile-card h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.mobile-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mobile-two-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.mobile-choice-grid,
+.mobile-course-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.mobile-choice-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mobile-choice-grid.three-columns {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mobile-choice-grid.four-columns {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.mobile-choice-grid.result-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mobile-course-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mobile-choice-grid button,
+.mobile-course-grid button,
+.mobile-pitcher-button {
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  font-weight: 800;
+  padding: 9px 8px;
+  text-align: center;
+}
+
+.mobile-choice-grid button.is-selected,
+.mobile-course-grid button.is-selected,
+.mobile-pitcher-button.is-selected {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.mobile-pitcher-presets {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.mobile-pitcher-button {
+  display: grid;
+  gap: 2px;
+  min-height: 58px;
+  text-align: left;
+}
+
+.mobile-pitcher-button strong {
+  line-height: 1.2;
+}
+
+.mobile-pitcher-button span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.mobile-pitcher-button.is-selected span {
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.mobile-empty-note {
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  padding: 12px;
+  text-align: center;
+}
+
+.mobile-details {
+  border-top: 1px solid var(--line);
+  padding-top: 4px;
+}
+
+.mobile-details summary {
+  color: var(--accent-strong);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.mobile-details[open] summary {
+  margin-bottom: 10px;
+}
+
+.mobile-checkbox {
+  min-height: 44px;
+}
+
+.mobile-save-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 8;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr);
+  gap: 8px;
+  background: rgba(246, 248, 247, 0.96);
+  border-top: 1px solid var(--line);
+  margin: 0 -4px;
+  padding: 10px 4px calc(10px + env(safe-area-inset-bottom));
+}
+
+.mobile-save-bar .primary-button,
+.mobile-save-bar .ghost-button {
+  width: 100%;
+  min-height: 52px;
+}
+
 label {
   display: grid;
   gap: 6px;
@@ -1087,6 +1247,10 @@ th {
     width: 100%;
   }
 
+  .mobile-two-grid {
+    grid-template-columns: 1fr;
+  }
+
   .memo-row {
     grid-template-columns: minmax(82px, 0.34fr) minmax(0, 1fr);
     column-gap: 10px;
@@ -1187,6 +1351,15 @@ th {
 
   .header-actions {
     grid-template-columns: 1fr;
+  }
+
+  .mobile-pitcher-presets,
+  .mobile-save-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .mobile-choice-grid.four-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .metric {

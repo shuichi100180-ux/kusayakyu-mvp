@@ -24,6 +24,7 @@
     <nav class="tabs" aria-label="画面切り替え">
       <button class="tab is-active" data-tab="home" type="button">ホーム</button>
       <button class="tab" data-tab="entry" type="button">試合・打席入力</button>
+      <button class="tab" data-tab="mobile" type="button">スマホ入力</button>
       <button class="tab" data-tab="analysis" type="button">成績分析</button>
       <button class="tab" data-tab="pitchers" type="button">相手投手</button>
     </nav>
@@ -483,6 +484,312 @@
           </div>
           <div id="paList" class="list-stack"></div>
         </section>
+      </section>
+
+      <section class="tab-panel mobile-entry-panel" id="mobilePanel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Mobile Entry</p>
+            <h2>スマホ入力</h2>
+          </div>
+          <p class="muted">試合後に打席だけ素早く残します。</p>
+        </div>
+
+        <form id="mobilePaForm" class="mobile-entry-form">
+          <section class="mobile-card mobile-context-card">
+            <div class="mobile-card-header">
+              <h3>対象試合</h3>
+              <button class="text-button" data-jump-tab="entry" type="button">試合登録へ</button>
+            </div>
+            <label>
+              試合
+              <select id="mobileGameSelect" name="gameId" required></select>
+            </label>
+            <p id="mobileGameSummary" class="muted">試合を選ぶと、次の打席候補が入ります。</p>
+          </section>
+
+          <section class="mobile-card">
+            <h3>打席結果</h3>
+            <input name="plateAppearance" type="hidden" />
+            <div class="mobile-choice-grid four-columns" data-choice-group="plateAppearance" aria-label="打席">
+              <button data-choice-name="plateAppearance" data-choice-value="第1打席" type="button">第1打席</button>
+              <button data-choice-name="plateAppearance" data-choice-value="第2打席" type="button">第2打席</button>
+              <button data-choice-name="plateAppearance" data-choice-value="第3打席" type="button">第3打席</button>
+              <button data-choice-name="plateAppearance" data-choice-value="第4打席" type="button">第4打席</button>
+            </div>
+
+            <input name="result" type="hidden" />
+            <div class="mobile-choice-grid result-grid" data-choice-group="result" aria-label="打席結果">
+              <button data-choice-name="result" data-choice-value="single" type="button">単打</button>
+              <button data-choice-name="result" data-choice-value="double" type="button">二塁打</button>
+              <button data-choice-name="result" data-choice-value="triple" type="button">三塁打</button>
+              <button data-choice-name="result" data-choice-value="homer" type="button">本塁打</button>
+              <button data-choice-name="result" data-choice-value="walk" type="button">四球</button>
+              <button data-choice-name="result" data-choice-value="hbp" type="button">死球</button>
+              <button data-choice-name="result" data-choice-value="strikeout" type="button">三振</button>
+              <button data-choice-name="result" data-choice-value="groundout" type="button">ゴロアウト</button>
+              <button data-choice-name="result" data-choice-value="flyout" type="button">フライアウト</button>
+              <button data-choice-name="result" data-choice-value="lineout" type="button">ライナーアウト</button>
+              <button data-choice-name="result" data-choice-value="fielderChoice" type="button">野選</button>
+              <button data-choice-name="result" data-choice-value="error" type="button">失策出塁</button>
+              <button data-choice-name="result" data-choice-value="sacFly" type="button">犠飛</button>
+              <button data-choice-name="result" data-choice-value="sacBunt" type="button">犠打</button>
+            </div>
+
+            <div class="mobile-two-grid">
+              <label>
+                打点
+                <input name="rbi" type="number" min="0" max="4" value="0" inputmode="numeric" />
+              </label>
+              <label>
+                盗塁
+                <select name="stolenBase">
+                  <option>なし</option>
+                  <option>盗塁成功1</option>
+                  <option>盗塁成功2</option>
+                  <option>盗塁失敗</option>
+                  <option>盗塁1成功1失敗</option>
+                </select>
+              </label>
+            </div>
+
+            <input name="runScored" type="hidden" value="0" />
+            <div class="mobile-choice-grid two-columns" data-choice-group="runScored" aria-label="得点">
+              <button data-choice-name="runScored" data-choice-value="0" type="button">得点なし</button>
+              <button data-choice-name="runScored" data-choice-value="1" type="button">得点あり</button>
+            </div>
+          </section>
+
+          <section class="mobile-card">
+            <h3>相手投手</h3>
+            <div id="mobilePitcherPresets" class="mobile-pitcher-presets"></div>
+            <div class="mobile-two-grid">
+              <label>
+                投手名
+                <input name="pitcherName" type="text" placeholder="投手名" required />
+              </label>
+              <label>
+                背番号
+                <input name="pitcherNumber" type="text" inputmode="numeric" placeholder="例：18" />
+              </label>
+            </div>
+            <div class="mobile-two-grid">
+              <label>
+                左右
+                <select name="pitcherHand">
+                  <option value="">未選択</option>
+                  <option value="右">右</option>
+                  <option value="左">左</option>
+                  <option value="両">両</option>
+                </select>
+              </label>
+              <label>
+                フォーム
+                <select name="pitchingForm">
+                  <option value="">未選択</option>
+                  <option>オーバースロー</option>
+                  <option>スリークォーター</option>
+                  <option>サイドスロー</option>
+                  <option>アンダースロー</option>
+                </select>
+              </label>
+            </div>
+            <div class="mobile-two-grid">
+              <label>
+                ストレート球速
+                <select name="straightVelocity">
+                  <option value="">未選択</option>
+                  <option>100km</option>
+                  <option>110km</option>
+                  <option>120km</option>
+                </select>
+              </label>
+              <label>
+                変化球1
+                <select name="breakingBall1">
+                  <option value="">未選択</option>
+                  <option>ストレート</option>
+                  <option>ツーシーム</option>
+                  <option>カットボール</option>
+                  <option>スライダー</option>
+                  <option>カーブ</option>
+                  <option>スローボール</option>
+                  <option>フォーク</option>
+                  <option>チェンジアップ</option>
+                  <option>シンカー</option>
+                  <option>シュート</option>
+                  <option>不明</option>
+                </select>
+              </label>
+            </div>
+            <details class="mobile-details">
+              <summary>変化球を追加</summary>
+              <div class="mobile-two-grid">
+                <label>
+                  変化球2
+                  <select name="breakingBall2">
+                    <option value="">未選択</option>
+                    <option>ストレート</option>
+                    <option>ツーシーム</option>
+                    <option>カットボール</option>
+                    <option>スライダー</option>
+                    <option>カーブ</option>
+                    <option>スローボール</option>
+                    <option>フォーク</option>
+                    <option>チェンジアップ</option>
+                    <option>シンカー</option>
+                    <option>シュート</option>
+                    <option>不明</option>
+                  </select>
+                </label>
+                <label>
+                  変化球3
+                  <select name="breakingBall3">
+                    <option value="">未選択</option>
+                    <option>ストレート</option>
+                    <option>ツーシーム</option>
+                    <option>カットボール</option>
+                    <option>スライダー</option>
+                    <option>カーブ</option>
+                    <option>スローボール</option>
+                    <option>フォーク</option>
+                    <option>チェンジアップ</option>
+                    <option>シンカー</option>
+                    <option>シュート</option>
+                    <option>不明</option>
+                  </select>
+                </label>
+              </div>
+            </details>
+          </section>
+
+          <section class="mobile-card">
+            <h3>勝負球</h3>
+            <div class="mobile-two-grid">
+              <label>
+                球種
+                <select name="pitchType">
+                  <option value="">未選択</option>
+                  <option>ストレート</option>
+                  <option>ツーシーム</option>
+                  <option>カットボール</option>
+                  <option>スライダー</option>
+                  <option>カーブ</option>
+                  <option>スローボール</option>
+                  <option>フォーク</option>
+                  <option>チェンジアップ</option>
+                  <option>シンカー</option>
+                  <option>シュート</option>
+                  <option>不明</option>
+                </select>
+              </label>
+              <label>
+                カウント
+                <select name="count">
+                  <option value="">未選択</option>
+                  <option>0S-0B</option>
+                  <option>1S-0B</option>
+                  <option>2S-0B</option>
+                  <option>0S-1B</option>
+                  <option>1S-1B</option>
+                  <option>2S-1B</option>
+                  <option>0S-2B</option>
+                  <option>1S-2B</option>
+                  <option>2S-2B</option>
+                  <option>0S-3B</option>
+                  <option>1S-3B</option>
+                  <option>2S-3B</option>
+                </select>
+              </label>
+            </div>
+
+            <input name="course" type="hidden" />
+            <div class="mobile-course-grid" data-choice-group="course" aria-label="コース">
+              <button data-choice-name="course" data-choice-value="内角高め" type="button">内高</button>
+              <button data-choice-name="course" data-choice-value="真ん中高め" type="button">中高</button>
+              <button data-choice-name="course" data-choice-value="外角高め" type="button">外高</button>
+              <button data-choice-name="course" data-choice-value="内角真ん中" type="button">内中</button>
+              <button data-choice-name="course" data-choice-value="真ん中" type="button">真中</button>
+              <button data-choice-name="course" data-choice-value="外角真ん中" type="button">外中</button>
+              <button data-choice-name="course" data-choice-value="内角低め" type="button">内低</button>
+              <button data-choice-name="course" data-choice-value="真ん中低め" type="button">中低</button>
+              <button data-choice-name="course" data-choice-value="外角低め" type="button">外低</button>
+            </div>
+            <div class="mobile-choice-grid two-columns" data-choice-group="course" aria-label="コース補足">
+              <button data-choice-name="course" data-choice-value="ボール球" type="button">ボール球</button>
+              <button data-choice-name="course" data-choice-value="不明" type="button">不明</button>
+            </div>
+
+            <div class="mobile-two-grid">
+              <label>
+                ランナー
+                <select name="runners">
+                  <option>ランナーなし</option>
+                  <option>1塁</option>
+                  <option>2塁</option>
+                  <option>3塁</option>
+                  <option>1・2塁</option>
+                  <option>1・3塁</option>
+                  <option>2・3塁</option>
+                  <option>満塁</option>
+                </select>
+              </label>
+              <label>
+                サイン
+                <select name="sign">
+                  <option>なし</option>
+                  <option>バント</option>
+                  <option>エンドラン</option>
+                  <option>スクイズ</option>
+                </select>
+              </label>
+            </div>
+            <label class="checkbox-line mobile-checkbox">
+              <input name="risp" type="checkbox" />
+              得点圏での打席
+            </label>
+          </section>
+
+          <section class="mobile-card" id="mobileBattedFields">
+            <h3>打球</h3>
+            <input name="battedDirection" type="hidden" />
+            <div class="mobile-choice-grid three-columns" data-choice-group="battedDirection" aria-label="打球方向">
+              <button data-choice-name="battedDirection" data-choice-value="レフト方向" type="button">レフト</button>
+              <button data-choice-name="battedDirection" data-choice-value="センター方向" type="button">センター</button>
+              <button data-choice-name="battedDirection" data-choice-value="ライト方向" type="button">ライト</button>
+              <button data-choice-name="battedDirection" data-choice-value="三塁方向" type="button">三塁</button>
+              <button data-choice-name="battedDirection" data-choice-value="遊撃方向" type="button">遊撃</button>
+              <button data-choice-name="battedDirection" data-choice-value="投手方向" type="button">投手</button>
+              <button data-choice-name="battedDirection" data-choice-value="一塁方向" type="button">一塁</button>
+              <button data-choice-name="battedDirection" data-choice-value="二塁方向" type="button">二塁</button>
+              <button data-choice-name="battedDirection" data-choice-value="捕手方向" type="button">捕手</button>
+              <button data-choice-name="battedDirection" data-choice-value="不明" type="button">不明</button>
+            </div>
+
+            <input name="battedType" type="hidden" />
+            <div class="mobile-choice-grid three-columns" data-choice-group="battedType" aria-label="打球種類">
+              <button data-choice-name="battedType" data-choice-value="ゴロ" type="button">ゴロ</button>
+              <button data-choice-name="battedType" data-choice-value="ライナー" type="button">ライナー</button>
+              <button data-choice-name="battedType" data-choice-value="フライ" type="button">フライ</button>
+              <button data-choice-name="battedType" data-choice-value="ポップフライ" type="button">ポップ</button>
+              <button data-choice-name="battedType" data-choice-value="バント" type="button">バント</button>
+              <button data-choice-name="battedType" data-choice-value="不明" type="button">不明</button>
+            </div>
+          </section>
+
+          <section class="mobile-card">
+            <h3>メモ</h3>
+            <label>
+              打席メモ
+              <textarea name="memo" rows="3" placeholder="狙い、感触、次回の対策など"></textarea>
+            </label>
+          </section>
+
+          <div class="mobile-save-bar">
+            <button class="primary-button" id="mobilePaSubmitButton" type="submit">保存して次の打席</button>
+            <button class="ghost-button" id="mobileClearButton" type="button">リセット</button>
+          </div>
+        </form>
       </section>
 
       <section class="tab-panel" id="analysisPanel">
