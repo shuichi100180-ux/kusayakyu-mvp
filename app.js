@@ -1,0 +1,1587 @@
+const STORAGE_KEY = "kusayakyu-log-v1";
+const BACKUP_KEY = "kusayakyu-log-backups-v1";
+const MAX_BACKUPS = 10;
+
+const RESULT_DEFS = {
+  single: { label: "単打", atBat: true, hit: true, totalBases: 1, onBase: true },
+  double: { label: "二塁打", atBat: true, hit: true, totalBases: 2, onBase: true },
+  triple: { label: "三塁打", atBat: true, hit: true, totalBases: 3, onBase: true },
+  homer: { label: "本塁打", atBat: true, hit: true, totalBases: 4, onBase: true, homer: true },
+  walk: { label: "四球", atBat: false, hit: false, totalBases: 0, onBase: true, walk: true },
+  hbp: { label: "死球", atBat: false, hit: false, totalBases: 0, onBase: true, hbp: true },
+  strikeout: { label: "三振", atBat: true, hit: false, totalBases: 0, onBase: false },
+  groundout: { label: "ゴロアウト", atBat: true, hit: false, totalBases: 0, onBase: false },
+  flyout: { label: "フライアウト", atBat: true, hit: false, totalBases: 0, onBase: false },
+  lineout: { label: "ライナーアウト", atBat: true, hit: false, totalBases: 0, onBase: false },
+  fielderChoice: { label: "野選", atBat: true, hit: false, totalBases: 0, onBase: false },
+  error: { label: "失策出塁", atBat: true, hit: false, totalBases: 0, onBase: false },
+  sacFly: { label: "犠飛", atBat: false, hit: false, totalBases: 0, onBase: false, sacFly: true },
+  sacBunt: { label: "犠打", atBat: false, hit: false, totalBases: 0, onBase: false, sacBunt: true },
+};
+
+const BATTED_DIRECTION_MARKERS = [
+  { key: "レフト方向", label: "レフト", x: 17, y: 31, type: "outfield" },
+  { key: "センター方向", label: "センター", x: 50, y: 15, type: "outfield" },
+  { key: "ライト方向", label: "ライト", x: 83, y: 31, type: "outfield" },
+  { key: "三塁方向", label: "三塁", x: 27, y: 61, type: "infield" },
+  { key: "遊撃方向", label: "遊撃", x: 35, y: 50, type: "infield" },
+  { key: "投手方向", label: "投手", x: 50, y: 62, type: "infield" },
+  { key: "二塁方向", label: "二塁", x: 65, y: 50, type: "infield" },
+  { key: "一塁方向", label: "一塁", x: 73, y: 61, type: "infield" },
+  { key: "捕手方向", label: "捕手", x: 50, y: 88, type: "infield" },
+];
+
+const BATTED_DIRECTION_ALIASES = {
+  左方向: "レフト方向",
+  中方向: "センター方向",
+  右方向: "ライト方向",
+};
+
+const COURSE_GRID = [
+  "内角高め",
+  "真ん中高め",
+  "外角高め",
+  "内角真ん中",
+  "真ん中",
+  "外角真ん中",
+  "内角低め",
+  "真ん中低め",
+  "外角低め",
+];
+
+const emptyStats = () => ({
+  pa: 0,
+  ab: 0,
+  h: 0,
+  hr: 0,
+  rbi: 0,
+  runs: 0,
+  steals: 0,
+  stealAttempts: 0,
+  bb: 0,
+  hbp: 0,
+  sf: 0,
+  sh: 0,
+  tb: 0,
+  rispAb: 0,
+  rispH: 0,
+});
+
+let saveNotice = {
+  type: "info",
+  badge: "待機中",
+  title: "保存状態",
+  detail: "保存ボタンを押すと、ここに結果が表示されます。",
+};
+let state = loadState();
+let editingGameId = "";
+let editingPaId = "";
+let selectedMemoGameId = "";
+let selectedEntryGameId = "";
+let selectedPitcherKey = "";
+
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+const els = {
+  tabs: $$(".tab"),
+  panels: $$(".tab-panel"),
+  summaryMetrics: $("#summaryMetrics"),
+  analysisMetrics: $("#analysisMetrics"),
+  battedDirectionChart: $("#battedDirectionChart"),
+  battedDirectionSummary: $("#battedDirectionSummary"),
+  recordSummary: $("#recordSummary"),
+  recentGames: $("#recentGames"),
+  recentPlateAppearances: $("#recentPlateAppearances"),
+  gameForm: $("#gameForm"),
+  paForm: $("#paForm"),
+  gameSelect: $("#gameSelect"),
+  gameList: $("#gameList"),
+  gameCount: $("#gameCount"),
+  paList: $("#paList"),
+  paCount: $("#paCount"),
+  pitcherStatsBody: $("#pitcherStatsBody"),
+  pitchTypeStatsBody: $("#pitchTypeStatsBody"),
+  courseStatsBody: $("#courseStatsBody"),
+  courseSupplementChart: $("#courseSupplementChart"),
+  courseSupplementSummary: $("#courseSupplementSummary"),
+  countStatsBody: $("#countStatsBody"),
+  pitcherCards: $("#pitcherCards"),
+  toast: $("#toast"),
+  exportButton: $("#exportButton"),
+  importInput: $("#importInput"),
+  saveStatusIndicator: $("#saveStatusIndicator"),
+  saveStatusBadge: $("#saveStatusBadge"),
+  saveStatusTitle: $("#saveStatusTitle"),
+  saveStatusDetail: $("#saveStatusDetail"),
+  backupStatusText: $("#backupStatusText"),
+  backupExportButton: $("#backupExportButton"),
+  restoreBackupButton: $("#restoreBackupButton"),
+  gameSubmitButton: $("#gameSubmitButton"),
+  cancelGameEditButton: $("#cancelGameEditButton"),
+  paSubmitButton: $("#paSubmitButton"),
+  cancelPaEditButton: $("#cancelPaEditButton"),
+};
+
+function loadState() {
+  const fallback = { games: [], plateAppearances: [] };
+
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return fallback;
+    saveNotice = {
+      type: "success",
+      badge: "保存済み",
+      title: "保存データを読み込みました",
+      detail: "このブラウザ内に残っていた前回の記録を表示しています。",
+    };
+    return normalizeState(JSON.parse(raw));
+  } catch (error) {
+    const backup = latestBackup();
+    if (backup) {
+      saveNotice = {
+        type: "warning",
+        badge: "復元候補",
+        title: "通常保存を読めなかったため、最新バックアップを表示しました",
+        detail: `バックアップ日時：${formatDateTime(backup.createdAt)}。必要なら「最新バックアップを復元」を押してください。`,
+      };
+      return normalizeState(backup.data);
+    }
+    saveNotice = {
+      type: "error",
+      badge: "失敗",
+      title: "保存データを読み込めませんでした",
+      detail: storageErrorMessage(error),
+    };
+    return fallback;
+  }
+}
+
+function normalizeState(value) {
+  return {
+    games: Array.isArray(value?.games) ? value.games : [],
+    plateAppearances: Array.isArray(value?.plateAppearances) ? value.plateAppearances : [],
+  };
+}
+
+function readBackups() {
+  try {
+    const raw = localStorage.getItem(BACKUP_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed)
+      ? parsed.filter((entry) => entry?.data && entry?.createdAt)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function latestBackup() {
+  return readBackups()[0] || null;
+}
+
+function writeAutoBackup(nextState, reason) {
+  const backups = readBackups();
+  const entry = {
+    id: createId("backup"),
+    createdAt: new Date().toISOString(),
+    reason,
+    data: nextState,
+  };
+  localStorage.setItem(BACKUP_KEY, JSON.stringify([entry, ...backups].slice(0, MAX_BACKUPS)));
+  return entry;
+}
+
+function persistState(nextState, reason) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+  } catch (error) {
+    return {
+      ok: false,
+      detail: storageErrorMessage(error),
+    };
+  }
+
+  try {
+    const backup = writeAutoBackup(nextState, reason);
+    return {
+      ok: true,
+      backupOk: true,
+      backup,
+    };
+  } catch (error) {
+    return {
+      ok: true,
+      backupOk: false,
+      detail: storageErrorMessage(error),
+    };
+  }
+}
+
+function commitState(nextState, successMessage, reason) {
+  const result = persistState(nextState, reason);
+
+  if (!result.ok) {
+    saveNotice = {
+      type: "error",
+      badge: "失敗",
+      title: "保存に失敗しました",
+      detail: result.detail,
+    };
+    renderSaveStatus();
+    showToast("保存に失敗しました");
+    return false;
+  }
+
+  state = nextState;
+
+  saveNotice = result.backupOk
+    ? {
+        type: "success",
+        badge: "保存済み",
+        title: successMessage,
+        detail: `自動バックアップも作成しました：${formatDateTime(result.backup.createdAt)}`,
+      }
+    : {
+        type: "warning",
+        badge: "注意",
+        title: `${successMessage}。ただし自動バックアップに失敗しました`,
+        detail: result.detail,
+      };
+
+  render();
+  showToast(successMessage);
+  return true;
+}
+
+function storageErrorMessage(error) {
+  if (error?.name === "QuotaExceededError") {
+    return "ブラウザの保存容量がいっぱいです。データを書き出してから、不要なブラウザデータを整理してください。";
+  }
+  if (error?.name === "SecurityError") {
+    return "この開き方ではブラウザ保存が許可されていません。通常のブラウザ画面で開き直してください。";
+  }
+  return "ブラウザ保存に失敗しました。シークレットモードや保存制限が原因の可能性があります。";
+}
+
+function createId(prefix) {
+  return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function todayValue() {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  return new Date(now.getTime() - offset).toISOString().slice(0, 10);
+}
+
+function formatDate(value) {
+  if (!value) return "日付未設定";
+  return new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(new Date(`${value}T00:00:00`));
+}
+
+function formatDateTime(value) {
+  if (!value) return "日時不明";
+  return new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
+function formatNumber(value) {
+  return Number.isFinite(value) ? String(value) : "0";
+}
+
+function formatRate(value) {
+  if (!Number.isFinite(value)) return "-";
+  if (value === 1) return "1.000";
+  if (value === 0) return ".000";
+  return value.toFixed(3).replace(/^0/, "");
+}
+
+function formatPercent(value) {
+  if (!Number.isFinite(value)) return "-";
+  return `${(value * 100).toFixed(1)}%`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  })[char]);
+}
+
+function labelForResult(result) {
+  return RESULT_DEFS[result]?.label || "未設定";
+}
+
+function resultDef(pa) {
+  return RESULT_DEFS[pa.result] || {};
+}
+
+function stolenBaseSummary(value) {
+  switch (value) {
+    case "盗塁成功1":
+      return { steals: 1, attempts: 1 };
+    case "盗塁成功2":
+      return { steals: 2, attempts: 2 };
+    case "盗塁失敗":
+      return { steals: 0, attempts: 1 };
+    case "盗塁1成功1失敗":
+      return { steals: 1, attempts: 2 };
+    default:
+      return { steals: 0, attempts: 0 };
+  }
+}
+
+function breakingBallsForPa(pa) {
+  if (Array.isArray(pa.breakingBalls)) {
+    return pa.breakingBalls.filter(Boolean);
+  }
+
+  return [pa.breakingBall1, pa.breakingBall2, pa.breakingBall3].filter(Boolean);
+}
+
+function formatBreakingBalls(pa, fallback = "変化球未選択") {
+  const balls = breakingBallsForPa(pa);
+  return balls.length ? balls.join("、") : fallback;
+}
+
+function pitcherBreakingBallsForPa(pa) {
+  return breakingBallsForPa(pa).filter((pitch) => pitch && pitch !== "ストレート");
+}
+
+function getGame(gameId) {
+  return state.games.find((game) => game.id === gameId);
+}
+
+function getPlateAppearance(paId) {
+  return state.plateAppearances.find((pa) => pa.id === paId);
+}
+
+function setFieldValue(form, name, value) {
+  const field = form.elements[name];
+  if (!field) return;
+
+  if (field.type === "checkbox") {
+    field.checked = Boolean(value);
+    return;
+  }
+
+  if (field.tagName === "SELECT") {
+    const stringValue = String(value ?? "");
+    const hasOption = [...field.options].some((option) => option.value === stringValue || option.textContent === stringValue);
+    field.value = hasOption ? stringValue : "";
+    return;
+  }
+
+  field.value = value ?? "";
+}
+
+function gameTitle(game) {
+  if (!game) return "試合未選択";
+  const score = game.ownScore !== "" && game.opponentScore !== ""
+    ? ` ${game.ownScore}-${game.opponentScore}`
+    : "";
+  return `${formatDate(game.date)} ${game.opponent || "対戦相手未設定"}${score}`;
+}
+
+function gameResultLabel(game) {
+  if (!game || game.ownScore === "" || game.opponentScore === "") return "スコア未入力";
+  if (Number(game.ownScore) > Number(game.opponentScore)) return "勝ち";
+  if (Number(game.ownScore) < Number(game.opponentScore)) return "負け";
+  return "引き分け";
+}
+
+function normalizeCountLabel(value) {
+  if (!value) return "";
+  const count = String(value);
+  if (/^\dS-\dB$/.test(count)) return count;
+
+  const oldCount = count.match(/^([0-3])-([0-2])$/);
+  if (!oldCount) return count;
+
+  const balls = oldCount[1];
+  const strikes = oldCount[2];
+  return `${strikes}S-${balls}B`;
+}
+
+function normalizeBattedDirection(value) {
+  if (!value) return "";
+  return BATTED_DIRECTION_ALIASES[value] || value;
+}
+
+function sortByAvgRows(rows) {
+  return [...rows].sort((a, b) => {
+    const avgA = Number.isFinite(a.avg) ? a.avg : -1;
+    const avgB = Number.isFinite(b.avg) ? b.avg : -1;
+    return avgB - avgA || b.ab - a.ab || b.pa - a.pa || a.label.localeCompare(b.label, "ja");
+  });
+}
+
+function selectedMemoGame() {
+  const games = sortedGames();
+  if (!games.length) return null;
+
+  const selected = games.find((game) => game.id === selectedMemoGameId);
+  if (selected) return selected;
+
+  selectedMemoGameId = games[0].id;
+  return games[0];
+}
+
+function selectedEntryGame() {
+  const games = sortedGames();
+  if (!games.length) return null;
+
+  const selected = games.find((game) => game.id === selectedEntryGameId);
+  if (selected) return selected;
+
+  selectedEntryGameId = games[0].id;
+  return games[0];
+}
+
+function sortedGames() {
+  return [...state.games].sort((a, b) => {
+    const dateCompare = (b.date || "").localeCompare(a.date || "");
+    if (dateCompare) return dateCompare;
+    return (b.createdAt || "").localeCompare(a.createdAt || "");
+  });
+}
+
+function sortedPlateAppearances() {
+  return [...state.plateAppearances].sort((a, b) => {
+    const gameA = getGame(a.gameId);
+    const gameB = getGame(b.gameId);
+    const dateCompare = (gameB?.date || "").localeCompare(gameA?.date || "");
+    if (dateCompare) return dateCompare;
+    return (b.createdAt || "").localeCompare(a.createdAt || "");
+  });
+}
+
+function addPlateAppearanceToStats(stats, pa) {
+  const def = resultDef(pa);
+  const steal = stolenBaseSummary(pa.stolenBase);
+  stats.pa += 1;
+  stats.rbi += Number(pa.rbi) || 0;
+  stats.runs += Number(pa.runScored) || 0;
+  stats.steals += steal.steals;
+  stats.stealAttempts += steal.attempts;
+  stats.tb += def.totalBases || 0;
+
+  if (def.atBat) stats.ab += 1;
+  if (def.hit) stats.h += 1;
+  if (def.homer) stats.hr += 1;
+  if (def.walk) stats.bb += 1;
+  if (def.hbp) stats.hbp += 1;
+  if (def.sacFly) stats.sf += 1;
+  if (def.sacBunt) stats.sh += 1;
+
+  if (pa.risp && def.atBat) {
+    stats.rispAb += 1;
+    if (def.hit) stats.rispH += 1;
+  }
+
+  return stats;
+}
+
+function calculateStats(plateAppearances) {
+  return plateAppearances.reduce(addPlateAppearanceToStats, emptyStats());
+}
+
+function withRates(stats) {
+  const avg = stats.ab ? stats.h / stats.ab : NaN;
+  const obpDenominator = stats.ab + stats.bb + stats.hbp + stats.sf;
+  const obp = obpDenominator ? (stats.h + stats.bb + stats.hbp) / obpDenominator : NaN;
+  const slg = stats.ab ? stats.tb / stats.ab : NaN;
+  const ops = Number.isFinite(obp) && Number.isFinite(slg) ? obp + slg : NaN;
+  const rispAvg = stats.rispAb ? stats.rispH / stats.rispAb : NaN;
+  const stealRate = stats.stealAttempts ? stats.steals / stats.stealAttempts : NaN;
+
+  return { ...stats, avg, obp, slg, ops, rispAvg, stealRate };
+}
+
+function groupStats(plateAppearances, keyGetter, fallbackLabel) {
+  const groups = new Map();
+
+  plateAppearances.forEach((pa) => {
+    const key = keyGetter(pa) || fallbackLabel;
+    const stats = groups.get(key) || emptyStats();
+    addPlateAppearanceToStats(stats, pa);
+    groups.set(key, stats);
+  });
+
+  return [...groups.entries()]
+    .map(([label, stats]) => ({ label, ...withRates(stats) }))
+    .sort((a, b) => b.pa - a.pa || a.label.localeCompare(b.label, "ja"));
+}
+
+function sortPitchTypeRows(rows) {
+  return [...rows].sort((a, b) => {
+    if (a.label === "ストレート" && b.label !== "ストレート") return -1;
+    if (b.label === "ストレート" && a.label !== "ストレート") return 1;
+    return b.ab - a.ab || b.pa - a.pa || a.label.localeCompare(b.label, "ja");
+  });
+}
+
+function battedDirectionStats(plateAppearances) {
+  const counts = Object.fromEntries(BATTED_DIRECTION_MARKERS.map((marker) => [marker.key, 0]));
+  let total = 0;
+  let other = 0;
+
+  plateAppearances.forEach((pa) => {
+    const direction = normalizeBattedDirection(pa.battedDirection);
+    if (!direction) return;
+    total += 1;
+
+    if (Object.prototype.hasOwnProperty.call(counts, direction)) {
+      counts[direction] += 1;
+      return;
+    }
+
+    other += 1;
+  });
+
+  return { counts, other, total };
+}
+
+function directionPercent(count, total) {
+  return total ? `${((count / total) * 100).toFixed(1)}%` : "0.0%";
+}
+
+function pitcherOpponent(pa) {
+  return getGame(pa.gameId)?.opponent || "対戦相手未入力";
+}
+
+function pitcherNumber(pa) {
+  return pa.pitcherNumber || "未入力";
+}
+
+function pitcherName(pa) {
+  return pa.pitcherName || "投手未入力";
+}
+
+function pitcherProfileKey(pa) {
+  return [pitcherOpponent(pa), pitcherName(pa), pitcherNumber(pa)].join("||");
+}
+
+function uniquePitcherValues(plateAppearances, valueGetter, fallback = "未入力", limit = 3) {
+  const values = [...new Set(plateAppearances.flatMap((pa) => valueGetter(pa)).filter(Boolean))];
+  if (!values.length) return fallback;
+  const visible = values.slice(0, limit).join("、");
+  return values.length > limit ? `${visible}ほか` : visible;
+}
+
+function groupPitcherStats(plateAppearances) {
+  const groups = new Map();
+
+  plateAppearances.forEach((pa) => {
+    const key = pitcherProfileKey(pa);
+    const row = groups.get(key) || {
+      key,
+      opponent: pitcherOpponent(pa),
+      pitcher: pitcherName(pa),
+      number: pitcherNumber(pa),
+      plateAppearances: [],
+      stats: emptyStats(),
+    };
+
+    addPlateAppearanceToStats(row.stats, pa);
+    row.plateAppearances.push(pa);
+    groups.set(key, row);
+  });
+
+  return [...groups.values()]
+    .map((row) => ({ ...row, ...withRates(row.stats) }))
+    .sort((a, b) => b.pa - a.pa || a.opponent.localeCompare(b.opponent, "ja") || a.pitcher.localeCompare(b.pitcher, "ja"));
+}
+
+function selectedPitcherRow(rows) {
+  if (!rows.length) {
+    selectedPitcherKey = "";
+    return null;
+  }
+
+  const selected = rows.find((row) => row.key === selectedPitcherKey);
+  if (selected) return selected;
+
+  selectedPitcherKey = rows[0].key;
+  return rows[0];
+}
+
+function metric(label, value, sub = "") {
+  return `
+    <div class="metric">
+      <span>${label}</span>
+      <strong>${value}</strong>
+      ${sub ? `<p class="muted">${sub}</p>` : ""}
+    </div>
+  `;
+}
+
+function renderMetrics(target, stats) {
+  const withRateValues = withRates(stats);
+  target.innerHTML = [
+    metric("打率", formatRate(withRateValues.avg), `${stats.ab}打数 / ${stats.h}安打`),
+    metric("本塁打", formatNumber(stats.hr), "通算"),
+    metric("打点", formatNumber(stats.rbi), "通算"),
+    metric("得点", formatNumber(stats.runs), "通算"),
+    metric("盗塁数", formatNumber(stats.steals), `${stats.stealAttempts}企図`),
+    metric("盗塁成功率", formatPercent(withRateValues.stealRate), `${stats.steals}成功 / ${stats.stealAttempts}企図`),
+    metric("出塁率", formatRate(withRateValues.obp), `${stats.bb}四球・${stats.hbp}死球`),
+    metric("長打率", formatRate(withRateValues.slg), `${stats.tb}塁打`),
+    metric("得点圏打率", formatRate(withRateValues.rispAvg), `${stats.rispH}安打 / ${stats.rispAb}打数`),
+    metric("OPS", formatRate(withRateValues.ops), "出塁率 + 長打率"),
+    metric("犠飛", formatNumber(stats.sf), "通算"),
+    metric("犠打", formatNumber(stats.sh), "通算"),
+    metric("打席数", formatNumber(stats.pa), "記録済み"),
+  ].join("");
+}
+
+function renderBattedDirectionChart(plateAppearances) {
+  const stats = battedDirectionStats(plateAppearances);
+  const markers = BATTED_DIRECTION_MARKERS.map((marker) => {
+    const count = stats.counts[marker.key] || 0;
+    const percent = directionPercent(count, stats.total);
+    return `
+      <span
+        class="direction-marker is-${marker.type}"
+        style="--x: ${marker.x}%; --y: ${marker.y}%"
+        title="${escapeHtml(`${marker.key}：${percent}`)}"
+      >
+        <span>${escapeHtml(marker.label)}</span>
+        <strong>${percent}</strong>
+      </span>
+    `;
+  }).join("");
+  const otherPercent = directionPercent(stats.other, stats.total);
+  const ariaLabel = BATTED_DIRECTION_MARKERS
+    .map((marker) => `${marker.key} ${directionPercent(stats.counts[marker.key] || 0, stats.total)}`)
+    .concat([`その他 ${otherPercent}`])
+    .join("、");
+
+  els.battedDirectionSummary.textContent = `${stats.total}打球`;
+  els.battedDirectionChart.innerHTML = `
+    <div class="batted-field" role="img" aria-label="${escapeHtml(`打球方向比率。${ariaLabel}`)}">
+      <svg class="batted-field-svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+        <path class="field-grass" d="M50 96 C41 96 34 89 25 80 L6 61 L6 43 C9 20 27 5 50 5 C73 5 91 20 94 43 L94 61 L75 80 C66 89 59 96 50 96Z" />
+        <path class="field-dirt" d="M50 40 C66 40 77 51 77 66 C77 78 66 86 50 86 C34 86 23 78 23 66 C23 51 34 40 50 40Z" />
+        <path class="foul-line" d="M50 84 L6 43" />
+        <path class="foul-line" d="M50 84 L94 43" />
+        <path class="base-line" d="M50 84 L34 66 L50 50 L66 66 Z" />
+        <rect class="base home-base" x="47.8" y="82" width="4.4" height="4.4" transform="rotate(45 50 84.2)" />
+        <rect class="base" x="31.8" y="63.8" width="4.4" height="4.4" transform="rotate(45 34 66)" />
+        <rect class="base" x="47.8" y="47.8" width="4.4" height="4.4" transform="rotate(45 50 50)" />
+        <rect class="base" x="63.8" y="63.8" width="4.4" height="4.4" transform="rotate(45 66 66)" />
+      </svg>
+      ${markers}
+    </div>
+    <div class="direction-extra">
+      <span>その他 ${otherPercent}</span>
+      <span>${stats.total ? `${stats.total}打球を集計` : "打球方向の入力がまだありません"}</span>
+    </div>
+  `;
+}
+
+function courseSupplementStats(plateAppearances) {
+  const cells = Object.fromEntries(COURSE_GRID.map((course) => [
+    course,
+    { ab: 0, h: 0, hr: 0, k: 0 },
+  ]));
+  let totalAb = 0;
+  let otherAb = 0;
+
+  plateAppearances.forEach((pa) => {
+    const def = resultDef(pa);
+    if (!def.atBat) return;
+
+    totalAb += 1;
+    const cell = cells[pa.course];
+    if (!cell) {
+      otherAb += 1;
+      return;
+    }
+
+    cell.ab += 1;
+    if (def.hit) cell.h += 1;
+    if (def.homer) cell.hr += 1;
+    if (pa.result === "strikeout") cell.k += 1;
+  });
+
+  return { cells, totalAb, otherAb };
+}
+
+function courseCellTone(avg, ab) {
+  if (!ab) return "is-empty";
+  if (avg > 0.3) return "is-hot";
+  if (avg >= 0.2) return "is-warm";
+  return "is-cold";
+}
+
+function renderCourseSupplement(plateAppearances) {
+  const stats = courseSupplementStats(plateAppearances);
+  els.courseSupplementSummary.textContent = `${stats.totalAb}打数`;
+
+  if (!stats.totalAb) {
+    els.courseSupplementChart.innerHTML = `<div class="empty">コースを入力した打席が増えると、9分割のコース別成績が表示されます。</div>`;
+    return;
+  }
+
+  const cells = COURSE_GRID.map((course) => {
+    const row = stats.cells[course];
+    const avg = row.ab ? row.h / row.ab : NaN;
+    return `
+      <div class="course-cell ${courseCellTone(avg, row.ab)}">
+        <span class="course-name">${escapeHtml(course)}</span>
+        <span class="course-count">${row.ab}-${row.h}</span>
+        <strong>${formatRate(avg)}</strong>
+        <span class="course-detail">HR ${row.hr} / K ${row.k}</span>
+      </div>
+    `;
+  }).join("");
+
+  els.courseSupplementChart.innerHTML = `
+    <div class="course-grid" role="img" aria-label="コース別成績。表示は打数-安打、打率、本塁打、三振です。">
+      ${cells}
+    </div>
+    <div class="course-supplement-footer">
+      <p class="muted">表示は「打数-安打 / 打率 / HR・K」です。9分割以外のコースは ${stats.otherAb}打数あります。</p>
+      <div class="course-legend" aria-label="色の意味">
+        <span><i class="is-hot"></i>.300超</span>
+        <span><i class="is-warm"></i>.200〜.300</span>
+        <span><i class="is-cold"></i>.200未満</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderGameSelect() {
+  if (!state.games.length) {
+    els.gameSelect.innerHTML = `<option value="">先に試合を登録してください</option>`;
+    els.gameSelect.disabled = true;
+    return;
+  }
+
+  els.gameSelect.disabled = false;
+  els.gameSelect.innerHTML = sortedGames()
+    .map((game) => `<option value="${escapeHtml(game.id)}">${escapeHtml(gameTitle(game))}</option>`)
+    .join("");
+}
+
+function renderRecentGames() {
+  const games = sortedGames().slice(0, 5);
+
+  if (!games.length) {
+    selectedMemoGameId = "";
+    els.recentGames.innerHTML = `<div class="empty">まずは試合を1件登録しましょう。</div>`;
+    return;
+  }
+
+  const memoGame = selectedMemoGame();
+
+  els.recentGames.innerHTML = games.map((game) => {
+    const pas = state.plateAppearances.filter((pa) => pa.gameId === game.id);
+    const stats = withRates(calculateStats(pas));
+    const result = gameResultLabel(game);
+    const selectedClass = game.id === memoGame?.id ? " is-selected" : "";
+
+    return `
+      <button class="list-item game-memo-button${selectedClass}" data-memo-game="${escapeHtml(game.id)}" type="button" aria-pressed="${game.id === memoGame?.id}">
+        <h4>${escapeHtml(gameTitle(game))} ${escapeHtml(result)}</h4>
+        <div class="meta-row">
+          <span>${escapeHtml(game.gameType || "種別未選択")}</span>
+          <span>${escapeHtml(game.opponentClass || "相手クラス未選択")}</span>
+          <span>${escapeHtml(game.ballpark || "球場未入力")}</span>
+          <span>${pas.length}打席</span>
+          <span>打率 ${formatRate(stats.avg)}</span>
+        </div>
+      </button>
+    `;
+  }).join("");
+}
+
+function renderRecentPlateAppearances() {
+  const game = selectedMemoGame();
+
+  if (!game) {
+    els.recentPlateAppearances.innerHTML = `<div class="empty">試合を登録すると、守備・走塁・試合メモがここに表示されます。</div>`;
+    return;
+  }
+
+  const memoRows = [
+    ["守備の振り返り", game.defenseMemo],
+    ["走塁の振り返り", game.baserunningMemo],
+    ["試合メモ", game.gameMemo],
+  ];
+
+  els.recentPlateAppearances.innerHTML = `
+    <article class="list-item selected-game-memos">
+      <h4>${escapeHtml(gameTitle(game))} ${escapeHtml(gameResultLabel(game))}</h4>
+      <div class="memo-stack">
+        ${memoRows.map(([label, memo]) => `
+          <section class="memo-note">
+            <strong>${escapeHtml(label)}</strong>
+            <p>${memo ? escapeHtml(memo).replace(/\n/g, "<br>") : "未入力"}</p>
+          </section>
+        `).join("")}
+      </div>
+    </article>
+  `;
+}
+
+function renderGameList() {
+  els.gameCount.textContent = `${state.games.length}試合`;
+
+  if (!state.games.length) {
+    selectedEntryGameId = "";
+    els.gameList.innerHTML = `<div class="empty">登録済みの試合はまだありません。</div>`;
+    return;
+  }
+
+  const entryGame = selectedEntryGame();
+
+  els.gameList.innerHTML = sortedGames().map((game) => {
+    const pas = state.plateAppearances.filter((pa) => pa.gameId === game.id);
+    const stats = withRates(calculateStats(pas));
+    const result = gameResultLabel(game);
+    const selectedClass = game.id === entryGame?.id ? " is-selected" : "";
+
+    return `
+      <article class="list-item entry-game-item${selectedClass}">
+        <button class="game-select-button" data-entry-game="${escapeHtml(game.id)}" type="button" aria-pressed="${game.id === entryGame?.id}">
+          <h4>${escapeHtml(gameTitle(game))} ${escapeHtml(result)}</h4>
+          <div class="meta-row">
+            <span>${escapeHtml(game.gameType || "種別未選択")}</span>
+            <span>${escapeHtml(game.opponentClass || "相手クラス未選択")}</span>
+            <span>${escapeHtml(game.ballpark || "球場未入力")}</span>
+            <span>${escapeHtml(game.battingOrder ? `${game.battingOrder}番` : "打順未選択")}</span>
+            <span>${escapeHtml(game.position || "守備未選択")}</span>
+            <span>${pas.length}打席</span>
+            <span>打率 ${formatRate(stats.avg)}</span>
+          </div>
+        </button>
+        <div class="item-actions">
+          <span class="muted">関連する打席も一緒に管理されます。</span>
+          <div class="action-buttons">
+            <button class="ghost-button compact-button" data-edit-game="${escapeHtml(game.id)}" type="button">編集</button>
+            <button class="danger-button" data-delete-game="${escapeHtml(game.id)}" type="button">削除</button>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+function renderPlateAppearanceList() {
+  const game = selectedEntryGame();
+
+  if (!game) {
+    els.paCount.textContent = "0打席";
+    els.paList.innerHTML = `<div class="empty">先に試合を登録してください。</div>`;
+    return;
+  }
+
+  const selectedPas = sortedPlateAppearances().filter((pa) => pa.gameId === game.id);
+  els.paCount.textContent = `${selectedPas.length}打席`;
+
+  if (!selectedPas.length) {
+    els.paList.innerHTML = `<div class="empty">${escapeHtml(gameTitle(game))} の打席はまだ登録されていません。</div>`;
+    return;
+  }
+
+  els.paList.innerHTML = selectedPas.map((pa) => {
+    const titleParts = [
+      pa.plateAppearance || pa.inning || "打席未選択",
+      labelForResult(pa.result),
+      pa.pitcherName || "投手未入力",
+    ];
+
+    return `
+      <article class="list-item">
+        <h4>${escapeHtml(titleParts.join(" / "))}</h4>
+        <div class="meta-row">
+          <span>${escapeHtml(gameTitle(game))}</span>
+          <span>${escapeHtml(pa.pitcherNumber ? `背番号 ${pa.pitcherNumber}` : "背番号未入力")}</span>
+          <span>${escapeHtml(pa.pitchingForm || "フォーム未選択")}</span>
+          <span>${escapeHtml(pa.runners || "ランナーなし")}</span>
+          <span>${escapeHtml(pa.straightVelocity || "球速未選択")}</span>
+          <span>${escapeHtml(formatBreakingBalls(pa))}</span>
+          <span>${escapeHtml(pa.pitchType || "球種未選択")}</span>
+          <span>${escapeHtml(normalizeCountLabel(pa.count) || "カウント未選択")}</span>
+          <span>${Number(pa.rbi) || 0}打点</span>
+          <span>${escapeHtml(pa.stolenBase || "なし")}</span>
+          <span>${Number(pa.runScored) || 0}得点</span>
+        </div>
+        ${pa.memo ? `<p>${escapeHtml(pa.memo)}</p>` : ""}
+        <div class="item-actions">
+          <span class="muted">編集すると成績分析にも反映されます。</span>
+          <div class="action-buttons">
+            <button class="ghost-button compact-button" data-edit-pa="${escapeHtml(pa.id)}" type="button">編集</button>
+            <button class="danger-button" data-delete-pa="${escapeHtml(pa.id)}" type="button">削除</button>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+function renderStatsTable(tbody, rows) {
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="7">まだ集計できる打席がありません。</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map((row) => `
+    <tr>
+      <td>${escapeHtml(row.label)}</td>
+      <td>${formatRate(row.avg)}</td>
+      <td>${formatRate(row.ops)}</td>
+      <td>${row.ab}</td>
+      <td>${row.h}</td>
+      <td>${row.hr}</td>
+      <td>${row.rbi}</td>
+    </tr>
+  `).join("");
+}
+
+function renderPitcherStatsTable(tbody, rows) {
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="9">まだ集計できる打席がありません。</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map((row) => `
+    <tr>
+      <td>${escapeHtml(row.opponent)}</td>
+      <td>${escapeHtml(row.pitcher)}</td>
+      <td>${escapeHtml(row.number)}</td>
+      <td>${formatRate(row.avg)}</td>
+      <td>${formatRate(row.ops)}</td>
+      <td>${row.ab}</td>
+      <td>${row.h}</td>
+      <td>${row.hr}</td>
+      <td>${row.rbi}</td>
+    </tr>
+  `).join("");
+}
+
+function renderAnalysis() {
+  const stats = calculateStats(state.plateAppearances);
+  renderMetrics(els.analysisMetrics, stats);
+  renderBattedDirectionChart(state.plateAppearances);
+  renderPitcherStatsTable(
+    els.pitcherStatsBody,
+    groupPitcherStats(state.plateAppearances),
+  );
+  renderStatsTable(
+    els.pitchTypeStatsBody,
+    sortPitchTypeRows(groupStats(state.plateAppearances, (pa) => pa.pitchType, "球種未選択")),
+  );
+  renderStatsTable(
+    els.courseStatsBody,
+    sortByAvgRows(groupStats(state.plateAppearances, (pa) => pa.course, "コース未選択")),
+  );
+  renderCourseSupplement(state.plateAppearances);
+  renderStatsTable(
+    els.countStatsBody,
+    sortByAvgRows(groupStats(state.plateAppearances, (pa) => normalizeCountLabel(pa.count), "カウント未選択")),
+  );
+}
+
+function renderPitcherCards() {
+  const rows = groupPitcherStats(state.plateAppearances);
+
+  if (!rows.length) {
+    selectedPitcherKey = "";
+    els.pitcherCards.innerHTML = `<div class="empty">打席入力で相手投手を登録すると、ここに対戦履歴が出ます。</div>`;
+    return;
+  }
+
+  const selectedRow = selectedPitcherRow(rows);
+  const pitcherButtons = rows.map((row) => {
+    const pitcherPas = row.plateAppearances;
+    const hand = uniquePitcherValues(pitcherPas, (pa) => [pa.pitcherHand]);
+    const form = uniquePitcherValues(pitcherPas, (pa) => [pa.pitchingForm]);
+    const velocity = uniquePitcherValues(pitcherPas, (pa) => [pa.straightVelocity]);
+    const breakingBalls = uniquePitcherValues(pitcherPas, pitcherBreakingBallsForPa, "未入力", 4);
+    const selectedClass = row.key === selectedRow?.key ? " is-selected" : "";
+    return `
+      <button class="pitcher-summary-button${selectedClass}" data-pitcher-key="${escapeHtml(row.key)}" type="button" aria-pressed="${row.key === selectedRow?.key}">
+        <div class="pitcher-summary-main">
+          <h3>${escapeHtml(row.pitcher)}</h3>
+          <span>${escapeHtml(row.opponent)} / 背番号 ${escapeHtml(row.number)}</span>
+        </div>
+        <div class="pitcher-summary-meta">
+          <span>左右 ${escapeHtml(hand)}</span>
+          <span>フォーム ${escapeHtml(form)}</span>
+          <span>球速 ${escapeHtml(velocity)}</span>
+          <span>変化球 ${escapeHtml(breakingBalls)}</span>
+        </div>
+      </button>
+    `;
+  }).join("");
+
+  const pitcherPas = sortedPlateAppearances().filter((pa) => pitcherProfileKey(pa) === selectedRow.key);
+  const pitcherRates = withRates(selectedRow.stats);
+  const pitcherStats = [
+    ["打率", formatRate(pitcherRates.avg)],
+    ["本塁打", formatNumber(selectedRow.hr)],
+    ["打点", formatNumber(selectedRow.rbi)],
+    ["出塁率", formatRate(pitcherRates.obp)],
+    ["長打率", formatRate(pitcherRates.slg)],
+    ["OPS", formatRate(pitcherRates.ops)],
+  ].map(([label, value]) => `
+    <span class="pitcher-stat-pill">
+      <small>${label}</small>
+      <strong>${value}</strong>
+    </span>
+  `).join("");
+  const history = pitcherPas.map((pa) => {
+    const game = getGame(pa.gameId);
+    const resultLabel = labelForResult(pa.result);
+    const battedDirection = normalizeBattedDirection(pa.battedDirection) || "打球方向未入力";
+    const titleParts = [
+      gameTitle(game),
+      pa.plateAppearance || pa.inning || "打席未選択",
+      resultLabel,
+    ];
+    if (!["strikeout", "walk"].includes(pa.result)) {
+      titleParts.push(battedDirection);
+    }
+
+    return `
+      <article class="list-item">
+        <h4>${titleParts.map(escapeHtml).join(" / ")}</h4>
+        <div class="meta-row">
+          <span>${escapeHtml(pa.pitchType || "球種未選択")}</span>
+          <span>${escapeHtml(pa.course || "コース未選択")}</span>
+          <span>${escapeHtml(normalizeCountLabel(pa.count) || "カウント未選択")}</span>
+          <span>${Number(pa.rbi) || 0}打点</span>
+          <span>${escapeHtml(pa.runners || "ランナーなし")}</span>
+        </div>
+        ${pa.memo ? `<p>${escapeHtml(pa.memo)}</p>` : ""}
+      </article>
+    `;
+  }).join("");
+
+  els.pitcherCards.innerHTML = `
+    <section class="pitcher-button-list" aria-label="相手投手一覧">
+      ${pitcherButtons}
+    </section>
+    <section class="surface pitcher-history">
+      <div class="surface-header">
+        <h3>${escapeHtml(selectedRow.pitcher)}の過去打席</h3>
+        <span class="pill">${selectedRow.pa}打席</span>
+      </div>
+      <div class="pitcher-history-stats" aria-label="${escapeHtml(selectedRow.pitcher)}との過去成績">
+        ${pitcherStats}
+      </div>
+      <div class="list-stack">
+        ${history || `<div class="empty">この投手との打席はまだありません。</div>`}
+      </div>
+    </section>
+  `;
+}
+
+function renderHome() {
+  const stats = calculateStats(state.plateAppearances);
+  renderMetrics(els.summaryMetrics, stats);
+  els.recordSummary.textContent = state.games.length
+    ? `${state.games.length}試合、${state.plateAppearances.length}打席を記録中`
+    : "まだ記録がありません。";
+  renderRecentGames();
+  renderRecentPlateAppearances();
+}
+
+function renderSaveStatus() {
+  const classMap = {
+    success: "is-success",
+    error: "is-error",
+    warning: "is-warning",
+  };
+  els.saveStatusIndicator.classList.remove("is-success", "is-error", "is-warning");
+  if (classMap[saveNotice.type]) {
+    els.saveStatusIndicator.classList.add(classMap[saveNotice.type]);
+  }
+
+  els.saveStatusBadge.textContent = saveNotice.badge;
+  els.saveStatusTitle.textContent = saveNotice.title;
+  els.saveStatusDetail.textContent = saveNotice.detail;
+
+  const backup = latestBackup();
+  if (backup) {
+    els.backupStatusText.textContent = `最新バックアップ：${formatDateTime(backup.createdAt)}（${backup.reason || "自動保存"}）`;
+    els.backupExportButton.disabled = false;
+    els.restoreBackupButton.disabled = false;
+  } else {
+    els.backupStatusText.textContent = "自動バックアップは保存時に作成されます。";
+    els.backupExportButton.disabled = true;
+    els.restoreBackupButton.disabled = true;
+  }
+}
+
+function renderEditState() {
+  const editingGame = Boolean(editingGameId);
+  els.gameSubmitButton.textContent = editingGame ? "試合を更新" : "試合を保存";
+  els.cancelGameEditButton.classList.toggle("is-hidden", !editingGame);
+
+  const editingPa = Boolean(editingPaId);
+  els.paSubmitButton.textContent = editingPa ? "打席を更新" : "打席を保存";
+  els.cancelPaEditButton.classList.toggle("is-hidden", !editingPa);
+}
+
+function resetGameForm() {
+  els.gameForm.reset();
+  $("#gameDate").value = todayValue();
+}
+
+function resetPlateAppearanceForm() {
+  const selectedGame = els.gameSelect.value;
+  els.paForm.reset();
+  els.gameSelect.value = selectedGame;
+  els.paForm.elements.rbi.value = 0;
+  els.paForm.elements.sign.value = "なし";
+  els.paForm.elements.runners.value = "ランナーなし";
+  els.paForm.elements.stolenBase.value = "なし";
+  els.paForm.elements.runScored.value = "0";
+  syncBattedBallFields();
+}
+
+function cancelGameEdit() {
+  editingGameId = "";
+  resetGameForm();
+  renderEditState();
+}
+
+function cancelPlateAppearanceEdit() {
+  editingPaId = "";
+  resetPlateAppearanceForm();
+  renderEditState();
+}
+
+function fillGameForm(game) {
+  setFieldValue(els.gameForm, "date", game.date || todayValue());
+  setFieldValue(els.gameForm, "gameType", game.gameType || "");
+  setFieldValue(els.gameForm, "opponent", game.opponent || "");
+  setFieldValue(els.gameForm, "opponentClass", game.opponentClass || "");
+  setFieldValue(els.gameForm, "ballpark", game.ballpark || "");
+  setFieldValue(els.gameForm, "ownScore", game.ownScore);
+  setFieldValue(els.gameForm, "opponentScore", game.opponentScore);
+  setFieldValue(els.gameForm, "battingOrder", game.battingOrder || "");
+  setFieldValue(els.gameForm, "position", game.position || "");
+  setFieldValue(els.gameForm, "defenseMemo", game.defenseMemo || "");
+  setFieldValue(els.gameForm, "baserunningMemo", game.baserunningMemo || "");
+  setFieldValue(els.gameForm, "gameMemo", game.gameMemo || "");
+}
+
+function fillPlateAppearanceForm(pa) {
+  const breakingBalls = breakingBallsForPa(pa);
+  setFieldValue(els.paForm, "gameId", pa.gameId || "");
+  setFieldValue(els.paForm, "plateAppearance", pa.plateAppearance || "");
+  setFieldValue(els.paForm, "rbi", Number(pa.rbi) || 0);
+  setFieldValue(els.paForm, "pitcherName", pa.pitcherName || "");
+  setFieldValue(els.paForm, "pitcherNumber", pa.pitcherNumber || "");
+  setFieldValue(els.paForm, "pitcherHand", pa.pitcherHand || "");
+  setFieldValue(els.paForm, "pitchingForm", pa.pitchingForm || "");
+  setFieldValue(els.paForm, "result", pa.result || "");
+  setFieldValue(els.paForm, "risp", pa.risp);
+  setFieldValue(els.paForm, "runners", pa.runners || "ランナーなし");
+  setFieldValue(els.paForm, "straightVelocity", pa.straightVelocity || "");
+  setFieldValue(els.paForm, "breakingBall1", breakingBalls[0] || "");
+  setFieldValue(els.paForm, "breakingBall2", breakingBalls[1] || "");
+  setFieldValue(els.paForm, "breakingBall3", breakingBalls[2] || "");
+  setFieldValue(els.paForm, "pitchType", pa.pitchType || "");
+  setFieldValue(els.paForm, "course", pa.course || "");
+  setFieldValue(els.paForm, "count", normalizeCountLabel(pa.count));
+  setFieldValue(els.paForm, "sign", pa.sign || "なし");
+  setFieldValue(els.paForm, "battedDirection", normalizeBattedDirection(pa.battedDirection));
+  setFieldValue(els.paForm, "battedType", pa.battedType || "");
+  setFieldValue(els.paForm, "stolenBase", pa.stolenBase || "なし");
+  setFieldValue(els.paForm, "runScored", pa.runScored ?? 0);
+  setFieldValue(els.paForm, "memo", pa.memo || "");
+  syncBattedBallFields();
+}
+
+function startGameEdit(gameId) {
+  const game = getGame(gameId);
+  if (!game) {
+    showToast("編集する試合が見つかりません");
+    return;
+  }
+
+  editingGameId = gameId;
+  fillGameForm(game);
+  switchTab("entry");
+  renderEditState();
+  els.gameForm.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function startPlateAppearanceEdit(paId) {
+  const pa = getPlateAppearance(paId);
+  if (!pa) {
+    showToast("編集する打席が見つかりません");
+    return;
+  }
+
+  editingPaId = paId;
+  fillPlateAppearanceForm(pa);
+  switchTab("entry");
+  renderEditState();
+  els.paForm.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function render() {
+  renderGameSelect();
+  renderHome();
+  renderGameList();
+  renderPlateAppearanceList();
+  renderAnalysis();
+  renderPitcherCards();
+  renderSaveStatus();
+  renderEditState();
+}
+
+function showToast(message) {
+  els.toast.textContent = message;
+  els.toast.classList.add("is-visible");
+  window.setTimeout(() => els.toast.classList.remove("is-visible"), 2200);
+}
+
+function showValidationFailure(title) {
+  saveNotice = {
+    type: "warning",
+    badge: "未入力",
+    title,
+    detail: "必須項目が未入力です。赤枠になっている項目を入力してから、もう一度保存してください。",
+  };
+  renderSaveStatus();
+  showToast("必須項目を入力してください");
+}
+
+function syncBattedBallFields() {
+  const isStrikeout = els.paForm.elements.result.value === "strikeout";
+  const direction = els.paForm.elements.battedDirection;
+  const type = els.paForm.elements.battedType;
+
+  if (isStrikeout) {
+    direction.value = "";
+    type.value = "";
+  }
+
+  direction.disabled = isStrikeout;
+  type.disabled = isStrikeout;
+}
+
+function switchTab(name) {
+  els.tabs.forEach((tab) => tab.classList.toggle("is-active", tab.dataset.tab === name));
+  els.panels.forEach((panel) => panel.classList.toggle("is-active", panel.id === `${name}Panel`));
+}
+
+function gameFromForm(form, existingGame = null) {
+  const data = new FormData(form);
+  const now = new Date().toISOString();
+  return {
+    id: existingGame?.id || createId("game"),
+    date: data.get("date") || todayValue(),
+    gameType: data.get("gameType") || "",
+    opponent: String(data.get("opponent") || "").trim(),
+    opponentClass: data.get("opponentClass") || "",
+    ballpark: data.get("ballpark") || "",
+    ownScore: data.get("ownScore") === "" ? "" : Number(data.get("ownScore")),
+    opponentScore: data.get("opponentScore") === "" ? "" : Number(data.get("opponentScore")),
+    battingOrder: data.get("battingOrder") || "",
+    position: data.get("position") || "",
+    defenseMemo: String(data.get("defenseMemo") || "").trim(),
+    baserunningMemo: String(data.get("baserunningMemo") || "").trim(),
+    gameMemo: String(data.get("gameMemo") || "").trim(),
+    createdAt: existingGame?.createdAt || now,
+    updatedAt: existingGame ? now : existingGame?.updatedAt || "",
+  };
+}
+
+function plateAppearanceFromForm(form, existingPa = null) {
+  const data = new FormData(form);
+  const now = new Date().toISOString();
+  const breakingBalls = ["breakingBall1", "breakingBall2", "breakingBall3"]
+    .map((name) => data.get(name) || "")
+    .filter(Boolean);
+
+  return {
+    id: existingPa?.id || createId("pa"),
+    gameId: data.get("gameId"),
+    plateAppearance: data.get("plateAppearance") || "",
+    pitcherName: String(data.get("pitcherName") || "").trim(),
+    pitcherNumber: String(data.get("pitcherNumber") || "").trim(),
+    pitcherHand: data.get("pitcherHand") || "",
+    pitchingForm: data.get("pitchingForm") || "",
+    result: data.get("result"),
+    rbi: Number(data.get("rbi")) || 0,
+    risp: data.get("risp") === "on",
+    runners: data.get("runners") || "ランナーなし",
+    straightVelocity: data.get("straightVelocity") || "",
+    breakingBalls,
+    pitchType: data.get("pitchType") || "",
+    course: data.get("course") || "",
+    count: data.get("count") || "",
+    sign: data.get("sign") || "なし",
+    battedDirection: data.get("result") === "strikeout" ? "" : normalizeBattedDirection(data.get("battedDirection")),
+    battedType: data.get("result") === "strikeout" ? "" : data.get("battedType") || "",
+    stolenBase: data.get("stolenBase") || "なし",
+    runScored: Number(data.get("runScored")) || 0,
+    memo: String(data.get("memo") || "").trim(),
+    createdAt: existingPa?.createdAt || now,
+    updatedAt: existingPa ? now : existingPa?.updatedAt || "",
+  };
+}
+
+function exportData() {
+  downloadJson(state, `kusayakyu-log-${todayValue()}.json`);
+}
+
+function downloadJson(data, filename) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportLatestBackup() {
+  const backup = latestBackup();
+  if (!backup) {
+    showToast("バックアップはまだありません");
+    return;
+  }
+
+  downloadJson(backup.data, `kusayakyu-log-backup-${backup.createdAt.slice(0, 10)}.json`);
+  showToast("最新バックアップを書き出しました");
+}
+
+function restoreLatestBackup() {
+  const backup = latestBackup();
+  if (!backup) {
+    showToast("バックアップはまだありません");
+    return;
+  }
+
+  const ok = window.confirm(`最新バックアップ（${formatDateTime(backup.createdAt)}）を復元しますか？現在の表示内容は上書きされます。`);
+  if (!ok) return;
+
+  commitState(normalizeState(backup.data), "最新バックアップを復元しました", "バックアップ復元");
+}
+
+function importData(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(String(reader.result));
+      if (!Array.isArray(parsed.games) || !Array.isArray(parsed.plateAppearances)) {
+        throw new Error("Invalid data");
+      }
+
+      commitState(normalizeState(parsed), "データを読み込みました", "データ読み込み");
+    } catch (error) {
+      saveNotice = {
+        type: "error",
+        badge: "失敗",
+        title: "読み込みに失敗しました",
+        detail: error?.message === "Invalid data"
+          ? "読み込んだファイルの形式が、このアプリのデータ形式と違います。"
+          : "JSONファイルを読み込めませんでした。",
+      };
+      renderSaveStatus();
+      showToast("読み込みに失敗しました");
+    } finally {
+      els.importInput.value = "";
+    }
+  };
+  reader.readAsText(file);
+}
+
+els.tabs.forEach((tab) => {
+  tab.addEventListener("click", () => switchTab(tab.dataset.tab));
+});
+
+$$("[data-jump-tab]").forEach((button) => {
+  button.addEventListener("click", () => switchTab(button.dataset.jumpTab));
+});
+
+els.recentGames.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-memo-game]");
+  if (!button) return;
+
+  selectedMemoGameId = button.dataset.memoGame;
+  renderRecentGames();
+  renderRecentPlateAppearances();
+});
+
+els.gameForm.addEventListener("invalid", () => {
+  showValidationFailure("試合を保存できませんでした");
+}, true);
+
+els.paForm.addEventListener("invalid", () => {
+  showValidationFailure("打席を保存できませんでした");
+}, true);
+
+els.paForm.elements.result.addEventListener("change", syncBattedBallFields);
+
+els.gameForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const existingGame = editingGameId ? getGame(editingGameId) : null;
+
+  if (editingGameId && !existingGame) {
+    showToast("更新する試合が見つかりません");
+    cancelGameEdit();
+    return;
+  }
+
+  const game = gameFromForm(event.currentTarget, existingGame);
+  selectedMemoGameId = game.id;
+  selectedEntryGameId = game.id;
+  const nextState = existingGame
+    ? {
+        games: state.games.map((item) => item.id === editingGameId ? game : item),
+        plateAppearances: [...state.plateAppearances],
+      }
+    : {
+        games: [...state.games, game],
+        plateAppearances: [...state.plateAppearances],
+      };
+
+  if (commitState(nextState, existingGame ? "試合を更新しました" : "試合を保存しました", existingGame ? "試合更新" : "試合保存")) {
+    editingGameId = "";
+    resetGameForm();
+    renderEditState();
+  }
+});
+
+els.paForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  if (!state.games.length) {
+    showToast("先に試合を登録してください");
+    return;
+  }
+
+  const existingPa = editingPaId ? getPlateAppearance(editingPaId) : null;
+
+  if (editingPaId && !existingPa) {
+    showToast("更新する打席が見つかりません");
+    cancelPlateAppearanceEdit();
+    return;
+  }
+
+  const pa = plateAppearanceFromForm(event.currentTarget, existingPa);
+  selectedEntryGameId = pa.gameId;
+  const nextState = existingPa
+    ? {
+        games: [...state.games],
+        plateAppearances: state.plateAppearances.map((item) => item.id === editingPaId ? pa : item),
+      }
+    : {
+        games: [...state.games],
+        plateAppearances: [...state.plateAppearances, pa],
+      };
+
+  if (commitState(nextState, existingPa ? "打席を更新しました" : "打席を保存しました", existingPa ? "打席更新" : "打席保存")) {
+    editingPaId = "";
+    resetPlateAppearanceForm();
+    renderEditState();
+  }
+});
+
+els.gameList.addEventListener("click", (event) => {
+  const selectButton = event.target.closest("[data-entry-game]");
+  if (selectButton) {
+    selectedEntryGameId = selectButton.dataset.entryGame;
+    renderGameList();
+    renderPlateAppearanceList();
+    return;
+  }
+
+  const editButton = event.target.closest("[data-edit-game]");
+  if (editButton) {
+    startGameEdit(editButton.dataset.editGame);
+    return;
+  }
+
+  const button = event.target.closest("[data-delete-game]");
+  if (!button) return;
+
+  const gameId = button.dataset.deleteGame;
+  const game = getGame(gameId);
+  const ok = window.confirm(`${gameTitle(game)} を削除しますか？関連する打席も削除されます。`);
+  if (!ok) return;
+
+  if (editingGameId === gameId) editingGameId = "";
+  if (editingPaId && getPlateAppearance(editingPaId)?.gameId === gameId) editingPaId = "";
+  commitState(
+    {
+      games: state.games.filter((item) => item.id !== gameId),
+      plateAppearances: state.plateAppearances.filter((item) => item.gameId !== gameId),
+    },
+    "試合を削除しました",
+    "試合削除",
+  );
+});
+
+els.paList.addEventListener("click", (event) => {
+  const editButton = event.target.closest("[data-edit-pa]");
+  if (editButton) {
+    startPlateAppearanceEdit(editButton.dataset.editPa);
+    return;
+  }
+
+  const deleteButton = event.target.closest("[data-delete-pa]");
+  if (!deleteButton) return;
+
+  const paId = deleteButton.dataset.deletePa;
+  const pa = getPlateAppearance(paId);
+  const ok = window.confirm(`${labelForResult(pa?.result)} / ${pa?.pitcherName || "投手未入力"} を削除しますか？`);
+  if (!ok) return;
+
+  if (editingPaId === paId) editingPaId = "";
+  commitState(
+    {
+      games: [...state.games],
+      plateAppearances: state.plateAppearances.filter((item) => item.id !== paId),
+    },
+    "打席を削除しました",
+    "打席削除",
+  );
+});
+
+els.pitcherCards.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-pitcher-key]");
+  if (!button) return;
+
+  selectedPitcherKey = button.dataset.pitcherKey;
+  renderPitcherCards();
+});
+
+els.exportButton.addEventListener("click", exportData);
+els.backupExportButton.addEventListener("click", exportLatestBackup);
+els.restoreBackupButton.addEventListener("click", restoreLatestBackup);
+els.cancelGameEditButton.addEventListener("click", cancelGameEdit);
+els.cancelPaEditButton.addEventListener("click", cancelPlateAppearanceEdit);
+
+els.importInput.addEventListener("change", (event) => {
+  const file = event.currentTarget.files?.[0];
+  if (file) importData(file);
+});
+
+$("#gameDate").value = todayValue();
+syncBattedBallFields();
+render();
