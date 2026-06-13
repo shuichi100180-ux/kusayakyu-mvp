@@ -1,5 +1,9 @@
 const STORAGE_KEY = "kusayakyu-log-v1";
 const BACKUP_KEY = "kusayakyu-log-backups-v1";
+const SYNC_CONFIG_KEY = "kusayakyu-sync-config-v1";
+const SYNC_META_KEY = "kusayakyu-sync-meta-v1";
+const SYNC_TABLE = "kusayakyu_sync_data";
+const SYNC_PROFILE_ID = "default";
 const MAX_BACKUPS = 10;
 
 const RESULT_DEFS = {
@@ -73,7 +77,19 @@ let saveNotice = {
   title: "保存状態",
   detail: "保存ボタンを押すと、ここに結果が表示されます。",
 };
+let syncNotice = {
+  type: "info",
+  badge: "未設定",
+  title: "クラウド同期はまだ設定されていません",
+  detail: "SupabaseのURL、anon / publishable key、メールアドレスを入力してください。",
+};
 let state = loadState();
+let syncConfig = loadSyncConfig();
+let syncMeta = loadSyncMeta();
+let syncClient = null;
+let syncClientKey = "";
+let syncTimer = null;
+let syncInProgress = false;
 let editingGameId = "";
 let editingPaId = "";
 let selectedMemoGameId = "";
@@ -122,6 +138,22 @@ const els = {
   backupStatusText: $("#backupStatusText"),
   backupExportButton: $("#backupExportButton"),
   restoreBackupButton: $("#restoreBackupButton"),
+  syncStatusCard: $("#syncStatusCard"),
+  syncStatusBadge: $("#syncStatusBadge"),
+  syncStatusTitle: $("#syncStatusTitle"),
+  syncStatusDetail: $("#syncStatusDetail"),
+  syncLastSync: $("#syncLastSync"),
+  syncConfigForm: $("#syncConfigForm"),
+  syncSupabaseUrl: $("#syncSupabaseUrl"),
+  syncAnonKey: $("#syncAnonKey"),
+  syncEmail: $("#syncEmail"),
+  syncPassword: $("#syncPassword"),
+  syncNowButton: $("#syncNowButton"),
+  syncPullButton: $("#syncPullButton"),
+  syncPushButton: $("#syncPushButton"),
+  syncSignInButton: $("#syncSignInButton"),
+  syncSignUpButton: $("#syncSignUpButton"),
+  syncSignOutButton: $("#syncSignOutButton"),
   gameSubmitButton: $("#gameSubmitButton"),
   cancelGameEditButton: $("#cancelGameEditButton"),
   paSubmitButton: $("#paSubmitButton"),
@@ -161,6 +193,57 @@ function loadState() {
     };
     return fallback;
   }
+}
+
+function loadSyncConfig() {
+  try {
+    const raw = localStorage.getItem(SYNC_CONFIG_KEY);
+    if (!raw) return { supabaseUrl: "", anonKey: "", email: "" };
+    const parsed = JSON.parse(raw);
+    return {
+      supabaseUrl: String(parsed?.supabaseUrl || "").trim(),
+      anonKey: String(parsed?.anonKey || "").trim(),
+      email: String(parsed?.email || "").trim(),
+    };
+  } catch {
+    return { supabaseUrl: "", anonKey: "", email: "" };
+  }
+}
+
+function saveSyncConfig(nextConfig) {
+  syncConfig = {
+    supabaseUrl: String(nextConfig.supabaseUrl || "").trim().replace(/\/$/, ""),
+    anonKey: String(nextConfig.anonKey || "").trim(),
+    email: String(nextConfig.email || "").trim(),
+  };
+  localStorage.setItem(SYNC_CONFIG_KEY, JSON.stringify(syncConfig));
+  syncClient = null;
+  syncClientKey = "";
+}
+
+function loadSyncMeta() {
+  try {
+    const raw = localStorage.getItem(SYNC_META_KEY);
+    if (!raw) {
+      return { remoteUpdatedAt: "", lastSyncedAt: "", lastSyncedSignature: "" };
+    }
+    const parsed = JSON.parse(raw);
+    return {
+      remoteUpdatedAt: String(parsed?.remoteUpdatedAt || ""),
+      lastSyncedAt: String(parsed?.lastSyncedAt || ""),
+      lastSyncedSignature: String(parsed?.lastSyncedSignature || ""),
+    };
+  } catch {
+    return { remoteUpdatedAt: "", lastSyncedAt: "", lastSyncedSignature: "" };
+  }
+}
+
+function saveSyncMeta(nextMeta) {
+  syncMeta = {
+    ...syncMeta,
+    ...nextMeta,
+  };
+  localStorage.setItem(SYNC_META_KEY, JSON.stringify(syncMeta));
 }
 
 function normalizeState(value) {
@@ -225,7 +308,228 @@ function persistState(nextState, reason) {
   }
 }
 
-function commitState(nextState, successMessage, reason) {
+function hasSyncConfig() {
+  return Boolean(syncConfig.supabaseUrl && syncConfig.anonKey && syncConfig.email);
+}
+
+function supabaseLibraryReady() {
+  return Boolean(window.supabase?.createClient);
+}
+
+function stateSignature(value = state) {
+  return JSON.stringify(normalizeState(value));
+}
+
+function itemTimestamp(item) {
+  return item?.updatedAt || item?.createdAt || "";
+}
+
+function newerItem(current, next) {
+  if (!current) return next;
+  if (!next) return current;
+  return itemTimestamp(next) >= itemTimestamp(current) ? next : current;
+}
+
+function mergeById(localItems, remoteItems) {
+  const merged = new Map();
+  localItems.forEach((item) => {
+    if (item?.id) merged.set(item.id, item);
+  });
+  remoteItems.forEach((item) => {
+    if (item?.id) merged.set(item.id, newerItem(merged.get(item.id), item));
+  });
+  return [...merged.values()];
+}
+
+function mergeStates(localState, remoteState) {
+  const local = normalizeState(localState);
+  const remote = normalizeState(remoteState);
+  return normalizeState({
+    games: mergeById(local.games, remote.games),
+    plateAppearances: mergeById(local.plateAppearances, remote.plateAppearances),
+  });
+}
+
+function updateSyncNotice(type, badge, title, detail) {
+  syncNotice = { type, badge, title, detail };
+  renderSyncStatus();
+}
+
+function syncErrorMessage(error) {
+  if (!navigator.onLine) {
+    return "インターネット接続がないため同期できません。接続後にもう一度試してください。";
+  }
+  if (error?.message?.includes("Failed to fetch")) {
+    return "Supabaseに接続できませんでした。URL、キー、通信状態を確認してください。";
+  }
+  return error?.message || "同期中にエラーが発生しました。";
+}
+
+function syncSupabaseClient() {
+  if (!hasSyncConfig()) {
+    throw new Error("SupabaseのURL、キー、メールアドレスを入力してください。");
+  }
+  if (!supabaseLibraryReady()) {
+    throw new Error("Supabaseの同期ライブラリを読み込めませんでした。インターネット接続を確認して開き直してください。");
+  }
+
+  const key = `${syncConfig.supabaseUrl}::${syncConfig.anonKey}`;
+  if (syncClient && syncClientKey === key) return syncClient;
+
+  syncClient = window.supabase.createClient(syncConfig.supabaseUrl, syncConfig.anonKey, {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: false,
+      storageKey: "kusayakyu-supabase-auth-v1",
+    },
+  });
+  syncClientKey = key;
+  return syncClient;
+}
+
+async function currentSyncUser() {
+  const client = syncSupabaseClient();
+  const { data, error } = await client.auth.getUser();
+  if (error) throw error;
+  return data?.user || null;
+}
+
+async function requireSyncUser() {
+  const user = await currentSyncUser();
+  if (!user) {
+    throw new Error("Supabaseにログインしてください。");
+  }
+  return user;
+}
+
+async function loadRemoteSnapshot(userId) {
+  const client = syncSupabaseClient();
+  const { data, error } = await client
+    .from(SYNC_TABLE)
+    .select("data, updated_at")
+    .eq("user_id", userId)
+    .eq("profile_id", SYNC_PROFILE_ID)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+  return {
+    data: normalizeState(data.data),
+    updatedAt: data.updated_at || "",
+  };
+}
+
+async function saveRemoteSnapshot(userId, nextState) {
+  const client = syncSupabaseClient();
+  const updatedAt = new Date().toISOString();
+  const { data, error } = await client
+    .from(SYNC_TABLE)
+    .upsert({
+      user_id: userId,
+      profile_id: SYNC_PROFILE_ID,
+      data: normalizeState(nextState),
+      updated_at: updatedAt,
+    }, { onConflict: "user_id,profile_id" })
+    .select("updated_at")
+    .single();
+
+  if (error) throw error;
+  return data?.updated_at || updatedAt;
+}
+
+function markSynced(remoteUpdatedAt, syncedState = state) {
+  saveSyncMeta({
+    remoteUpdatedAt,
+    lastSyncedAt: new Date().toISOString(),
+    lastSyncedSignature: stateSignature(syncedState),
+  });
+}
+
+async function pushLocalStateToCloud(message = "この端末のデータをクラウドへ保存しました") {
+  const user = await requireSyncUser();
+  const remoteUpdatedAt = await saveRemoteSnapshot(user.id, state);
+  markSynced(remoteUpdatedAt);
+  updateSyncNotice("success", "同期済み", message, `最終同期：${formatDateTime(syncMeta.lastSyncedAt)}`);
+}
+
+async function pullCloudStateToLocal(message = "クラウドのデータを読み込みました") {
+  const user = await requireSyncUser();
+  const remote = await loadRemoteSnapshot(user.id);
+  if (!remote) {
+    await pushLocalStateToCloud("クラウドに初回データを作成しました");
+    return;
+  }
+
+  if (commitState(remote.data, message, "クラウド同期", { skipCloudSync: true })) {
+    markSynced(remote.updatedAt, remote.data);
+    updateSyncNotice("success", "同期済み", message, `最終同期：${formatDateTime(syncMeta.lastSyncedAt)}`);
+  }
+}
+
+async function mergeAndPushCloudState(remote) {
+  const user = await requireSyncUser();
+  const merged = mergeStates(state, remote.data);
+  if (!commitState(merged, "Mac/iPhoneの変更を結合しました", "クラウド同期", { skipCloudSync: true })) return;
+  const remoteUpdatedAt = await saveRemoteSnapshot(user.id, merged);
+  markSynced(remoteUpdatedAt, merged);
+  updateSyncNotice(
+    "success",
+    "結合済み",
+    "Mac/iPhoneの変更を結合して同期しました",
+    `最終同期：${formatDateTime(syncMeta.lastSyncedAt)}`,
+  );
+}
+
+async function runCloudSync(reason = "auto") {
+  if (syncInProgress) return;
+  if (!hasSyncConfig()) {
+    renderSyncStatus();
+    return;
+  }
+
+  syncInProgress = true;
+  updateSyncNotice("info", "同期中", "クラウド同期中です", "少し待ってください。");
+
+  try {
+    const user = await requireSyncUser();
+    const remote = await loadRemoteSnapshot(user.id);
+    const localChanged = stateSignature() !== syncMeta.lastSyncedSignature;
+
+    if (!remote) {
+      await pushLocalStateToCloud("クラウドに初回データを作成しました");
+      return;
+    }
+
+    const remoteChanged = remote.updatedAt !== syncMeta.remoteUpdatedAt;
+
+    if (remoteChanged && localChanged) {
+      await mergeAndPushCloudState(remote);
+    } else if (remoteChanged) {
+      await pullCloudStateToLocal("クラウド側の最新データを読み込みました");
+    } else if (localChanged) {
+      await pushLocalStateToCloud(reason === "local-change" ? "変更をクラウドへ自動同期しました" : "この端末の変更をクラウドへ同期しました");
+    } else {
+      markSynced(remote.updatedAt);
+      updateSyncNotice("success", "同期済み", "クラウドとこの端末は同じ状態です", `最終同期：${formatDateTime(syncMeta.lastSyncedAt)}`);
+    }
+  } catch (error) {
+    updateSyncNotice("error", "失敗", "クラウド同期に失敗しました", syncErrorMessage(error));
+  } finally {
+    syncInProgress = false;
+    renderSyncStatus();
+  }
+}
+
+function scheduleCloudSync(reason) {
+  if (!hasSyncConfig()) return;
+  window.clearTimeout(syncTimer);
+  syncTimer = window.setTimeout(() => {
+    runCloudSync(reason);
+  }, 900);
+}
+
+function commitState(nextState, successMessage, reason, options = {}) {
   const result = persistState(nextState, reason);
 
   if (!result.ok) {
@@ -257,6 +561,9 @@ function commitState(nextState, successMessage, reason) {
       };
 
   render();
+  if (!options.skipCloudSync) {
+    scheduleCloudSync("local-change");
+  }
   showToast(successMessage);
   return true;
 }
@@ -1250,6 +1557,64 @@ function renderSaveStatus() {
   }
 }
 
+function renderSyncStatus() {
+  if (!els.syncStatusCard) return;
+
+  const classMap = {
+    success: "is-success",
+    error: "is-error",
+    warning: "is-warning",
+  };
+  const configured = hasSyncConfig();
+  const libraryReady = supabaseLibraryReady();
+  let notice = syncNotice;
+
+  if (!configured) {
+    notice = {
+      type: "info",
+      badge: "未設定",
+      title: "クラウド同期はまだ設定されていません",
+      detail: "SupabaseのURL、anon / publishable key、メールアドレスを入力してください。",
+    };
+  } else if (!libraryReady) {
+    notice = {
+      type: "warning",
+      badge: "確認中",
+      title: "Supabaseライブラリを読み込めていません",
+      detail: "インターネット接続を確認して、この画面を開き直してください。",
+    };
+  }
+
+  els.syncStatusCard.classList.remove("is-success", "is-error", "is-warning");
+  if (classMap[notice.type]) {
+    els.syncStatusCard.classList.add(classMap[notice.type]);
+  }
+  els.syncStatusBadge.textContent = syncInProgress ? "同期中" : notice.badge;
+  els.syncStatusTitle.textContent = notice.title;
+  els.syncStatusDetail.textContent = notice.detail;
+  els.syncLastSync.textContent = syncMeta.lastSyncedAt
+    ? `最終同期：${formatDateTime(syncMeta.lastSyncedAt)}`
+    : "最終同期：なし";
+
+  if (els.syncSupabaseUrl && document.activeElement !== els.syncSupabaseUrl) {
+    els.syncSupabaseUrl.value = syncConfig.supabaseUrl;
+  }
+  if (els.syncAnonKey && document.activeElement !== els.syncAnonKey) {
+    els.syncAnonKey.value = syncConfig.anonKey;
+  }
+  if (els.syncEmail && document.activeElement !== els.syncEmail) {
+    els.syncEmail.value = syncConfig.email;
+  }
+
+  const canUseCloud = configured && libraryReady && !syncInProgress;
+  els.syncNowButton.disabled = !canUseCloud;
+  els.syncPullButton.disabled = !canUseCloud;
+  els.syncPushButton.disabled = !canUseCloud;
+  els.syncSignInButton.disabled = !canUseCloud;
+  els.syncSignUpButton.disabled = !canUseCloud;
+  els.syncSignOutButton.disabled = !canUseCloud;
+}
+
 function renderEditState() {
   const editingGame = Boolean(editingGameId);
   els.gameSubmitButton.textContent = editingGame ? "試合を更新" : "試合を保存";
@@ -1425,6 +1790,7 @@ function render() {
   renderAnalysis();
   renderPitcherCards();
   renderSaveStatus();
+  renderSyncStatus();
   renderEditState();
 }
 
@@ -1603,6 +1969,125 @@ function importData(file) {
     }
   };
   reader.readAsText(file);
+}
+
+function syncFormConfig() {
+  return {
+    supabaseUrl: els.syncSupabaseUrl.value,
+    anonKey: els.syncAnonKey.value,
+    email: els.syncEmail.value,
+  };
+}
+
+function saveSyncSettingsFromForm() {
+  try {
+    saveSyncConfig(syncFormConfig());
+    updateSyncNotice(
+      hasSyncConfig() ? "success" : "warning",
+      hasSyncConfig() ? "設定済み" : "未入力",
+      hasSyncConfig() ? "同期設定を保存しました" : "同期設定がまだ足りません",
+      hasSyncConfig()
+        ? "ログインすると、この端末とクラウドの同期を始められます。"
+        : "SupabaseのURL、キー、メールアドレスを入力してください。",
+    );
+    showToast("同期設定を保存しました");
+  } catch (error) {
+    updateSyncNotice("error", "失敗", "同期設定を保存できませんでした", storageErrorMessage(error));
+  }
+}
+
+async function runSyncButtonAction(action, workingTitle = "クラウド処理中です") {
+  if (syncInProgress) return;
+  syncInProgress = true;
+  updateSyncNotice("info", "処理中", workingTitle, "少し待ってください。");
+
+  try {
+    await action();
+  } catch (error) {
+    updateSyncNotice("error", "失敗", "クラウド処理に失敗しました", syncErrorMessage(error));
+  } finally {
+    syncInProgress = false;
+    renderSyncStatus();
+  }
+}
+
+async function handleSyncSignUp() {
+  saveSyncSettingsFromForm();
+  const password = els.syncPassword.value;
+  if (!hasSyncConfig() || !password) {
+    updateSyncNotice("warning", "未入力", "新規登録できません", "URL、キー、メールアドレス、パスワードを入力してください。");
+    return;
+  }
+
+  await runSyncButtonAction(async () => {
+    const client = syncSupabaseClient();
+    const { data, error } = await client.auth.signUp({
+      email: syncConfig.email,
+      password,
+    });
+    if (error) throw error;
+    els.syncPassword.value = "";
+
+    if (data?.session) {
+      updateSyncNotice("success", "登録済み", "新規登録してログインしました", "初回同期を始めます。");
+      syncInProgress = false;
+      await runCloudSync("signup");
+      return;
+    }
+
+    updateSyncNotice("warning", "確認待ち", "確認メールを送信しました", "メール内のリンクを開いたあと、この画面でログインしてください。");
+  }, "Supabaseへ新規登録中です");
+}
+
+async function handleSyncSignIn() {
+  saveSyncSettingsFromForm();
+  const password = els.syncPassword.value;
+  if (!hasSyncConfig() || !password) {
+    updateSyncNotice("warning", "未入力", "ログインできません", "URL、キー、メールアドレス、パスワードを入力してください。");
+    return;
+  }
+
+  await runSyncButtonAction(async () => {
+    const client = syncSupabaseClient();
+    const { error } = await client.auth.signInWithPassword({
+      email: syncConfig.email,
+      password,
+    });
+    if (error) throw error;
+    els.syncPassword.value = "";
+    updateSyncNotice("success", "ログイン済み", "Supabaseにログインしました", "同期を始めます。");
+    syncInProgress = false;
+    await runCloudSync("signin");
+  }, "Supabaseへログイン中です");
+}
+
+async function handleSyncSignOut() {
+  await runSyncButtonAction(async () => {
+    const client = syncSupabaseClient();
+    const { error } = await client.auth.signOut();
+    if (error) throw error;
+    updateSyncNotice("info", "ログアウト", "Supabaseからログアウトしました", "ローカル保存はこれまで通り使えます。");
+  }, "ログアウト中です");
+}
+
+async function initializeCloudSync() {
+  renderSyncStatus();
+  if (!hasSyncConfig()) return;
+  if (!supabaseLibraryReady()) {
+    renderSyncStatus();
+    return;
+  }
+
+  try {
+    const user = await currentSyncUser();
+    if (!user) {
+      updateSyncNotice("warning", "ログイン待ち", "Supabaseにログインしてください", "ログインすると自動同期を開始します。");
+      return;
+    }
+    await runCloudSync("startup");
+  } catch (error) {
+    updateSyncNotice("error", "失敗", "同期状態を確認できませんでした", syncErrorMessage(error));
+  }
 }
 
 els.tabs.forEach((tab) => {
@@ -1841,6 +2326,26 @@ els.restoreBackupButton.addEventListener("click", restoreLatestBackup);
 els.cancelGameEditButton.addEventListener("click", cancelGameEdit);
 els.cancelPaEditButton.addEventListener("click", cancelPlateAppearanceEdit);
 
+els.syncConfigForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  saveSyncSettingsFromForm();
+});
+
+els.syncSignUpButton.addEventListener("click", handleSyncSignUp);
+els.syncSignInButton.addEventListener("click", handleSyncSignIn);
+els.syncSignOutButton.addEventListener("click", handleSyncSignOut);
+els.syncNowButton.addEventListener("click", () => runCloudSync("manual"));
+els.syncPullButton.addEventListener("click", () => {
+  const ok = window.confirm("クラウドのデータをこの端末へ読み込みます。現在の端末データはバックアップ後に置き換わります。実行しますか？");
+  if (!ok) return;
+  runSyncButtonAction(() => pullCloudStateToLocal("クラウドのデータをこの端末へ読み込みました"), "クラウドから読み込み中です");
+});
+els.syncPushButton.addEventListener("click", () => {
+  const ok = window.confirm("この端末のデータをクラウドへ保存します。クラウド側の同じ同期データは上書きされます。実行しますか？");
+  if (!ok) return;
+  runSyncButtonAction(() => pushLocalStateToCloud("この端末のデータをクラウドへ保存しました"), "クラウドへ保存中です");
+});
+
 els.importInput.addEventListener("change", (event) => {
   const file = event.currentTarget.files?.[0];
   if (file) importData(file);
@@ -1849,3 +2354,4 @@ els.importInput.addEventListener("change", (event) => {
 $("#gameDate").value = todayValue();
 syncBattedBallFields();
 render();
+initializeCloudSync();

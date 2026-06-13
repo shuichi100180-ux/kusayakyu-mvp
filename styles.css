@@ -296,6 +296,57 @@ main {
   justify-content: flex-end;
 }
 
+.sync-status-card {
+  gap: 10px;
+}
+
+.sync-status-card.is-success {
+  border-color: #9ed9c6;
+}
+
+.sync-status-card.is-error {
+  border-color: #ffb8b0;
+  background: #fff8f7;
+}
+
+.sync-status-card.is-warning {
+  border-color: #f3c56b;
+  background: #fffaf0;
+}
+
+.sync-status-card.is-error .status-badge {
+  background: #fff2f0;
+  color: var(--warn);
+}
+
+.sync-status-card.is-warning .status-badge {
+  background: #fff0c2;
+  color: #7a4a00;
+}
+
+.sync-status-title {
+  font-weight: 800;
+  margin: 0;
+}
+
+.sync-actions {
+  flex-wrap: wrap;
+}
+
+.code-block {
+  background: #f3f7f5;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: #25332f;
+  font-size: 13px;
+  margin: 12px 0 0;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 14px;
+  white-space: pre;
+  -webkit-overflow-scrolling: touch;
+}
+
 .tab-panel {
   display: none;
 }
@@ -1163,6 +1214,11 @@ th {
     justify-content: start;
   }
 
+  .sync-actions .primary-button,
+  .sync-actions .ghost-button {
+    flex: 1 1 180px;
+  }
+
   .two-column {
     grid-template-columns: 1fr;
   }
@@ -1192,6 +1248,12 @@ th {
     justify-content: center;
     min-width: 0;
     text-align: center;
+  }
+
+  .sync-actions,
+  .sync-actions .primary-button,
+  .sync-actions .ghost-button {
+    width: 100%;
   }
 
   .tabs {

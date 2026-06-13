@@ -27,6 +27,7 @@
       <button class="tab" data-tab="mobile" type="button">スマホ入力</button>
       <button class="tab" data-tab="analysis" type="button">成績分析</button>
       <button class="tab" data-tab="pitchers" type="button">相手投手</button>
+      <button class="tab" data-tab="sync" type="button">同期設定</button>
     </nav>
 
     <main>
@@ -914,10 +915,100 @@
         </div>
         <div id="pitcherCards" class="pitcher-panel"></div>
       </section>
+
+      <section class="tab-panel" id="syncPanel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Cloud Sync</p>
+            <h2>同期設定</h2>
+          </div>
+          <p class="muted">Supabaseにログインすると、MacとiPhoneのデータを自動同期できます。</p>
+        </div>
+
+        <div class="two-column align-start">
+          <section class="surface sync-status-card" id="syncStatusCard" aria-live="polite">
+            <div class="surface-header">
+              <h3>同期状態</h3>
+              <span class="status-badge" id="syncStatusBadge">未設定</span>
+            </div>
+            <p id="syncStatusTitle" class="sync-status-title">クラウド同期はまだ設定されていません。</p>
+            <p id="syncStatusDetail" class="muted">まずSupabaseのURL、anon / publishable key、メールアドレスを入力してください。</p>
+            <p id="syncLastSync" class="muted">最終同期：なし</p>
+            <div class="action-buttons sync-actions">
+              <button class="primary-button" id="syncNowButton" type="button">今すぐ同期</button>
+              <button class="ghost-button" id="syncPullButton" type="button">クラウドから読み込み</button>
+              <button class="ghost-button" id="syncPushButton" type="button">この端末をクラウドへ保存</button>
+            </div>
+          </section>
+
+          <section class="surface">
+            <h3>Supabase接続</h3>
+            <form id="syncConfigForm" class="form-grid">
+              <label>
+                Supabase URL
+                <input id="syncSupabaseUrl" name="supabaseUrl" type="url" placeholder="https://xxxx.supabase.co" autocomplete="off" />
+              </label>
+              <label>
+                anon / publishable key
+                <input id="syncAnonKey" name="anonKey" type="password" placeholder="Supabaseの公開キー" autocomplete="off" />
+              </label>
+              <label>
+                メールアドレス
+                <input id="syncEmail" name="email" type="email" placeholder="自分のメールアドレス" autocomplete="username" />
+              </label>
+              <label>
+                パスワード
+                <input id="syncPassword" name="password" type="password" placeholder="ログイン時だけ入力" autocomplete="current-password" />
+              </label>
+              <div class="form-actions">
+                <button class="ghost-button" id="syncSaveConfigButton" type="submit">設定を保存</button>
+                <button class="primary-button" id="syncSignInButton" type="button">ログイン</button>
+                <button class="ghost-button" id="syncSignUpButton" type="button">新規登録</button>
+                <button class="danger-button" id="syncSignOutButton" type="button">ログアウト</button>
+              </div>
+            </form>
+            <p class="muted">パスワードはこのアプリには保存しません。ログイン状態はブラウザに保存されます。</p>
+          </section>
+        </div>
+
+        <section class="surface">
+          <h3>Supabaseで最初に作るもの</h3>
+          <p class="muted">SupabaseのSQL Editorに下のSQLを貼り付けて実行してください。ログインした本人の行だけ読める設定です。</p>
+          <pre class="code-block"><code>create table if not exists public.kusayakyu_sync_data (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  profile_id text not null default 'default',
+  data jsonb not null default '{"games":[],"plateAppearances":[]}'::jsonb,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, profile_id)
+);
+
+alter table public.kusayakyu_sync_data enable row level security;
+
+drop policy if exists "Own sync rows can be selected" on public.kusayakyu_sync_data;
+create policy "Own sync rows can be selected"
+on public.kusayakyu_sync_data for select
+to authenticated
+using ((select auth.uid()) = user_id);
+
+drop policy if exists "Own sync rows can be inserted" on public.kusayakyu_sync_data;
+create policy "Own sync rows can be inserted"
+on public.kusayakyu_sync_data for insert
+to authenticated
+with check ((select auth.uid()) = user_id);
+
+drop policy if exists "Own sync rows can be updated" on public.kusayakyu_sync_data;
+create policy "Own sync rows can be updated"
+on public.kusayakyu_sync_data for update
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);</code></pre>
+        </section>
+      </section>
     </main>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./app.js"></script>
   </body>
 </html>
