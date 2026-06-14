@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="草野球ログ">
+  <rect width="512" height="512" rx="112" fill="#12735b"/>
+  <path d="M256 96c92 0 168 69 184 158-54-26-116-40-184-40s-130 14-184 40C88 165 164 96 256 96Z" fill="#e3f3ee"/>
+  <path d="M256 414 116 274c43-23 91-34 140-34s97 11 140 34L256 414Z" fill="#f39a13"/>
+  <path d="M256 414 116 274M256 414l140-140M156 314h200" fill="none" stroke="#ffffff" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="256" cy="176" r="52" fill="#ffffff"/>
+  <path d="M239 144c18 15 30 36 32 64M273 144c-18 15-30 36-32 64" fill="none" stroke="#d84032" stroke-width="11" stroke-linecap="round"/>
+</svg>

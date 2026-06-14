@@ -1,0 +1,32 @@
+{
+  "name": "草野球ログ",
+  "short_name": "草野球ログ",
+  "description": "自分専用の草野球記録アプリ",
+  "start_url": "./index.html#mobile",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f8f7",
+  "theme_color": "#12735b",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "スマホ入力",
+      "short_name": "入力",
+      "url": "./index.html#mobile",
+      "description": "試合後の打席を素早く入力"
+    },
+    {
+      "name": "成績分析",
+      "short_name": "成績",
+      "url": "./index.html#analysis",
+      "description": "打撃成績を確認"
+    }
+  ]
+}

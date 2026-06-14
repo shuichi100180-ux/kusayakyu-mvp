@@ -1,5 +1,6 @@
 const STORAGE_KEY = "kusayakyu-log-v1";
 const BACKUP_KEY = "kusayakyu-log-backups-v1";
+const ACTIVE_TAB_KEY = "kusayakyu-active-tab-v1";
 const SYNC_CONFIG_KEY = "kusayakyu-sync-config-v1";
 const SYNC_META_KEY = "kusayakyu-sync-meta-v1";
 const SYNC_TABLE = "kusayakyu_sync_data";
@@ -1843,9 +1844,40 @@ function syncMobileBattedBallFields() {
   });
 }
 
-function switchTab(name) {
-  els.tabs.forEach((tab) => tab.classList.toggle("is-active", tab.dataset.tab === name));
-  els.panels.forEach((panel) => panel.classList.toggle("is-active", panel.id === `${name}Panel`));
+function validTabName(name) {
+  return els.tabs.some((tab) => tab.dataset.tab === name) ? name : "";
+}
+
+function tabNameFromHash() {
+  return validTabName(window.location.hash.replace(/^#/, ""));
+}
+
+function savedTabName() {
+  try {
+    return validTabName(localStorage.getItem(ACTIVE_TAB_KEY) || "");
+  } catch {
+    return "";
+  }
+}
+
+function initialTabName() {
+  return tabNameFromHash() || savedTabName() || "home";
+}
+
+function switchTab(name, options = {}) {
+  const tabName = validTabName(name) || "home";
+  els.tabs.forEach((tab) => tab.classList.toggle("is-active", tab.dataset.tab === tabName));
+  els.panels.forEach((panel) => panel.classList.toggle("is-active", panel.id === `${tabName}Panel`));
+
+  if (options.persist === false) return;
+  try {
+    localStorage.setItem(ACTIVE_TAB_KEY, tabName);
+  } catch {
+    // 表示切り替え自体は続けます。
+  }
+  if (window.location.hash !== `#${tabName}`) {
+    history.replaceState(null, "", `#${tabName}`);
+  }
 }
 
 function gameFromForm(form, existingGame = null) {
@@ -2090,8 +2122,21 @@ async function initializeCloudSync() {
   }
 }
 
+function registerAppWorker() {
+  if (!("serviceWorker" in navigator)) return;
+  if (!window.isSecureContext && !["localhost", "127.0.0.1"].includes(window.location.hostname)) return;
+
+  navigator.serviceWorker.register("./sw.js").catch(() => {
+    // キャッシュ登録に失敗しても、記録アプリ本体はそのまま使えます。
+  });
+}
+
 els.tabs.forEach((tab) => {
   tab.addEventListener("click", () => switchTab(tab.dataset.tab));
+});
+
+window.addEventListener("hashchange", () => {
+  switchTab(initialTabName(), { persist: false });
 });
 
 $$("[data-jump-tab]").forEach((button) => {
@@ -2354,4 +2399,6 @@ els.importInput.addEventListener("change", (event) => {
 $("#gameDate").value = todayValue();
 syncBattedBallFields();
 render();
+switchTab(initialTabName(), { persist: false });
 initializeCloudSync();
+registerAppWorker();
