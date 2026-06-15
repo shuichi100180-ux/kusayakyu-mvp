@@ -394,6 +394,53 @@ main {
   padding: 16px 18px 18px;
 }
 
+.data-transfer-details {
+  margin: 18px 0 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.data-transfer-details summary {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  padding: 18px;
+}
+
+.data-transfer-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.data-transfer-toggle {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+  min-width: min(100%, 340px);
+}
+
+.data-transfer-toggle .when-open,
+.data-transfer-details[open] .data-transfer-toggle .when-closed {
+  display: none;
+}
+
+.data-transfer-details[open] .data-transfer-toggle .when-open {
+  display: inline;
+}
+
+.data-transfer-body {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 12px;
+  padding: 16px 18px 18px;
+}
+
+.data-transfer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .code-block {
   background: #f3f7f5;
   border: 1px solid var(--line);
@@ -1392,6 +1439,21 @@ th {
 
   .setup-details-body {
     padding: 14px;
+  }
+
+  .data-transfer-details summary,
+  .data-transfer-body {
+    padding: 14px;
+  }
+
+  .data-transfer-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .data-transfer-actions .ghost-button {
+    justify-content: center;
+    width: 100%;
   }
 
   .section-heading {

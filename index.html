@@ -19,13 +19,6 @@
         <p class="eyebrow">自分専用の試合記録</p>
         <h1>草野球ログ</h1>
       </div>
-      <div class="header-actions">
-        <button class="ghost-button" id="exportButton" type="button">データを書き出し</button>
-        <label class="ghost-button import-button">
-          データを読み込み
-          <input id="importInput" type="file" accept="application/json" />
-        </label>
-      </div>
     </header>
 
     <nav class="tabs" aria-label="画面切り替え">
@@ -1015,6 +1008,25 @@ with check ((select auth.uid()) = user_id);</code></pre>
           </div>
         </div>
       </section>
+
+      <details class="surface data-transfer-details">
+        <summary>
+          <span class="ghost-button data-transfer-toggle">
+            <span class="when-closed">データを書き出しとデータを読み込み</span>
+            <span class="when-open">閉じる</span>
+          </span>
+        </summary>
+        <div class="data-transfer-body">
+          <p class="muted">手動バックアップが必要な時だけ使います。普段の同期はSupabase側で行います。</p>
+          <div class="data-transfer-actions">
+            <button class="ghost-button" id="exportButton" type="button">データを書き出し</button>
+            <label class="ghost-button import-button">
+              データを読み込み
+              <input id="importInput" type="file" accept="application/json" />
+            </label>
+          </div>
+        </div>
+      </details>
     </main>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
