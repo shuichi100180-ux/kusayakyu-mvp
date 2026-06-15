@@ -1412,6 +1412,23 @@ th {
     flex-direction: column;
   }
 
+  .analysis-wide-wrap {
+    overflow-x: auto;
+  }
+
+  .analysis-wide-table {
+    min-width: 560px;
+  }
+
+  .pitcher-stats-table.analysis-wide-table {
+    min-width: 760px;
+  }
+
+  .analysis-wide-table th,
+  .analysis-wide-table td {
+    white-space: nowrap;
+  }
+
   .status-badge {
     width: fit-content;
   }
