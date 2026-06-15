@@ -103,11 +103,9 @@ const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 const els = {
   tabs: $$(".tab"),
   panels: $$(".tab-panel"),
-  summaryMetrics: $("#summaryMetrics"),
   analysisMetrics: $("#analysisMetrics"),
   battedDirectionChart: $("#battedDirectionChart"),
   battedDirectionSummary: $("#battedDirectionSummary"),
-  recordSummary: $("#recordSummary"),
   recentGames: $("#recentGames"),
   recentPlateAppearances: $("#recentPlateAppearances"),
   gameForm: $("#gameForm"),
@@ -971,6 +969,8 @@ function renderMetrics(target, stats) {
     metric("打率", formatRate(withRateValues.avg), `${stats.ab}打数 / ${stats.h}安打`),
     metric("本塁打", formatNumber(stats.hr), "通算"),
     metric("打点", formatNumber(stats.rbi), "通算"),
+    metric("四球", formatNumber(stats.bb), "通算"),
+    metric("死球", formatNumber(stats.hbp), "通算"),
     metric("得点", formatNumber(stats.runs), "通算"),
     metric("盗塁数", formatNumber(stats.steals), `${stats.stealAttempts}企図`),
     metric("盗塁成功率", formatPercent(withRateValues.stealRate), `${stats.steals}成功 / ${stats.stealAttempts}企図`),
@@ -1522,11 +1522,6 @@ function renderPitcherCards() {
 }
 
 function renderHome() {
-  const stats = calculateStats(state.plateAppearances);
-  renderMetrics(els.summaryMetrics, stats);
-  els.recordSummary.textContent = state.games.length
-    ? `${state.games.length}試合、${state.plateAppearances.length}打席を記録中`
-    : "まだ記録がありません。";
   renderRecentGames();
   renderRecentPlateAppearances();
 }
