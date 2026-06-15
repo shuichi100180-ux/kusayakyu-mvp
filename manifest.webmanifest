@@ -23,7 +23,7 @@
       "description": "試合後の打席を素早く入力"
     },
     {
-      "name": "成績分析",
+      "name": "個人成績",
       "short_name": "成績",
       "url": "./index.html#analysis",
       "description": "打撃成績を確認"
