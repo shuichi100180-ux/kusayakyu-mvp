@@ -38,16 +38,6 @@
     </nav>
 
     <main>
-      <section class="save-status" id="saveStatusIndicator" aria-live="polite">
-        <div class="save-message">
-          <span class="status-badge" id="saveStatusBadge">確認中</span>
-          <div>
-            <strong id="saveStatusTitle">保存状態を確認しています</strong>
-            <p id="saveStatusDetail">保存ボタンを押すと、ここに結果が表示されます。</p>
-          </div>
-        </div>
-      </section>
-
       <section class="tab-panel is-active" id="homePanel">
         <div class="section-heading">
           <div>
@@ -971,10 +961,20 @@
           </section>
         </div>
 
-        <section class="surface">
-          <h3>Supabaseで最初に作るもの</h3>
-          <p class="muted">SupabaseのSQL Editorに下のSQLを貼り付けて実行してください。ログインした本人の行だけ読める設定です。</p>
-          <pre class="code-block"><code>create table if not exists public.kusayakyu_sync_data (
+        <details class="surface setup-details">
+          <summary>
+            <span class="setup-summary-main">
+              <span class="eyebrow">Initial setup</span>
+              <strong>Supabaseで最初に作るもの</strong>
+            </span>
+            <span class="ghost-button compact-button setup-summary-button">
+              <span class="when-closed">表示する</span>
+              <span class="when-open">閉じる</span>
+            </span>
+          </summary>
+          <div class="setup-details-body">
+            <p class="muted">SupabaseのSQL Editorに下のSQLを貼り付けて実行してください。ログインした本人の行だけ読める設定です。</p>
+            <pre class="code-block"><code>create table if not exists public.kusayakyu_sync_data (
   user_id uuid not null references auth.users(id) on delete cascade,
   profile_id text not null default 'default',
   data jsonb not null default '{"games":[],"plateAppearances":[]}'::jsonb,
@@ -1002,7 +1002,8 @@ on public.kusayakyu_sync_data for update
 to authenticated
 using ((select auth.uid()) = user_id)
 with check ((select auth.uid()) = user_id);</code></pre>
-        </section>
+          </div>
+        </details>
       </section>
 
       <section class="surface backup-footer" aria-label="バックアップ">
@@ -1011,6 +1012,16 @@ with check ((select auth.uid()) = user_id);</code></pre>
           <div class="backup-buttons">
             <button class="ghost-button compact-button" id="backupExportButton" type="button">最新バックアップを書き出し</button>
             <button class="ghost-button compact-button" id="restoreBackupButton" type="button">最新バックアップを復元</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="save-status" id="saveStatusIndicator" aria-live="polite">
+        <div class="save-message">
+          <span class="status-badge" id="saveStatusBadge">確認中</span>
+          <div>
+            <strong id="saveStatusTitle">保存状態を確認しています</strong>
+            <p id="saveStatusDetail">保存ボタンを押すと、ここに結果が表示されます。</p>
           </div>
         </div>
       </section>

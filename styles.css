@@ -229,7 +229,7 @@ main {
   border: 1px solid var(--line);
   border-radius: 8px;
   box-shadow: var(--shadow);
-  margin: 0 0 18px;
+  margin: 18px 0 0;
   padding: 14px;
 }
 
@@ -343,6 +343,55 @@ main {
 
 .sync-actions {
   flex-wrap: wrap;
+}
+
+.setup-details {
+  overflow: hidden;
+  padding: 0;
+}
+
+.setup-details summary {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  list-style: none;
+  padding: 18px;
+}
+
+.setup-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.setup-summary-main {
+  display: grid;
+  gap: 2px;
+}
+
+.setup-summary-main strong {
+  font-size: 18px;
+}
+
+.setup-summary-button {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  justify-content: center;
+}
+
+.setup-summary-button .when-open,
+.setup-details[open] .setup-summary-button .when-closed {
+  display: none;
+}
+
+.setup-details[open] .setup-summary-button .when-open {
+  display: inline;
+}
+
+.setup-details-body {
+  border-top: 1px solid var(--line);
+  padding: 16px 18px 18px;
 }
 
 .code-block {
@@ -1289,7 +1338,7 @@ th {
 
   .save-status {
     gap: 12px;
-    margin-bottom: 14px;
+    margin: 14px 0 0;
     padding: 12px;
   }
 
@@ -1310,6 +1359,21 @@ th {
 
   .backup-buttons .ghost-button {
     width: 100%;
+  }
+
+  .setup-details summary {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 14px;
+  }
+
+  .setup-summary-button {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .setup-details-body {
+    padding: 14px;
   }
 
   .section-heading {
