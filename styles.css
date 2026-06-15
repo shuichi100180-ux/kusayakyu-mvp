@@ -1057,6 +1057,14 @@ button:focus-visible {
   -webkit-overflow-scrolling: touch;
 }
 
+.analysis-wide-section {
+  grid-column: 1 / -1;
+}
+
+.analysis-wide-wrap {
+  overflow-x: visible;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -1065,6 +1073,16 @@ table {
 
 .pitcher-stats-table {
   min-width: 760px;
+}
+
+.analysis-wide-table {
+  min-width: 0;
+}
+
+.analysis-wide-table th,
+.analysis-wide-table td {
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 th,

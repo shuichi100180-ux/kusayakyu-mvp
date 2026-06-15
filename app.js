@@ -8,9 +8,9 @@ const SYNC_PROFILE_ID = "default";
 const MAX_BACKUPS = 10;
 
 const RESULT_DEFS = {
-  single: { label: "単打", atBat: true, hit: true, totalBases: 1, onBase: true },
-  double: { label: "二塁打", atBat: true, hit: true, totalBases: 2, onBase: true },
-  triple: { label: "三塁打", atBat: true, hit: true, totalBases: 3, onBase: true },
+  single: { label: "単打", atBat: true, hit: true, totalBases: 1, onBase: true, single: true },
+  double: { label: "二塁打", atBat: true, hit: true, totalBases: 2, onBase: true, double: true },
+  triple: { label: "三塁打", atBat: true, hit: true, totalBases: 3, onBase: true, triple: true },
   homer: { label: "本塁打", atBat: true, hit: true, totalBases: 4, onBase: true, homer: true },
   walk: { label: "四球", atBat: false, hit: false, totalBases: 0, onBase: true, walk: true },
   hbp: { label: "死球", atBat: false, hit: false, totalBases: 0, onBase: true, hbp: true },
@@ -19,7 +19,7 @@ const RESULT_DEFS = {
   flyout: { label: "フライアウト", atBat: true, hit: false, totalBases: 0, onBase: false },
   lineout: { label: "ライナーアウト", atBat: true, hit: false, totalBases: 0, onBase: false },
   fielderChoice: { label: "野選", atBat: true, hit: false, totalBases: 0, onBase: false },
-  error: { label: "失策出塁", atBat: true, hit: false, totalBases: 0, onBase: false },
+  error: { label: "失策出塁", atBat: true, hit: false, totalBases: 0, onBase: false, error: true },
   sacFly: { label: "犠飛", atBat: false, hit: false, totalBases: 0, onBase: false, sacFly: true },
   sacBunt: { label: "犠打", atBat: false, hit: false, totalBases: 0, onBase: false, sacBunt: true },
 };
@@ -58,9 +58,13 @@ const emptyStats = () => ({
   pa: 0,
   ab: 0,
   h: 0,
+  singles: 0,
+  doubles: 0,
+  triples: 0,
   hr: 0,
   rbi: 0,
   runs: 0,
+  errorsReached: 0,
   steals: 0,
   stealAttempts: 0,
   bb: 0,
@@ -815,7 +819,11 @@ function addPlateAppearanceToStats(stats, pa) {
 
   if (def.atBat) stats.ab += 1;
   if (def.hit) stats.h += 1;
+  if (def.single) stats.singles += 1;
+  if (def.double) stats.doubles += 1;
+  if (def.triple) stats.triples += 1;
   if (def.homer) stats.hr += 1;
+  if (def.error) stats.errorsReached += 1;
   if (def.walk) stats.bb += 1;
   if (def.hbp) stats.hbp += 1;
   if (def.sacFly) stats.sf += 1;
@@ -969,18 +977,21 @@ function renderMetrics(target, stats) {
     metric("打率", formatRate(withRateValues.avg), `${stats.ab}打数 / ${stats.h}安打`),
     metric("本塁打", formatNumber(stats.hr), "通算"),
     metric("打点", formatNumber(stats.rbi), "通算"),
+    metric("得点", formatNumber(stats.runs), "通算"),
     metric("四球", formatNumber(stats.bb), "通算"),
     metric("死球", formatNumber(stats.hbp), "通算"),
-    metric("得点", formatNumber(stats.runs), "通算"),
     metric("盗塁数", formatNumber(stats.steals), `${stats.stealAttempts}企図`),
     metric("盗塁成功率", formatPercent(withRateValues.stealRate), `${stats.steals}成功 / ${stats.stealAttempts}企図`),
     metric("出塁率", formatRate(withRateValues.obp), `${stats.bb}四球・${stats.hbp}死球`),
     metric("長打率", formatRate(withRateValues.slg), `${stats.tb}塁打`),
-    metric("得点圏打率", formatRate(withRateValues.rispAvg), `${stats.rispH}安打 / ${stats.rispAb}打数`),
     metric("OPS", formatRate(withRateValues.ops), "出塁率 + 長打率"),
-    metric("犠飛", formatNumber(stats.sf), "通算"),
+    metric("得点圏打率", formatRate(withRateValues.rispAvg), `${stats.rispH}安打 / ${stats.rispAb}打数`),
+    metric("単打", formatNumber(stats.singles), "通算"),
+    metric("二塁打", formatNumber(stats.doubles), "通算"),
+    metric("三塁打", formatNumber(stats.triples), "通算"),
+    metric("失策出塁", formatNumber(stats.errorsReached), "通算"),
     metric("犠打", formatNumber(stats.sh), "通算"),
-    metric("打席数", formatNumber(stats.pa), "記録済み"),
+    metric("犠飛", formatNumber(stats.sf), "通算"),
   ].join("");
 }
 
