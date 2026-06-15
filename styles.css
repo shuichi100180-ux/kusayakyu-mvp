@@ -740,6 +740,29 @@ main {
   gap: 13px;
 }
 
+.sync-supabase-details {
+  display: grid;
+  gap: 12px;
+}
+
+.sync-supabase-details summary {
+  align-items: center;
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  list-style: none;
+  width: fit-content;
+}
+
+.sync-supabase-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.sync-supabase-fields {
+  display: grid;
+  gap: 13px;
+}
+
 .mobile-entry-panel {
   padding-bottom: 92px;
 }

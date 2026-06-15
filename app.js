@@ -86,7 +86,7 @@ let syncNotice = {
   type: "info",
   badge: "未設定",
   title: "クラウド同期はまだ設定されていません",
-  detail: "SupabaseのURL、anon / publishable key、メールアドレスを入力してください。",
+  detail: "メールアドレスと、Supabaseボタン内のURL・公開キーを入力してください。",
 };
 let state = loadState();
 let syncConfig = loadSyncConfig();
@@ -1581,7 +1581,7 @@ function renderSyncStatus() {
       type: "info",
       badge: "未設定",
       title: "クラウド同期はまだ設定されていません",
-      detail: "SupabaseのURL、anon / publishable key、メールアドレスを入力してください。",
+      detail: "メールアドレスと、Supabaseボタン内のURL・公開キーを入力してください。",
     };
   } else if (!libraryReady) {
     notice = {

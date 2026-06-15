@@ -26,7 +26,7 @@
       <button class="tab" data-tab="analysis" type="button">個人成績</button>
       <button class="tab" data-tab="pitchers" type="button">投手データ</button>
       <button class="tab" data-tab="mobile" type="button">スマホ入力</button>
-      <button class="tab" data-tab="entry" type="button">試合打席入力</button>
+      <button class="tab" data-tab="entry" type="button">PC・修正用</button>
       <button class="tab" data-tab="sync" type="button">同期設定</button>
     </nav>
 
@@ -918,14 +918,6 @@
             <h3>Supabase接続</h3>
             <form id="syncConfigForm" class="form-grid">
               <label>
-                Supabase URL
-                <input id="syncSupabaseUrl" name="supabaseUrl" type="url" placeholder="https://xxxx.supabase.co" autocomplete="off" />
-              </label>
-              <label>
-                anon / publishable key
-                <input id="syncAnonKey" name="anonKey" type="password" placeholder="Supabaseの公開キー" autocomplete="off" />
-              </label>
-              <label>
                 メールアドレス
                 <input id="syncEmail" name="email" type="email" placeholder="自分のメールアドレス" autocomplete="username" />
               </label>
@@ -933,6 +925,19 @@
                 パスワード
                 <input id="syncPassword" name="password" type="password" placeholder="ログイン時だけ入力" autocomplete="current-password" />
               </label>
+              <details class="sync-supabase-details">
+                <summary class="ghost-button compact-button">Supabase</summary>
+                <div class="sync-supabase-fields">
+                  <label>
+                    Supabase URL
+                    <input id="syncSupabaseUrl" name="supabaseUrl" type="url" placeholder="https://xxxx.supabase.co" autocomplete="off" />
+                  </label>
+                  <label>
+                    anon / publishable key
+                    <input id="syncAnonKey" name="anonKey" type="password" placeholder="Supabaseの公開キー" autocomplete="off" />
+                  </label>
+                </div>
+              </details>
               <div class="form-actions">
                 <button class="ghost-button" id="syncSaveConfigButton" type="submit">設定を保存</button>
                 <button class="primary-button" id="syncSignInButton" type="button">ログイン</button>
