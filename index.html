@@ -46,13 +46,6 @@
             <p id="saveStatusDetail">保存ボタンを押すと、ここに結果が表示されます。</p>
           </div>
         </div>
-        <div class="backup-panel">
-          <p id="backupStatusText">自動バックアップは保存時に作成されます。</p>
-          <div class="backup-buttons">
-            <button class="ghost-button compact-button" id="backupExportButton" type="button">最新バックアップを書き出し</button>
-            <button class="ghost-button compact-button" id="restoreBackupButton" type="button">最新バックアップを復元</button>
-          </div>
-        </div>
       </section>
 
       <section class="tab-panel is-active" id="homePanel">
@@ -1010,6 +1003,16 @@ to authenticated
 using ((select auth.uid()) = user_id)
 with check ((select auth.uid()) = user_id);</code></pre>
         </section>
+      </section>
+
+      <section class="surface backup-footer" aria-label="バックアップ">
+        <div class="backup-panel">
+          <p id="backupStatusText">自動バックアップは保存時に作成されます。</p>
+          <div class="backup-buttons">
+            <button class="ghost-button compact-button" id="backupExportButton" type="button">最新バックアップを書き出し</button>
+            <button class="ghost-button compact-button" id="restoreBackupButton" type="button">最新バックアップを復元</button>
+          </div>
+        </div>
       </section>
     </main>
 
