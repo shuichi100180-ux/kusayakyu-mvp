@@ -1294,7 +1294,7 @@ function renderMobilePitcherPresets() {
 }
 
 function renderRecentGames() {
-  const games = sortedGames().slice(0, 5);
+  const games = sortedGames();
 
   if (!games.length) {
     selectedMemoGameId = "";

@@ -997,6 +997,15 @@ button:focus-visible {
   gap: 10px;
 }
 
+.recent-games-scroll {
+  max-height: 440px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding-right: 4px;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+
 .list-item {
   border: 1px solid var(--line);
   border-radius: 8px;
