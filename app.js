@@ -165,7 +165,7 @@ const els = {
 };
 
 function loadState() {
-  const fallback = { games: [], plateAppearances: [] };
+  const fallback = { games: [], plateAppearances: [], pitcherStrategies: {} };
 
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -253,7 +253,24 @@ function normalizeState(value) {
   return {
     games: Array.isArray(value?.games) ? value.games : [],
     plateAppearances: Array.isArray(value?.plateAppearances) ? value.plateAppearances : [],
+    pitcherStrategies: normalizePitcherStrategies(value?.pitcherStrategies),
   };
+}
+
+function normalizePitcherStrategies(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+
+  return Object.fromEntries(Object.entries(value)
+    .map(([key, entry]) => {
+      const text = typeof entry === "string"
+        ? entry
+        : String(entry?.text || "");
+      const updatedAt = typeof entry === "object" && entry
+        ? String(entry.updatedAt || "")
+        : "";
+      return [key, { text, updatedAt }];
+    })
+    .filter(([key, entry]) => key && entry.text.trim()));
 }
 
 function readBackups() {
@@ -350,7 +367,19 @@ function mergeStates(localState, remoteState) {
   return normalizeState({
     games: mergeById(local.games, remote.games),
     plateAppearances: mergeById(local.plateAppearances, remote.plateAppearances),
+    pitcherStrategies: mergePitcherStrategies(local.pitcherStrategies, remote.pitcherStrategies),
   });
+}
+
+function mergePitcherStrategies(localStrategies, remoteStrategies) {
+  const merged = { ...localStrategies };
+  Object.entries(remoteStrategies).forEach(([key, remoteEntry]) => {
+    const localEntry = merged[key];
+    if (!localEntry || (remoteEntry.updatedAt || "") >= (localEntry.updatedAt || "")) {
+      merged[key] = remoteEntry;
+    }
+  });
+  return merged;
 }
 
 function updateSyncNotice(type, badge, title, detail) {
@@ -533,7 +562,13 @@ function scheduleCloudSync(reason) {
 }
 
 function commitState(nextState, successMessage, reason, options = {}) {
-  const result = persistState(nextState, reason);
+  const normalizedState = normalizeState({
+    ...nextState,
+    pitcherStrategies: Object.prototype.hasOwnProperty.call(nextState, "pitcherStrategies")
+      ? nextState.pitcherStrategies
+      : state.pitcherStrategies,
+  });
+  const result = persistState(normalizedState, reason);
 
   if (!result.ok) {
     saveNotice = {
@@ -547,7 +582,7 @@ function commitState(nextState, successMessage, reason, options = {}) {
     return false;
   }
 
-  state = nextState;
+  state = normalizedState;
 
   saveNotice = result.backupOk
     ? {
@@ -915,6 +950,47 @@ function pitcherName(pa) {
 
 function pitcherProfileKey(pa) {
   return [pitcherOpponent(pa), pitcherName(pa), pitcherNumber(pa)].join("||");
+}
+
+function pitcherStrategyText(key) {
+  return String(state.pitcherStrategies?.[key]?.text || "");
+}
+
+function pitcherStrategyKeyForForm(form) {
+  const pitcherNameValue = String(form?.elements?.pitcherName?.value || "").trim();
+  if (!pitcherNameValue) return "";
+
+  return pitcherProfileKey({
+    gameId: form.elements.gameId?.value || "",
+    pitcherName: pitcherNameValue,
+    pitcherNumber: String(form.elements.pitcherNumber?.value || "").trim(),
+  });
+}
+
+function syncPitcherStrategyField(form) {
+  if (!form?.elements?.pitcherStrategy) return;
+  const key = pitcherStrategyKeyForForm(form);
+  setFieldValue(form, "pitcherStrategy", key ? pitcherStrategyText(key) : "");
+}
+
+function withPitcherStrategy(nextState, pa, strategyValue) {
+  const normalizedState = normalizeState({
+    ...nextState,
+    pitcherStrategies: Object.prototype.hasOwnProperty.call(nextState, "pitcherStrategies")
+      ? nextState.pitcherStrategies
+      : state.pitcherStrategies,
+  });
+  const strategies = { ...normalizedState.pitcherStrategies };
+  const key = pitcherProfileKey(pa);
+  const text = String(strategyValue || "").trim();
+
+  if (text) {
+    strategies[key] = { text, updatedAt: new Date().toISOString() };
+  } else {
+    delete strategies[key];
+  }
+
+  return { ...normalizedState, pitcherStrategies: strategies };
 }
 
 function uniquePitcherValues(plateAppearances, valueGetter, fallback = "未入力", limit = 3) {
@@ -1485,6 +1561,7 @@ function renderPitcherCards() {
       <strong>${value}</strong>
     </span>
   `).join("");
+  const strategy = pitcherStrategyText(selectedRow.key);
   const history = pitcherPas.map((pa) => {
     const game = getGame(pa.gameId);
     const resultLabel = labelForResult(pa.result);
@@ -1525,6 +1602,10 @@ function renderPitcherCards() {
       <div class="pitcher-history-stats" aria-label="${escapeHtml(selectedRow.pitcher)}との過去成績">
         ${pitcherStats}
       </div>
+      <section class="pitcher-strategy-note">
+        <strong>攻略法</strong>
+        <p>${strategy ? escapeHtml(strategy).replace(/\n/g, "<br>") : "未入力"}</p>
+      </section>
       <div class="list-stack">
         ${history || `<div class="empty">この投手との打席はまだありません。</div>`}
       </div>
@@ -1660,6 +1741,7 @@ function fillMobilePitcherFromPa(pa) {
   setFieldValue(els.mobilePaForm, "breakingBall1", breakingBalls[0] || "");
   setFieldValue(els.mobilePaForm, "breakingBall2", breakingBalls[1] || "");
   setFieldValue(els.mobilePaForm, "breakingBall3", breakingBalls[2] || "");
+  syncPitcherStrategyField(els.mobilePaForm);
 }
 
 function resetMobilePlateAppearanceForm(options = {}) {
@@ -1677,6 +1759,7 @@ function resetMobilePlateAppearanceForm(options = {}) {
         breakingBall1: els.mobilePaForm.elements.breakingBall1.value,
         breakingBall2: els.mobilePaForm.elements.breakingBall2.value,
         breakingBall3: els.mobilePaForm.elements.breakingBall3.value,
+        pitcherStrategy: els.mobilePaForm.elements.pitcherStrategy.value,
       }
     : null;
 
@@ -1756,6 +1839,7 @@ function fillPlateAppearanceForm(pa) {
   setFieldValue(els.paForm, "stolenBase", pa.stolenBase || "なし");
   setFieldValue(els.paForm, "runScored", pa.runScored ?? 0);
   setFieldValue(els.paForm, "memo", pa.memo || "");
+  setFieldValue(els.paForm, "pitcherStrategy", pitcherStrategyText(pitcherProfileKey(pa)));
   syncBattedBallFields();
 }
 
@@ -2137,6 +2221,16 @@ function registerAppWorker() {
   });
 }
 
+function bindPitcherStrategyLookup(form) {
+  ["gameId", "pitcherName", "pitcherNumber"].forEach((name) => {
+    const field = form?.elements?.[name];
+    field?.addEventListener("change", () => syncPitcherStrategyField(form));
+    if (name !== "gameId") {
+      field?.addEventListener("input", () => syncPitcherStrategyField(form));
+    }
+  });
+}
+
 els.tabs.forEach((tab) => {
   tab.addEventListener("click", () => switchTab(tab.dataset.tab));
 });
@@ -2171,10 +2265,13 @@ els.mobilePaForm.addEventListener("invalid", () => {
 }, true);
 
 els.paForm.elements.result.addEventListener("change", syncBattedBallFields);
+bindPitcherStrategyLookup(els.paForm);
+bindPitcherStrategyLookup(els.mobilePaForm);
 
 els.mobileGameSelect.addEventListener("change", () => {
   setMobileChoice("plateAppearance", nextPlateAppearanceForGame(els.mobileGameSelect.value));
   renderMobileGameSummary();
+  syncPitcherStrategyField(els.mobilePaForm);
 });
 
 els.mobilePaForm.addEventListener("click", (event) => {
@@ -2248,7 +2345,7 @@ els.paForm.addEventListener("submit", (event) => {
 
   const pa = plateAppearanceFromForm(event.currentTarget, existingPa);
   selectedEntryGameId = pa.gameId;
-  const nextState = existingPa
+  const plateAppearanceState = existingPa
     ? {
         games: [...state.games],
         plateAppearances: state.plateAppearances.map((item) => item.id === editingPaId ? pa : item),
@@ -2257,6 +2354,11 @@ els.paForm.addEventListener("submit", (event) => {
         games: [...state.games],
         plateAppearances: [...state.plateAppearances, pa],
       };
+  const nextState = withPitcherStrategy(
+    plateAppearanceState,
+    pa,
+    event.currentTarget.elements.pitcherStrategy.value,
+  );
 
   if (commitState(nextState, existingPa ? "打席を更新しました" : "打席を保存しました", existingPa ? "打席更新" : "打席保存")) {
     editingPaId = "";
@@ -2291,10 +2393,14 @@ els.mobilePaForm.addEventListener("submit", (event) => {
   selectedEntryGameId = pa.gameId;
   selectedPitcherKey = pitcherProfileKey(pa);
 
-  const nextState = {
-    games: [...state.games],
-    plateAppearances: [...state.plateAppearances, pa],
-  };
+  const nextState = withPitcherStrategy(
+    {
+      games: [...state.games],
+      plateAppearances: [...state.plateAppearances, pa],
+    },
+    pa,
+    form.elements.pitcherStrategy.value,
+  );
 
   if (commitState(nextState, "スマホ入力で打席を保存しました", "スマホ打席保存")) {
     resetMobilePlateAppearanceForm({ gameId: pa.gameId, previousPa: pa });

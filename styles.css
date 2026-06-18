@@ -1302,6 +1302,22 @@ th {
   line-height: 1.1;
 }
 
+.pitcher-strategy-note {
+  background: #f7faf9;
+  border-left: 4px solid var(--accent);
+  margin-bottom: 12px;
+  padding: 12px 14px;
+}
+
+.pitcher-strategy-note strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.pitcher-strategy-note p {
+  margin: 0;
+}
+
 .pitcher-history .list-item p {
   margin: 8px 0 0;
 }
