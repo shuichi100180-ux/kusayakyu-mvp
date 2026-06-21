@@ -54,6 +54,11 @@ const COURSE_GRID = [
   "内角低め",
 ];
 
+const MOBILE_RUNNER_OPTIONS = {
+  regular: ["ランナーなし", "1塁"],
+  risp: ["2塁", "3塁", "1・2塁", "1・3塁", "2・3塁", "満塁"],
+};
+
 const emptyStats = () => ({
   pa: 0,
   ab: 0,
@@ -1230,6 +1235,18 @@ function syncMobileChoiceButtons() {
     .forEach(updateMobileChoiceButtons);
 }
 
+function syncMobileRunnerOptions() {
+  if (!els.mobilePaForm) return;
+  const runners = els.mobilePaForm.elements.runners;
+  const currentValue = runners.value;
+  const options = els.mobilePaForm.elements.risp.checked
+    ? MOBILE_RUNNER_OPTIONS.risp
+    : MOBILE_RUNNER_OPTIONS.regular;
+
+  runners.innerHTML = options.map((value) => `<option>${escapeHtml(value)}</option>`).join("");
+  runners.value = options.includes(currentValue) ? currentValue : options[0];
+}
+
 function renderMobileGameSummary() {
   if (!els.mobileGameSummary || !els.mobileGameSelect) return;
   const game = getGame(els.mobileGameSelect.value);
@@ -1275,6 +1292,7 @@ function renderMobileGameSelect() {
   }
   renderMobileGameSummary();
   syncMobileChoiceButtons();
+  syncMobileRunnerOptions();
   syncMobileBattedBallFields();
 }
 
@@ -1816,6 +1834,7 @@ function resetMobilePlateAppearanceForm(options = {}) {
 
   renderMobileGameSummary();
   syncMobileChoiceButtons();
+  syncMobileRunnerOptions();
   syncMobileBattedBallFields();
 }
 
@@ -2301,6 +2320,7 @@ els.mobilePaForm.addEventListener("invalid", () => {
 }, true);
 
 els.paForm.elements.result.addEventListener("change", syncBattedBallFields);
+els.mobilePaForm.elements.risp.addEventListener("change", syncMobileRunnerOptions);
 bindPitcherStrategyLookup(els.paForm);
 bindPitcherStrategyLookup(els.mobilePaForm);
 

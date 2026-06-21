@@ -518,6 +518,29 @@
               <button data-choice-name="result" data-choice-value="sacBunt" type="button">犠打</button>
             </div>
 
+            <label class="checkbox-line mobile-checkbox">
+              <input name="risp" type="checkbox" />
+              得点圏での打席
+            </label>
+            <div class="mobile-two-grid">
+              <label>
+                ランナー
+                <select name="runners">
+                  <option>ランナーなし</option>
+                  <option>1塁</option>
+                </select>
+              </label>
+              <label>
+                サイン
+                <select name="sign">
+                  <option>なし</option>
+                  <option>バント</option>
+                  <option>エンドラン</option>
+                  <option>スクイズ</option>
+                </select>
+              </label>
+            </div>
+
             <div class="mobile-two-grid">
               <label>
                 打点
@@ -706,35 +729,6 @@
               <button data-choice-name="course" data-choice-value="ボール球" type="button">ボール球</button>
               <button data-choice-name="course" data-choice-value="不明" type="button">不明</button>
             </div>
-
-            <div class="mobile-two-grid">
-              <label>
-                ランナー
-                <select name="runners">
-                  <option>ランナーなし</option>
-                  <option>1塁</option>
-                  <option>2塁</option>
-                  <option>3塁</option>
-                  <option>1・2塁</option>
-                  <option>1・3塁</option>
-                  <option>2・3塁</option>
-                  <option>満塁</option>
-                </select>
-              </label>
-              <label>
-                サイン
-                <select name="sign">
-                  <option>なし</option>
-                  <option>バント</option>
-                  <option>エンドラン</option>
-                  <option>スクイズ</option>
-                </select>
-              </label>
-            </div>
-            <label class="checkbox-line mobile-checkbox">
-              <input name="risp" type="checkbox" />
-              得点圏での打席
-            </label>
           </section>
 
           <section class="mobile-card" id="mobileBattedFields">
@@ -1063,6 +1057,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=25"></script>
+    <script src="./app.js?v=26"></script>
   </body>
 </html>
