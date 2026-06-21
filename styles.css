@@ -1484,7 +1484,9 @@ th {
     position: sticky;
     left: 0;
     z-index: 1;
-    min-width: 104px;
+    width: 176px;
+    min-width: 176px;
+    max-width: 176px;
     background: var(--surface);
     box-shadow: 1px 0 0 var(--line);
   }
