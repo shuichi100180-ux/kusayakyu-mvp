@@ -791,6 +791,19 @@ main {
   font-size: 18px;
 }
 
+.mobile-field-heading {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.mobile-field-separator {
+  border-top: 1px solid var(--line);
+  margin-top: 4px;
+  padding-top: 12px;
+}
+
 .mobile-card-header {
   display: flex;
   align-items: center;
