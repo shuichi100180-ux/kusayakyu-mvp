@@ -1277,11 +1277,21 @@ function renderMobileGameSelect() {
 }
 
 function renderMobilePitcherPresets() {
-  if (!els.mobilePitcherPresets) return;
-  const rows = groupPitcherStats(state.plateAppearances).slice(0, 6);
+  if (!els.mobilePitcherPresets || !els.mobileGameSelect) return;
+  const game = getGame(els.mobileGameSelect.value);
+  if (!game) {
+    els.mobilePitcherPresets.innerHTML = `<div class="mobile-empty-note">試合を選択してください</div>`;
+    return;
+  }
+
+  const opponent = String(game.opponent || "").trim();
+  const rows = groupPitcherStats(state.plateAppearances)
+    .filter((row) => String(row.opponent || "").trim() === opponent)
+    .slice(0, 6);
 
   if (!rows.length) {
-    els.mobilePitcherPresets.innerHTML = `<div class="mobile-empty-note">投手データなし</div>`;
+    const opponentLabel = opponent || "この対戦相手";
+    els.mobilePitcherPresets.innerHTML = `<div class="mobile-empty-note">${escapeHtml(opponentLabel)}の投手データなし</div>`;
     return;
   }
 
@@ -2271,6 +2281,7 @@ bindPitcherStrategyLookup(els.mobilePaForm);
 els.mobileGameSelect.addEventListener("change", () => {
   setMobileChoice("plateAppearance", nextPlateAppearanceForGame(els.mobileGameSelect.value));
   renderMobileGameSummary();
+  renderMobilePitcherPresets();
   syncPitcherStrategyField(els.mobilePaForm);
 });
 
