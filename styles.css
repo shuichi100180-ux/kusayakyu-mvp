@@ -1470,7 +1470,8 @@ th {
 
   .pitcher-stats-table.analysis-wide-table,
   .pitch-type-stats-table.analysis-wide-table,
-  .course-stats-table {
+  .course-stats-table,
+  .count-stats-table {
     border-collapse: separate;
     border-spacing: 0;
   }
@@ -1489,7 +1490,9 @@ th {
   .pitch-type-stats-table th:first-child,
   .pitch-type-stats-table td:first-child,
   .course-stats-table th:first-child,
-  .course-stats-table td:first-child {
+  .course-stats-table td:first-child,
+  .count-stats-table th:first-child,
+  .count-stats-table td:first-child {
     position: sticky;
     left: 0;
     z-index: 1;
@@ -1518,9 +1521,16 @@ th {
     max-width: 112px;
   }
 
+  .count-stats-table th:first-child,
+  .count-stats-table td:first-child {
+    width: 1%;
+    min-width: 72px;
+  }
+
   .pitcher-stats-table th:first-child,
   .pitch-type-stats-table th:first-child,
-  .course-stats-table th:first-child {
+  .course-stats-table th:first-child,
+  .count-stats-table th:first-child {
     z-index: 2;
   }
 
