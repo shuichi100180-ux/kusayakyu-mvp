@@ -1596,6 +1596,18 @@ th {
     grid-template-columns: 1fr;
   }
 
+  .mobile-context-card {
+    order: -3;
+  }
+
+  .mobile-pitcher-card {
+    order: -2;
+  }
+
+  .mobile-result-card {
+    order: -1;
+  }
+
   .memo-row {
     grid-template-columns: minmax(82px, 0.34fr) minmax(0, 1fr);
     column-gap: 10px;
