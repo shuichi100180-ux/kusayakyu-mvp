@@ -2293,6 +2293,10 @@ els.paForm.addEventListener("invalid", () => {
 }, true);
 
 els.mobilePaForm.addEventListener("invalid", () => {
+  const pitcherRegistration = els.mobilePaForm.querySelector(".mobile-pitcher-registration");
+  if (!els.mobilePaForm.elements.pitcherName.value && pitcherRegistration) {
+    pitcherRegistration.open = true;
+  }
   showValidationFailure("スマホ入力を保存できませんでした");
 }, true);
 

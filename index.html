@@ -545,102 +545,107 @@
           <section class="mobile-card mobile-pitcher-card">
             <h3>相手投手</h3>
             <div id="mobilePitcherPresets" class="mobile-pitcher-presets"></div>
-            <div class="mobile-two-grid">
-              <label>
-                投手名
-                <input name="pitcherName" type="text" placeholder="投手名" required />
-              </label>
-              <label>
-                背番号
-                <input name="pitcherNumber" type="text" inputmode="numeric" placeholder="例：18" />
-              </label>
-            </div>
-            <div class="mobile-two-grid">
-              <label>
-                左右
-                <select name="pitcherHand">
-                  <option value="">未選択</option>
-                  <option value="右">右</option>
-                  <option value="左">左</option>
-                  <option value="両">両</option>
-                </select>
-              </label>
-              <label>
-                フォーム
-                <select name="pitchingForm">
-                  <option value="">未選択</option>
-                  <option>オーバースロー</option>
-                  <option>スリークォーター</option>
-                  <option>サイドスロー</option>
-                  <option>アンダースロー</option>
-                </select>
-              </label>
-            </div>
-            <div class="mobile-two-grid">
-              <label>
-                ストレート球速
-                <select name="straightVelocity">
-                  <option value="">未選択</option>
-                  <option>100km</option>
-                  <option>110km</option>
-                  <option>120km</option>
-                </select>
-              </label>
-              <label>
-                変化球1
-                <select name="breakingBall1">
-                  <option value="">未選択</option>
-                  <option>ストレート</option>
-                  <option>ツーシーム</option>
-                  <option>カットボール</option>
-                  <option>スライダー</option>
-                  <option>カーブ</option>
-                  <option>スローボール</option>
-                  <option>フォーク</option>
-                  <option>チェンジアップ</option>
-                  <option>シンカー</option>
-                  <option>シュート</option>
-                  <option>不明</option>
-                </select>
-              </label>
-            </div>
-            <details class="mobile-details">
-              <summary>変化球を追加</summary>
-              <div class="mobile-two-grid">
-                <label>
-                  変化球2
-                  <select name="breakingBall2">
-                    <option value="">未選択</option>
-                    <option>ストレート</option>
-                    <option>ツーシーム</option>
-                    <option>カットボール</option>
-                    <option>スライダー</option>
-                    <option>カーブ</option>
-                    <option>スローボール</option>
-                    <option>フォーク</option>
-                    <option>チェンジアップ</option>
-                    <option>シンカー</option>
-                    <option>シュート</option>
-                    <option>不明</option>
-                  </select>
-                </label>
-                <label>
-                  変化球3
-                  <select name="breakingBall3">
-                    <option value="">未選択</option>
-                    <option>ストレート</option>
-                    <option>ツーシーム</option>
-                    <option>カットボール</option>
-                    <option>スライダー</option>
-                    <option>カーブ</option>
-                    <option>スローボール</option>
-                    <option>フォーク</option>
-                    <option>チェンジアップ</option>
-                    <option>シンカー</option>
-                    <option>シュート</option>
-                    <option>不明</option>
-                  </select>
-                </label>
+            <details class="mobile-pitcher-registration">
+              <summary class="ghost-button">投手登録</summary>
+              <div class="mobile-pitcher-registration-fields">
+                <div class="mobile-two-grid">
+                  <label>
+                    投手名
+                    <input name="pitcherName" type="text" placeholder="投手名" required />
+                  </label>
+                  <label>
+                    背番号
+                    <input name="pitcherNumber" type="text" inputmode="numeric" placeholder="例：18" />
+                  </label>
+                </div>
+                <div class="mobile-two-grid">
+                  <label>
+                    左右
+                    <select name="pitcherHand">
+                      <option value="">未選択</option>
+                      <option value="右">右</option>
+                      <option value="左">左</option>
+                      <option value="両">両</option>
+                    </select>
+                  </label>
+                  <label>
+                    フォーム
+                    <select name="pitchingForm">
+                      <option value="">未選択</option>
+                      <option>オーバースロー</option>
+                      <option>スリークォーター</option>
+                      <option>サイドスロー</option>
+                      <option>アンダースロー</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="mobile-two-grid">
+                  <label>
+                    ストレート球速
+                    <select name="straightVelocity">
+                      <option value="">未選択</option>
+                      <option>100km</option>
+                      <option>110km</option>
+                      <option>120km</option>
+                    </select>
+                  </label>
+                  <label>
+                    変化球1
+                    <select name="breakingBall1">
+                      <option value="">未選択</option>
+                      <option>ストレート</option>
+                      <option>ツーシーム</option>
+                      <option>カットボール</option>
+                      <option>スライダー</option>
+                      <option>カーブ</option>
+                      <option>スローボール</option>
+                      <option>フォーク</option>
+                      <option>チェンジアップ</option>
+                      <option>シンカー</option>
+                      <option>シュート</option>
+                      <option>不明</option>
+                    </select>
+                  </label>
+                </div>
+                <details class="mobile-details" open>
+                  <summary>変化球を追加</summary>
+                  <div class="mobile-two-grid">
+                    <label>
+                      変化球2
+                      <select name="breakingBall2">
+                        <option value="">未選択</option>
+                        <option>ストレート</option>
+                        <option>ツーシーム</option>
+                        <option>カットボール</option>
+                        <option>スライダー</option>
+                        <option>カーブ</option>
+                        <option>スローボール</option>
+                        <option>フォーク</option>
+                        <option>チェンジアップ</option>
+                        <option>シンカー</option>
+                        <option>シュート</option>
+                        <option>不明</option>
+                      </select>
+                    </label>
+                    <label>
+                      変化球3
+                      <select name="breakingBall3">
+                        <option value="">未選択</option>
+                        <option>ストレート</option>
+                        <option>ツーシーム</option>
+                        <option>カットボール</option>
+                        <option>スライダー</option>
+                        <option>カーブ</option>
+                        <option>スローボール</option>
+                        <option>フォーク</option>
+                        <option>チェンジアップ</option>
+                        <option>シンカー</option>
+                        <option>シュート</option>
+                        <option>不明</option>
+                      </select>
+                    </label>
+                  </div>
+                </details>
               </div>
             </details>
           </section>
@@ -1058,6 +1063,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=24"></script>
+    <script src="./app.js?v=25"></script>
   </body>
 </html>

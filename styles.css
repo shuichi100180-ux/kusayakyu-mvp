@@ -898,6 +898,34 @@ main {
   text-align: center;
 }
 
+.mobile-pitcher-registration {
+  display: grid;
+  gap: 12px;
+}
+
+.mobile-pitcher-registration > summary {
+  align-items: center;
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  list-style: none;
+  width: 100%;
+}
+
+.mobile-pitcher-registration > summary::-webkit-details-marker {
+  display: none;
+}
+
+.mobile-pitcher-registration[open] > summary {
+  border-color: rgba(18, 115, 91, 0.35);
+  background: var(--accent-soft);
+}
+
+.mobile-pitcher-registration-fields {
+  display: grid;
+  gap: 12px;
+}
+
 .mobile-details {
   border-top: 1px solid var(--line);
   padding-top: 4px;
