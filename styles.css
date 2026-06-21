@@ -1468,9 +1468,13 @@ th {
     min-width: 560px;
   }
 
-  .pitcher-stats-table.analysis-wide-table {
+  .pitcher-stats-table.analysis-wide-table,
+  .pitch-type-stats-table.analysis-wide-table {
     border-collapse: separate;
     border-spacing: 0;
+  }
+
+  .pitcher-stats-table.analysis-wide-table {
     min-width: 760px;
   }
 
@@ -1480,18 +1484,32 @@ th {
   }
 
   .pitcher-stats-table th:first-child,
-  .pitcher-stats-table td:first-child {
+  .pitcher-stats-table td:first-child,
+  .pitch-type-stats-table th:first-child,
+  .pitch-type-stats-table td:first-child {
     position: sticky;
     left: 0;
     z-index: 1;
-    width: 176px;
-    min-width: 176px;
-    max-width: 176px;
     background: var(--surface);
     box-shadow: 1px 0 0 var(--line);
   }
 
-  .pitcher-stats-table th:first-child {
+  .pitcher-stats-table th:first-child,
+  .pitcher-stats-table td:first-child {
+    width: 176px;
+    min-width: 176px;
+    max-width: 176px;
+  }
+
+  .pitch-type-stats-table th:first-child,
+  .pitch-type-stats-table td:first-child {
+    width: 144px;
+    min-width: 144px;
+    max-width: 144px;
+  }
+
+  .pitcher-stats-table th:first-child,
+  .pitch-type-stats-table th:first-child {
     z-index: 2;
   }
 
