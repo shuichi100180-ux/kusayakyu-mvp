@@ -901,6 +901,12 @@
           </div>
           <p class="muted">打席記録から投手ごとの対戦履歴をまとめます。</p>
         </div>
+        <div class="pitcher-opponent-filter">
+          <label>
+            対戦相手
+            <select id="pitcherOpponentFilter"></select>
+          </label>
+        </div>
         <div id="pitcherCards" class="pitcher-panel"></div>
       </section>
 
@@ -1052,6 +1058,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=21"></script>
+    <script src="./app.js?v=22"></script>
   </body>
 </html>

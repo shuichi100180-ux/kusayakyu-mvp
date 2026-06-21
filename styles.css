@@ -1225,6 +1225,11 @@ th {
   gap: 16px;
 }
 
+.pitcher-opponent-filter {
+  width: min(100%, 360px);
+  margin-bottom: 16px;
+}
+
 .pitcher-button-list {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

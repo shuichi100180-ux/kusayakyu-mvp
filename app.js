@@ -100,6 +100,7 @@ let editingPaId = "";
 let selectedMemoGameId = "";
 let selectedEntryGameId = "";
 let selectedPitcherKey = "";
+let selectedPitcherOpponent = "";
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
@@ -130,6 +131,7 @@ const els = {
   courseSupplementChart: $("#courseSupplementChart"),
   courseSupplementSummary: $("#courseSupplementSummary"),
   countStatsBody: $("#countStatsBody"),
+  pitcherOpponentFilter: $("#pitcherOpponentFilter"),
   pitcherCards: $("#pitcherCards"),
   toast: $("#toast"),
   exportButton: $("#exportButton"),
@@ -1524,14 +1526,30 @@ function renderAnalysis() {
 }
 
 function renderPitcherCards() {
-  const rows = groupPitcherStats(state.plateAppearances);
+  const allRows = groupPitcherStats(state.plateAppearances);
 
-  if (!rows.length) {
+  if (!allRows.length) {
     selectedPitcherKey = "";
+    selectedPitcherOpponent = "";
+    els.pitcherOpponentFilter.innerHTML = `<option value="">投手データなし</option>`;
+    els.pitcherOpponentFilter.disabled = true;
     els.pitcherCards.innerHTML = `<div class="empty">打席入力で相手投手を登録すると、ここに対戦履歴が出ます。</div>`;
     return;
   }
 
+  const opponents = [...new Set(allRows.map((row) => row.opponent))];
+  const keyedRow = allRows.find((row) => row.key === selectedPitcherKey);
+  if (!opponents.includes(selectedPitcherOpponent)) {
+    selectedPitcherOpponent = keyedRow?.opponent || allRows[0].opponent;
+  }
+
+  els.pitcherOpponentFilter.disabled = false;
+  els.pitcherOpponentFilter.innerHTML = opponents
+    .map((opponent) => `<option value="${escapeHtml(opponent)}">${escapeHtml(opponent)}</option>`)
+    .join("");
+  els.pitcherOpponentFilter.value = selectedPitcherOpponent;
+
+  const rows = allRows.filter((row) => row.opponent === selectedPitcherOpponent);
   const selectedRow = selectedPitcherRow(rows);
   const pitcherButtons = rows.map((row) => {
     const pitcherPas = row.plateAppearances;
@@ -2485,6 +2503,12 @@ els.pitcherCards.addEventListener("click", (event) => {
   if (!button) return;
 
   selectedPitcherKey = button.dataset.pitcherKey;
+  renderPitcherCards();
+});
+
+els.pitcherOpponentFilter.addEventListener("change", () => {
+  selectedPitcherOpponent = els.pitcherOpponentFilter.value;
+  selectedPitcherKey = "";
   renderPitcherCards();
 });
 
