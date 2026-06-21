@@ -1578,8 +1578,6 @@ function renderPitcherCards() {
   const pitcherRates = withRates(selectedRow.stats);
   const pitcherStats = [
     ["打率", formatRate(pitcherRates.avg)],
-    ["本塁打", formatNumber(selectedRow.hr)],
-    ["打点", formatNumber(selectedRow.rbi)],
     ["出塁率", formatRate(pitcherRates.obp)],
     ["長打率", formatRate(pitcherRates.slg)],
     ["OPS", formatRate(pitcherRates.ops)],
