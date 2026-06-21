@@ -1552,11 +1552,6 @@ function renderPitcherCards() {
   const rows = allRows.filter((row) => row.opponent === selectedPitcherOpponent);
   const selectedRow = selectedPitcherRow(rows);
   const pitcherButtons = rows.map((row) => {
-    const pitcherPas = row.plateAppearances;
-    const hand = uniquePitcherValues(pitcherPas, (pa) => [pa.pitcherHand]);
-    const form = uniquePitcherValues(pitcherPas, (pa) => [pa.pitchingForm]);
-    const velocity = uniquePitcherValues(pitcherPas, (pa) => [pa.straightVelocity]);
-    const breakingBalls = uniquePitcherValues(pitcherPas, pitcherBreakingBallsForPa, "未入力", 4);
     const selectedClass = row.key === selectedRow?.key ? " is-selected" : "";
     return `
       <button class="pitcher-summary-button${selectedClass}" data-pitcher-key="${escapeHtml(row.key)}" type="button" aria-pressed="${row.key === selectedRow?.key}">
@@ -1564,17 +1559,22 @@ function renderPitcherCards() {
           <h3>${escapeHtml(row.pitcher)}</h3>
           <span>${escapeHtml(row.opponent)} / 背番号 ${escapeHtml(row.number)}</span>
         </div>
-        <div class="pitcher-summary-meta">
-          <span>左右 ${escapeHtml(hand)}</span>
-          <span>フォーム ${escapeHtml(form)}</span>
-          <span>球速 ${escapeHtml(velocity)}</span>
-          <span>変化球 ${escapeHtml(breakingBalls)}</span>
-        </div>
       </button>
     `;
   }).join("");
 
   const pitcherPas = sortedPlateAppearances().filter((pa) => pitcherProfileKey(pa) === selectedRow.key);
+  const pitcherProfileItems = [
+    ["左右", uniquePitcherValues(pitcherPas, (pa) => [pa.pitcherHand])],
+    ["フォーム", uniquePitcherValues(pitcherPas, (pa) => [pa.pitchingForm])],
+    ["球速", uniquePitcherValues(pitcherPas, (pa) => [pa.straightVelocity])],
+    ["変化球", uniquePitcherValues(pitcherPas, pitcherBreakingBallsForPa, "未入力", 4)],
+  ].map(([label, value]) => `
+    <span class="pitcher-profile-item">
+      <small>${label}</small>
+      <strong>${escapeHtml(value)}</strong>
+    </span>
+  `).join("");
   const pitcherRates = withRates(selectedRow.stats);
   const pitcherStats = [
     ["打率", formatRate(pitcherRates.avg)],
@@ -1630,6 +1630,12 @@ function renderPitcherCards() {
       <div class="pitcher-history-stats" aria-label="${escapeHtml(selectedRow.pitcher)}との過去成績">
         ${pitcherStats}
       </div>
+      <section class="pitcher-profile-data" aria-label="投手データ">
+        <h4>投手データ</h4>
+        <div class="pitcher-profile-grid">
+          ${pitcherProfileItems}
+        </div>
+      </section>
       <section class="pitcher-strategy-note">
         <strong>攻略法</strong>
         <p>${strategy ? escapeHtml(strategy).replace(/\n/g, "<br>") : "未入力"}</p>
