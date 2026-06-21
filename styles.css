@@ -1469,12 +1469,28 @@ th {
   }
 
   .pitcher-stats-table.analysis-wide-table {
+    border-collapse: separate;
+    border-spacing: 0;
     min-width: 760px;
   }
 
   .analysis-wide-table th,
   .analysis-wide-table td {
     white-space: nowrap;
+  }
+
+  .pitcher-stats-table th:first-child,
+  .pitcher-stats-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    min-width: 104px;
+    background: var(--surface);
+    box-shadow: 1px 0 0 var(--line);
+  }
+
+  .pitcher-stats-table th:first-child {
+    z-index: 2;
   }
 
   .status-badge {
