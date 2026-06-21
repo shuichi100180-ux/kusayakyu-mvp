@@ -677,23 +677,6 @@
             <h3>勝負球</h3>
             <div class="mobile-two-grid">
               <label>
-                球種
-                <select name="pitchType">
-                  <option value="">未選択</option>
-                  <option>ストレート</option>
-                  <option>ツーシーム</option>
-                  <option>カットボール</option>
-                  <option>スライダー</option>
-                  <option>カーブ</option>
-                  <option>スローボール</option>
-                  <option>フォーク</option>
-                  <option>チェンジアップ</option>
-                  <option>シンカー</option>
-                  <option>シュート</option>
-                  <option>不明</option>
-                </select>
-              </label>
-              <label>
                 カウント
                 <select name="count">
                   <option value="">未選択</option>
@@ -709,6 +692,23 @@
                   <option>0S-3B</option>
                   <option>1S-3B</option>
                   <option>2S-3B</option>
+                </select>
+              </label>
+              <label>
+                球種
+                <select name="pitchType">
+                  <option value="">未選択</option>
+                  <option>ストレート</option>
+                  <option>ツーシーム</option>
+                  <option>カットボール</option>
+                  <option>スライダー</option>
+                  <option>カーブ</option>
+                  <option>スローボール</option>
+                  <option>フォーク</option>
+                  <option>チェンジアップ</option>
+                  <option>シンカー</option>
+                  <option>シュート</option>
+                  <option>不明</option>
                 </select>
               </label>
             </div>
@@ -1057,6 +1057,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=26"></script>
+    <script src="./app.js?v=27"></script>
   </body>
 </html>

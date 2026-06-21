@@ -24,6 +24,12 @@ const RESULT_DEFS = {
   sacBunt: { label: "犠打", atBat: false, hit: false, totalBases: 0, onBase: false, sacBunt: true },
 };
 
+const RESULT_BATTED_TYPE_DEFAULTS = {
+  groundout: "ゴロ",
+  flyout: "フライ",
+  lineout: "ライナー",
+};
+
 const BATTED_DIRECTION_MARKERS = [
   { key: "レフト方向", label: "レフト", x: 17, y: 31, type: "outfield" },
   { key: "センター方向", label: "センター", x: 50, y: 15, type: "outfield" },
@@ -1213,7 +1219,11 @@ function setMobileChoice(name, value) {
   const field = els.mobilePaForm.elements[name];
   if (field) field.value = value || "";
   updateMobileChoiceButtons(name);
-  if (name === "result") syncMobileBattedBallFields();
+  if (name === "result") {
+    const battedType = RESULT_BATTED_TYPE_DEFAULTS[value];
+    if (battedType) setMobileChoice("battedType", battedType);
+    syncMobileBattedBallFields();
+  }
 }
 
 function updateMobileChoiceButtons(name) {
