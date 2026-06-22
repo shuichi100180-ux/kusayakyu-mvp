@@ -663,6 +663,11 @@ main {
   font-weight: 700;
 }
 
+.pitch-outcome-column > .pitch-outcome-average {
+  color: var(--ink);
+  font-weight: 800;
+}
+
 .pitch-outcome-bar {
   display: flex;
   flex-direction: column;
@@ -691,7 +696,11 @@ main {
 
 .pitch-outcome-segment.is-hit,
 .pitch-outcome-legend i.is-hit {
-  background: #4b9f43;
+  background: #ffd8d5;
+}
+
+.pitch-outcome-segment.is-hit {
+  color: #7a1f1f;
 }
 
 .pitch-outcome-segment.is-out,
@@ -706,7 +715,7 @@ main {
 
 .pitch-outcome-segment.is-walk,
 .pitch-outcome-legend i.is-walk {
-  background: #7652c7;
+  background: #4b9f43;
 }
 
 .pitch-outcome-legend {

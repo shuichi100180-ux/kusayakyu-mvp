@@ -1025,6 +1025,7 @@ function renderPitchTypeOutcomeChart(plateAppearances) {
         </div>
         <strong>${escapeHtml(row.label)}</strong>
         <span>${row.pa}打席</span>
+        <span class="pitch-outcome-average">打率 ${formatRate(row.ab ? row.hit / row.ab : NaN)}</span>
       </div>
     `;
   }).join("");
