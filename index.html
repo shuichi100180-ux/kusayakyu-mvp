@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=33" />
+    <link rel="stylesheet" href="./styles.css?v=34" />
   </head>
   <body>
     <header class="app-header">
@@ -800,25 +800,42 @@
         </section>
 
         <div class="table-section">
-          <section class="surface analysis-wide-section">
-            <h3>球種別成績</h3>
-            <div class="table-wrap analysis-wide-wrap">
-              <table class="pitch-type-stats-table analysis-wide-table">
-                <thead>
-                  <tr>
-                    <th>球種</th>
-                    <th>打率</th>
-                    <th>OPS</th>
-                    <th>打数</th>
-                    <th>安打</th>
-                    <th>本塁打</th>
-                    <th>打点</th>
-                  </tr>
-                </thead>
-                <tbody id="pitchTypeStatsBody"></tbody>
-              </table>
+          <section class="surface analysis-wide-section pitch-type-main-section">
+            <div class="surface-header">
+              <h3>球種別成績メイン</h3>
+              <span id="pitchTypeOutcomeSummary" class="pill">0打席</span>
             </div>
+            <div id="pitchTypeOutcomeChart" class="pitch-outcome-chart"></div>
           </section>
+
+          <details class="surface analysis-wide-section pitch-type-sub-details">
+            <summary>
+              <h3>球種別成績サブ</h3>
+              <span class="ghost-button compact-button pitch-type-sub-toggle">
+                <span class="when-closed">表示する</span>
+                <span class="when-open">閉じる</span>
+              </span>
+            </summary>
+            <div class="pitch-type-sub-body">
+              <div class="table-wrap analysis-wide-wrap">
+                <table class="pitch-type-stats-table analysis-wide-table">
+                  <thead>
+                    <tr>
+                      <th>球種</th>
+                      <th>打率</th>
+                      <th>OPS</th>
+                      <th>打数</th>
+                      <th>安打</th>
+                      <th>本塁打</th>
+                      <th>打点</th>
+                      <th>四球</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pitchTypeStatsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </details>
 
           <section class="surface course-supplement-section">
             <div class="surface-header">
@@ -1065,6 +1082,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=30"></script>
+    <script src="./app.js?v=31"></script>
   </body>
 </html>

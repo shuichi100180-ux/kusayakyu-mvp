@@ -60,6 +60,13 @@ const COURSE_GRID = [
   "内角低め",
 ];
 
+const PITCH_OUTCOME_CATEGORIES = [
+  { key: "hit", label: "安打", className: "is-hit" },
+  { key: "out", label: "凡打", className: "is-out" },
+  { key: "strikeout", label: "三振", className: "is-strikeout" },
+  { key: "walk", label: "四球", className: "is-walk" },
+];
+
 const MOBILE_RUNNER_OPTIONS = {
   regular: ["ランナーなし", "1塁"],
   risp: ["2塁", "3塁", "1・2塁", "1・3塁", "2・3塁", "満塁"],
@@ -122,6 +129,8 @@ const els = {
   analysisMetrics: $("#analysisMetrics"),
   battedDirectionChart: $("#battedDirectionChart"),
   battedDirectionSummary: $("#battedDirectionSummary"),
+  pitchTypeOutcomeChart: $("#pitchTypeOutcomeChart"),
+  pitchTypeOutcomeSummary: $("#pitchTypeOutcomeSummary"),
   recentGames: $("#recentGames"),
   recentPlateAppearances: $("#recentPlateAppearances"),
   gameForm: $("#gameForm"),
@@ -949,6 +958,89 @@ function directionPercent(count, total) {
   return total ? `${((count / total) * 100).toFixed(1)}%` : "0.0%";
 }
 
+function pitchOutcomeCategory(pa) {
+  const def = resultDef(pa);
+  if (def.hit) return "hit";
+  if (def.walk) return "walk";
+  if (pa.result === "strikeout") return "strikeout";
+  return "out";
+}
+
+function pitchTypeOutcomeRows(plateAppearances) {
+  const groups = new Map();
+
+  plateAppearances.forEach((pa) => {
+    const label = pa.pitchType || "球種未選択";
+    const row = groups.get(label) || {
+      label,
+      pa: 0,
+      ab: 0,
+      hit: 0,
+      out: 0,
+      strikeout: 0,
+      walk: 0,
+    };
+    const def = resultDef(pa);
+    row.pa += 1;
+    if (def.atBat) row.ab += 1;
+    row[pitchOutcomeCategory(pa)] += 1;
+    groups.set(label, row);
+  });
+
+  return sortPitchTypeRows([...groups.values()]);
+}
+
+function renderPitchTypeOutcomeChart(plateAppearances) {
+  const rows = pitchTypeOutcomeRows(plateAppearances);
+  els.pitchTypeOutcomeSummary.textContent = `${plateAppearances.length}打席`;
+
+  if (!rows.length) {
+    els.pitchTypeOutcomeChart.innerHTML = `<div class="empty">勝負球の球種を入力すると、球種ごとの打席結果が表示されます。</div>`;
+    return;
+  }
+
+  const bars = rows.map((row) => {
+    const ariaResults = PITCH_OUTCOME_CATEGORIES
+      .map((category) => `${category.label} ${row[category.key]}打席`)
+      .join("、");
+    const segments = [...PITCH_OUTCOME_CATEGORIES].reverse().map((category) => {
+      const count = row[category.key];
+      if (!count) return "";
+      const percent = (count / row.pa) * 100;
+      const label = `${Math.round(percent)}%`;
+      return `
+        <span
+          class="pitch-outcome-segment ${category.className}"
+          style="--segment-size: ${percent}%"
+          title="${escapeHtml(`${category.label} ${count}打席（${label}）`)}"
+          aria-hidden="true"
+        >${percent >= 8 ? label : ""}</span>
+      `;
+    }).join("");
+
+    return `
+      <div class="pitch-outcome-column">
+        <div class="pitch-outcome-bar" role="img" aria-label="${escapeHtml(`${row.label}：${ariaResults}`)}">
+          ${segments}
+        </div>
+        <strong>${escapeHtml(row.label)}</strong>
+        <span>${row.pa}打席</span>
+      </div>
+    `;
+  }).join("");
+  const legend = PITCH_OUTCOME_CATEGORIES.map((category) => `
+    <span><i class="${category.className}" aria-hidden="true"></i>${category.label}</span>
+  `).join("");
+
+  els.pitchTypeOutcomeChart.innerHTML = `
+    <p class="pitch-outcome-title">勝負球（最後の球種）× 打席結果</p>
+    <div class="pitch-outcome-scroll">
+      <div class="pitch-outcome-bars">${bars}</div>
+    </div>
+    <div class="pitch-outcome-legend" aria-label="グラフの色分け">${legend}</div>
+  `;
+}
+
 function pitcherOpponent(pa) {
   return getGame(pa.gameId)?.opponent || "対戦相手未入力";
 }
@@ -1511,9 +1603,11 @@ function renderPlateAppearanceList() {
   }).join("");
 }
 
-function renderStatsTable(tbody, rows) {
+function renderStatsTable(tbody, rows, options = {}) {
+  const includeWalks = options.includeWalks === true;
+  const columnCount = includeWalks ? 8 : 7;
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="7">まだ集計できる打席がありません。</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="${columnCount}">まだ集計できる打席がありません。</td></tr>`;
     return;
   }
 
@@ -1526,6 +1620,7 @@ function renderStatsTable(tbody, rows) {
       <td>${row.h}</td>
       <td>${row.hr}</td>
       <td>${row.rbi}</td>
+      ${includeWalks ? `<td>${row.bb}</td>` : ""}
     </tr>
   `).join("");
 }
@@ -1555,6 +1650,7 @@ function renderAnalysis() {
   const stats = calculateStats(state.plateAppearances);
   renderMetrics(els.analysisMetrics, stats);
   renderBattedDirectionChart(state.plateAppearances);
+  renderPitchTypeOutcomeChart(state.plateAppearances);
   renderPitcherStatsTable(
     els.pitcherStatsBody,
     groupPitcherStats(state.plateAppearances),
@@ -1562,6 +1658,7 @@ function renderAnalysis() {
   renderStatsTable(
     els.pitchTypeStatsBody,
     sortPitchTypeRows(groupStats(state.plateAppearances, (pa) => pa.pitchType, "球種未選択")),
+    { includeWalks: true },
   );
   renderStatsTable(
     els.courseStatsBody,
