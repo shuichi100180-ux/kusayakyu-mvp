@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=32" />
+    <link rel="stylesheet" href="./styles.css?v=33" />
   </head>
   <body>
     <header class="app-header">
@@ -820,33 +820,41 @@
             </div>
           </section>
 
-          <section class="surface">
-            <h3>コース別成績</h3>
-            <div class="table-wrap">
-              <table class="course-stats-table">
-                <thead>
-                  <tr>
-                    <th>コース</th>
-                    <th>打率</th>
-                    <th>OPS</th>
-                    <th>打数</th>
-                    <th>安打</th>
-                    <th>本塁打</th>
-                    <th>打点</th>
-                  </tr>
-                </thead>
-                <tbody id="courseStatsBody"></tbody>
-              </table>
-            </div>
-          </section>
-
           <section class="surface course-supplement-section">
             <div class="surface-header">
-              <h3>コース別成績・補足</h3>
+              <h3>コース別成績メイン</h3>
               <span id="courseSupplementSummary" class="pill">0打数</span>
             </div>
             <div id="courseSupplementChart" class="course-supplement-chart"></div>
           </section>
+
+          <details class="surface course-sub-details">
+            <summary>
+              <h3>コース別成績サブ</h3>
+              <span class="ghost-button compact-button course-sub-toggle">
+                <span class="when-closed">表示する</span>
+                <span class="when-open">閉じる</span>
+              </span>
+            </summary>
+            <div class="course-sub-body">
+              <div class="table-wrap">
+                <table class="course-stats-table">
+                  <thead>
+                    <tr>
+                      <th>コース</th>
+                      <th>打率</th>
+                      <th>OPS</th>
+                      <th>打数</th>
+                      <th>安打</th>
+                      <th>本塁打</th>
+                      <th>打点</th>
+                    </tr>
+                  </thead>
+                  <tbody id="courseStatsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </details>
 
           <section class="surface">
             <h3>カウント別成績</h3>

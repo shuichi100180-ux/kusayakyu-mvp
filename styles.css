@@ -613,6 +613,50 @@ main {
   gap: 12px;
 }
 
+.course-sub-details {
+  overflow: hidden;
+  padding: 0;
+}
+
+.course-sub-details summary {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  list-style: none;
+  padding: 18px;
+}
+
+.course-sub-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.course-sub-details summary h3 {
+  margin: 0;
+}
+
+.course-sub-toggle {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  justify-content: center;
+}
+
+.course-sub-toggle .when-open,
+.course-sub-details[open] .course-sub-toggle .when-closed {
+  display: none;
+}
+
+.course-sub-details[open] .course-sub-toggle .when-open {
+  display: inline;
+}
+
+.course-sub-body {
+  border-top: 1px solid var(--line);
+  padding: 16px 18px 18px;
+}
+
 .course-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
