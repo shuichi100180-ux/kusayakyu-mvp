@@ -1333,12 +1333,31 @@ function renderMobilePitcherPresets() {
   `).join("");
 }
 
+function syncRecentGamesHeight() {
+  els.recentGames.style.removeProperty("max-height");
+
+  const isPhoneLayout = window.matchMedia("(max-width: 950px)").matches
+    || window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+  if (!isPhoneLayout) return;
+
+  const gameButtons = [...els.recentGames.querySelectorAll("[data-memo-game]")];
+  if (gameButtons.length < 4) return;
+
+  const buttonHeights = gameButtons.slice(0, 3).map((button) => button.offsetHeight);
+  if (buttonHeights.some((height) => height === 0)) return;
+
+  const gap = Number.parseFloat(window.getComputedStyle(els.recentGames).rowGap) || 0;
+  const threeGameHeight = buttonHeights.reduce((height, buttonHeight) => height + buttonHeight, gap * 2);
+  els.recentGames.style.maxHeight = `${Math.ceil(threeGameHeight)}px`;
+}
+
 function renderRecentGames() {
   const games = sortedGames();
 
   if (!games.length) {
     selectedMemoGameId = "";
     els.recentGames.innerHTML = `<div class="empty">まずは試合を1件登録しましょう。</div>`;
+    syncRecentGamesHeight();
     return;
   }
 
@@ -1363,6 +1382,8 @@ function renderRecentGames() {
       </button>
     `;
   }).join("");
+
+  syncRecentGamesHeight();
 }
 
 function renderRecentPlateAppearances() {
@@ -2020,6 +2041,10 @@ function switchTab(name, options = {}) {
   els.tabs.forEach((tab) => tab.classList.toggle("is-active", tab.dataset.tab === tabName));
   els.panels.forEach((panel) => panel.classList.toggle("is-active", panel.id === `${tabName}Panel`));
 
+  if (tabName === "home") {
+    window.requestAnimationFrame(syncRecentGamesHeight);
+  }
+
   if (options.persist === false) return;
   try {
     localStorage.setItem(ACTIVE_TAB_KEY, tabName);
@@ -2299,6 +2324,8 @@ els.tabs.forEach((tab) => {
 window.addEventListener("hashchange", () => {
   switchTab(initialTabName(), { persist: false });
 });
+
+window.addEventListener("resize", syncRecentGamesHeight);
 
 $$("[data-jump-tab]").forEach((button) => {
   button.addEventListener("click", () => switchTab(button.dataset.jumpTab));

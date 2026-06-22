@@ -1468,7 +1468,7 @@ th {
   }
 }
 
-@media (max-width: 950px) {
+@media (max-width: 950px), (hover: none) and (pointer: coarse) {
   .recent-games-scroll {
     max-height: 401px;
   }
