@@ -2304,6 +2304,17 @@ $$("[data-jump-tab]").forEach((button) => {
   button.addEventListener("click", () => switchTab(button.dataset.jumpTab));
 });
 
+$$("[data-edit-selected-game]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const game = selectedMemoGame();
+    if (!game) {
+      showToast("編集する試合がありません");
+      return;
+    }
+    startGameEdit(game.id);
+  });
+});
+
 els.recentGames.addEventListener("click", (event) => {
   const button = event.target.closest("[data-memo-game]");
   if (!button) return;

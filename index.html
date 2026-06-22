@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=29" />
   </head>
   <body>
     <header class="app-header">
@@ -36,7 +36,7 @@
           <section class="surface">
             <div class="surface-header">
               <h3>最近の試合</h3>
-              <button class="text-button" data-jump-tab="entry" type="button">入力へ</button>
+              <button class="text-button" data-edit-selected-game="recent" type="button">編集</button>
             </div>
             <div id="recentGames" class="list-stack recent-games-scroll"></div>
           </section>
@@ -44,7 +44,7 @@
           <section class="surface">
             <div class="surface-header">
               <h3>守備・走塁・試合メモ</h3>
-              <button class="text-button" data-jump-tab="entry" type="button">入力へ</button>
+              <button class="text-button" data-edit-selected-game="memo" type="button">編集</button>
             </div>
             <div id="recentPlateAppearances" class="list-stack"></div>
           </section>
@@ -1057,6 +1057,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=27"></script>
+    <script src="./app.js?v=29"></script>
   </body>
 </html>

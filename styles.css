@@ -1039,7 +1039,7 @@ button:focus-visible {
 }
 
 .recent-games-scroll {
-  max-height: 440px;
+  max-height: 658px;
   overflow-y: auto;
   overscroll-behavior-y: contain;
   padding-right: 4px;
@@ -1518,6 +1518,10 @@ th {
     gap: 12px;
     margin: 14px 0 0;
     padding: 12px;
+  }
+
+  .recent-games-scroll {
+    max-height: 401px;
   }
 
   .save-message {
