@@ -1468,6 +1468,12 @@ th {
   }
 }
 
+@media (max-width: 950px) {
+  .recent-games-scroll {
+    max-height: 401px;
+  }
+}
+
 @media (max-width: 620px) {
   .app-header,
   .tabs,
@@ -1518,10 +1524,6 @@ th {
     gap: 12px;
     margin: 14px 0 0;
     padding: 12px;
-  }
-
-  .recent-games-scroll {
-    max-height: 401px;
   }
 
   .save-message {
