@@ -705,7 +705,11 @@ main {
 
 .pitch-outcome-segment.is-out,
 .pitch-outcome-legend i.is-out {
-  background: #3f78c5;
+  background: #d9ecff;
+}
+
+.pitch-outcome-segment.is-out {
+  color: #174a73;
 }
 
 .pitch-outcome-segment.is-strikeout,
