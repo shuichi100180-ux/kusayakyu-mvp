@@ -714,12 +714,20 @@ main {
 
 .pitch-outcome-segment.is-strikeout,
 .pitch-outcome-legend i.is-strikeout {
-  background: #ef8728;
+  background: #ffe0c2;
+}
+
+.pitch-outcome-segment.is-strikeout {
+  color: #7a3b08;
 }
 
 .pitch-outcome-segment.is-walk,
 .pitch-outcome-legend i.is-walk {
-  background: #4b9f43;
+  background: #dff2db;
+}
+
+.pitch-outcome-segment.is-walk {
+  color: #255d24;
 }
 
 .pitch-outcome-legend {
