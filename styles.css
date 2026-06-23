@@ -798,7 +798,7 @@ main {
 }
 
 .count-heatmap-cell.is-good {
-  background: #4b9f43;
+  background: #ff6d5f;
   color: #ffffff;
 }
 
@@ -807,12 +807,13 @@ main {
 }
 
 .count-heatmap-cell.is-warning {
-  background: #ef8728;
+  background: #d9ecff;
+  color: #174a73;
 }
 
 .count-heatmap-cell.is-danger {
-  background: #ff6d5f;
-  color: #ffffff;
+  background: #d7dddc;
+  color: #17211f;
 }
 
 .count-heatmap-cell.is-empty {
@@ -849,7 +850,7 @@ main {
 }
 
 .count-heatmap-legend i.is-good {
-  background: #4b9f43;
+  background: #ff6d5f;
 }
 
 .count-heatmap-legend i.is-caution {
@@ -857,11 +858,11 @@ main {
 }
 
 .count-heatmap-legend i.is-warning {
-  background: #ef8728;
+  background: #d9ecff;
 }
 
 .count-heatmap-legend i.is-danger {
-  background: #ff6d5f;
+  background: #d7dddc;
 }
 
 .course-sub-details,
