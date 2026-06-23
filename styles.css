@@ -743,14 +743,137 @@ main {
   border-radius: 3px;
 }
 
+.count-heatmap-chart {
+  display: grid;
+  gap: 12px;
+}
+
+.count-heatmap-title {
+  margin: 0;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.count-heatmap-grid {
+  display: grid;
+  grid-template-columns: 56px repeat(3, minmax(72px, 1fr));
+  gap: 4px;
+  width: min(100%, 560px);
+}
+
+.count-heatmap-axis,
+.count-heatmap-corner,
+.count-heatmap-cell {
+  border-radius: 7px;
+}
+
+.count-heatmap-axis {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  background: #eef3f1;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.count-heatmap-strikes {
+  background: transparent;
+  min-height: 28px;
+}
+
+.count-heatmap-cell {
+  display: grid;
+  place-items: center;
+  min-height: 72px;
+  border: 1px solid rgba(24, 33, 31, 0.1);
+  color: #17211f;
+  text-align: center;
+}
+
+.count-heatmap-cell strong {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.count-heatmap-cell.is-good {
+  background: #4b9f43;
+  color: #ffffff;
+}
+
+.count-heatmap-cell.is-caution {
+  background: #fff1b8;
+}
+
+.count-heatmap-cell.is-warning {
+  background: #ef8728;
+}
+
+.count-heatmap-cell.is-danger {
+  background: #ff6d5f;
+  color: #ffffff;
+}
+
+.count-heatmap-cell.is-empty {
+  background: #eef3f1;
+  color: var(--muted);
+}
+
+.count-heatmap-footer {
+  display: grid;
+  gap: 8px;
+}
+
+.count-heatmap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.count-heatmap-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.count-heatmap-legend i {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 1px solid rgba(24, 33, 31, 0.14);
+  border-radius: 4px;
+}
+
+.count-heatmap-legend i.is-good {
+  background: #4b9f43;
+}
+
+.count-heatmap-legend i.is-caution {
+  background: #fff1b8;
+}
+
+.count-heatmap-legend i.is-warning {
+  background: #ef8728;
+}
+
+.count-heatmap-legend i.is-danger {
+  background: #ff6d5f;
+}
+
 .course-sub-details,
-.pitch-type-sub-details {
+.pitch-type-sub-details,
+.count-sub-details {
   overflow: hidden;
   padding: 0;
 }
 
 .course-sub-details summary,
-.pitch-type-sub-details summary {
+.pitch-type-sub-details summary,
+.count-sub-details summary {
   align-items: center;
   cursor: pointer;
   display: flex;
@@ -761,17 +884,20 @@ main {
 }
 
 .course-sub-details summary::-webkit-details-marker,
-.pitch-type-sub-details summary::-webkit-details-marker {
+.pitch-type-sub-details summary::-webkit-details-marker,
+.count-sub-details summary::-webkit-details-marker {
   display: none;
 }
 
 .course-sub-details summary h3,
-.pitch-type-sub-details summary h3 {
+.pitch-type-sub-details summary h3,
+.count-sub-details summary h3 {
   margin: 0;
 }
 
 .course-sub-toggle,
-.pitch-type-sub-toggle {
+.pitch-type-sub-toggle,
+.count-sub-toggle {
   align-items: center;
   display: inline-flex;
   flex: 0 0 auto;
@@ -781,17 +907,21 @@ main {
 .course-sub-toggle .when-open,
 .course-sub-details[open] .course-sub-toggle .when-closed,
 .pitch-type-sub-toggle .when-open,
-.pitch-type-sub-details[open] .pitch-type-sub-toggle .when-closed {
+.pitch-type-sub-details[open] .pitch-type-sub-toggle .when-closed,
+.count-sub-toggle .when-open,
+.count-sub-details[open] .count-sub-toggle .when-closed {
   display: none;
 }
 
 .course-sub-details[open] .course-sub-toggle .when-open,
-.pitch-type-sub-details[open] .pitch-type-sub-toggle .when-open {
+.pitch-type-sub-details[open] .pitch-type-sub-toggle .when-open,
+.count-sub-details[open] .count-sub-toggle .when-open {
   display: inline;
 }
 
 .course-sub-body,
-.pitch-type-sub-body {
+.pitch-type-sub-body,
+.count-sub-body {
   border-top: 1px solid var(--line);
   padding: 16px 18px 18px;
 }
@@ -2017,5 +2147,27 @@ th {
 
   .course-cell strong {
     font-size: 20px;
+  }
+
+  .count-heatmap-grid {
+    grid-template-columns: 44px repeat(3, minmax(0, 1fr));
+    gap: 3px;
+  }
+
+  .count-heatmap-axis {
+    min-height: 38px;
+    font-size: 13px;
+  }
+
+  .count-heatmap-strikes {
+    min-height: 24px;
+  }
+
+  .count-heatmap-cell {
+    min-height: 62px;
+  }
+
+  .count-heatmap-cell strong {
+    font-size: 22px;
   }
 }

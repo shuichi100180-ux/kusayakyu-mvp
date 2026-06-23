@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=36" />
+    <link rel="stylesheet" href="./styles.css?v=37" />
   </head>
   <body>
     <header class="app-header">
@@ -873,25 +873,41 @@
             </div>
           </details>
 
-          <section class="surface">
-            <h3>カウント別成績</h3>
-            <div class="table-wrap">
-              <table class="count-stats-table">
-                <thead>
-                  <tr>
-                    <th>カウント</th>
-                    <th>打率</th>
-                    <th>OPS</th>
-                    <th>打数</th>
-                    <th>安打</th>
-                    <th>本塁打</th>
-                    <th>打点</th>
-                  </tr>
-                </thead>
-                <tbody id="countStatsBody"></tbody>
-              </table>
+          <section class="surface count-heatmap-section">
+            <div class="surface-header">
+              <h3>カウント別成績</h3>
+              <span id="countHeatmapSummary" class="pill">0打数</span>
             </div>
+            <div id="countHeatmapChart" class="count-heatmap-chart"></div>
           </section>
+
+          <details class="surface count-sub-details">
+            <summary>
+              <h3>カウント別成績サブ</h3>
+              <span class="ghost-button compact-button count-sub-toggle">
+                <span class="when-closed">表示する</span>
+                <span class="when-open">閉じる</span>
+              </span>
+            </summary>
+            <div class="count-sub-body">
+              <div class="table-wrap">
+                <table class="count-stats-table">
+                  <thead>
+                    <tr>
+                      <th>カウント</th>
+                      <th>打率</th>
+                      <th>OPS</th>
+                      <th>打数</th>
+                      <th>安打</th>
+                      <th>本塁打</th>
+                      <th>打点</th>
+                    </tr>
+                  </thead>
+                  <tbody id="countStatsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </details>
 
           <section class="surface analysis-wide-section">
             <h3>対投手別成績</h3>
@@ -1082,6 +1098,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=32"></script>
+    <script src="./app.js?v=33"></script>
   </body>
 </html>

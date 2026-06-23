@@ -67,6 +67,9 @@ const PITCH_OUTCOME_CATEGORIES = [
   { key: "walk", label: "四球", className: "is-walk" },
 ];
 
+const COUNT_HEATMAP_STRIKES = ["0S", "1S", "2S"];
+const COUNT_HEATMAP_BALLS = ["0B", "1B", "2B", "3B"];
+
 const MOBILE_RUNNER_OPTIONS = {
   regular: ["ランナーなし", "1塁"],
   risp: ["2塁", "3塁", "1・2塁", "1・3塁", "2・3塁", "満塁"],
@@ -150,6 +153,8 @@ const els = {
   courseStatsBody: $("#courseStatsBody"),
   courseSupplementChart: $("#courseSupplementChart"),
   courseSupplementSummary: $("#courseSupplementSummary"),
+  countHeatmapChart: $("#countHeatmapChart"),
+  countHeatmapSummary: $("#countHeatmapSummary"),
   countStatsBody: $("#countStatsBody"),
   pitcherOpponentFilter: $("#pitcherOpponentFilter"),
   pitcherCards: $("#pitcherCards"),
@@ -1294,6 +1299,108 @@ function renderCourseSupplement(plateAppearances) {
   `;
 }
 
+function countHeatmapParts(value) {
+  const label = normalizeCountLabel(value);
+  const match = label.match(/^([0-2])S-([0-3])B$/);
+  if (!match) return null;
+
+  return {
+    label,
+    strikes: `${match[1]}S`,
+    balls: `${match[2]}B`,
+  };
+}
+
+function countHeatmapStats(plateAppearances) {
+  const cells = Object.fromEntries(COUNT_HEATMAP_BALLS.map((balls) => [
+    balls,
+    Object.fromEntries(COUNT_HEATMAP_STRIKES.map((strikes) => [
+      strikes,
+      { ab: 0, h: 0 },
+    ])),
+  ]));
+  let totalAb = 0;
+  let skippedAb = 0;
+
+  plateAppearances.forEach((pa) => {
+    const def = resultDef(pa);
+    if (!def.atBat) return;
+
+    const parts = countHeatmapParts(pa.count);
+    const cell = parts ? cells[parts.balls]?.[parts.strikes] : null;
+    if (!cell) {
+      skippedAb += 1;
+      return;
+    }
+
+    totalAb += 1;
+    cell.ab += 1;
+    if (def.hit) cell.h += 1;
+  });
+
+  return { cells, totalAb, skippedAb };
+}
+
+function countHeatmapTone(avg, ab) {
+  if (!ab) return "is-empty";
+  if (avg >= 0.3) return "is-good";
+  if (avg >= 0.2) return "is-caution";
+  if (avg >= 0.1) return "is-warning";
+  return "is-danger";
+}
+
+function renderCountHeatmap(plateAppearances) {
+  const stats = countHeatmapStats(plateAppearances);
+  els.countHeatmapSummary.textContent = `${stats.totalAb}打数`;
+
+  if (!stats.totalAb) {
+    els.countHeatmapChart.innerHTML = `<div class="empty">カウントを入力した打数が増えると、直前カウント別の打率ヒートマップが表示されます。</div>`;
+    return;
+  }
+
+  const headerCells = COUNT_HEATMAP_STRIKES.map((strikes) => `
+    <div class="count-heatmap-axis count-heatmap-strikes">${strikes}</div>
+  `).join("");
+  const bodyCells = COUNT_HEATMAP_BALLS.map((balls) => {
+    const cells = COUNT_HEATMAP_STRIKES.map((strikes) => {
+      const row = stats.cells[balls][strikes];
+      const avg = row.ab ? row.h / row.ab : NaN;
+      const label = `${strikes}-${balls}`;
+      return `
+        <div
+          class="count-heatmap-cell ${countHeatmapTone(avg, row.ab)}"
+          title="${escapeHtml(`${label}：${row.ab}打数 ${row.h}安打 打率 ${formatRate(avg)}`)}"
+        >
+          <strong>${formatRate(avg)}</strong>
+        </div>
+      `;
+    }).join("");
+
+    return `
+      <div class="count-heatmap-axis count-heatmap-balls">${balls}</div>
+      ${cells}
+    `;
+  }).join("");
+
+  els.countHeatmapChart.innerHTML = `
+    <p class="count-heatmap-title">直前カウント（B=ボール、S=ストライク）</p>
+    <div class="count-heatmap-grid" role="img" aria-label="直前カウント別の打率ヒートマップです。">
+      <div class="count-heatmap-corner"></div>
+      ${headerCells}
+      ${bodyCells}
+    </div>
+    <div class="count-heatmap-footer">
+      <p class="muted">表示は打率です。カウント未入力の打数は ${stats.skippedAb} あります。</p>
+      <div class="count-heatmap-legend" aria-label="色の意味">
+        <span><i class="is-good"></i>.300以上</span>
+        <span><i class="is-caution"></i>.200〜.299</span>
+        <span><i class="is-warning"></i>.100〜.199</span>
+        <span><i class="is-danger"></i>.100未満</span>
+      </div>
+    </div>
+  `;
+}
+
 function renderGameSelect() {
   if (!state.games.length) {
     els.gameSelect.innerHTML = `<option value="">先に試合を登録してください</option>`;
@@ -1666,6 +1773,7 @@ function renderAnalysis() {
     sortByAvgRows(groupStats(state.plateAppearances, (pa) => pa.course, "コース未選択")),
   );
   renderCourseSupplement(state.plateAppearances);
+  renderCountHeatmap(state.plateAppearances);
   renderStatsTable(
     els.countStatsBody,
     sortByAvgRows(groupStats(state.plateAppearances, (pa) => normalizeCountLabel(pa.count), "カウント未選択")),
