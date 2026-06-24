@@ -48,6 +48,8 @@ const BATTED_DIRECTION_ALIASES = {
   右方向: "ライト方向",
 };
 
+const BATTED_OUT_RESULTS = new Set(["groundout", "flyout", "lineout"]);
+
 const COURSE_GRID = [
   "外角高め",
   "真ん中高め",
@@ -132,6 +134,10 @@ const els = {
   analysisMetrics: $("#analysisMetrics"),
   battedDirectionChart: $("#battedDirectionChart"),
   battedDirectionSummary: $("#battedDirectionSummary"),
+  battedHitDirectionChart: $("#battedHitDirectionChart"),
+  battedHitDirectionSummary: $("#battedHitDirectionSummary"),
+  battedOutDirectionChart: $("#battedOutDirectionChart"),
+  battedOutDirectionSummary: $("#battedOutDirectionSummary"),
   pitchTypeOutcomeChart: $("#pitchTypeOutcomeChart"),
   pitchTypeOutcomeSummary: $("#pitchTypeOutcomeSummary"),
   recentGames: $("#recentGames"),
@@ -1182,7 +1188,15 @@ function renderMetrics(target, stats) {
   ].join("");
 }
 
-function renderBattedDirectionChart(plateAppearances) {
+function isBattedHit(pa) {
+  return Boolean(resultDef(pa).hit);
+}
+
+function isBattedOut(pa) {
+  return BATTED_OUT_RESULTS.has(pa.result);
+}
+
+function renderBattedDirectionChart(chart, summary, plateAppearances, label = "打球方向") {
   const stats = battedDirectionStats(plateAppearances);
   const markers = BATTED_DIRECTION_MARKERS.map((marker) => {
     const count = stats.counts[marker.key] || 0;
@@ -1204,9 +1218,9 @@ function renderBattedDirectionChart(plateAppearances) {
     .concat([`その他 ${otherPercent}`])
     .join("、");
 
-  els.battedDirectionSummary.textContent = `${stats.total}打球`;
-  els.battedDirectionChart.innerHTML = `
-    <div class="batted-field" role="img" aria-label="${escapeHtml(`打球方向比率。${ariaLabel}`)}">
+  summary.textContent = `${stats.total}打球`;
+  chart.innerHTML = `
+    <div class="batted-field" role="img" aria-label="${escapeHtml(`${label}の打球方向比率。${ariaLabel}`)}">
       <svg class="batted-field-svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
         <path class="field-grass" d="M50 96 C41 96 34 89 25 80 L6 61 L6 43 C9 20 27 5 50 5 C73 5 91 20 94 43 L94 61 L75 80 C66 89 59 96 50 96Z" />
         <path class="field-dirt" d="M50 40 C66 40 77 51 77 66 C77 78 66 86 50 86 C34 86 23 78 23 66 C23 51 34 40 50 40Z" />
@@ -1222,7 +1236,7 @@ function renderBattedDirectionChart(plateAppearances) {
     </div>
     <div class="direction-extra">
       <span>その他 ${otherPercent}</span>
-      <span>${stats.total ? `${stats.total}打球を集計` : "打球方向の入力がまだありません"}</span>
+      <span>${stats.total ? `${stats.total}打球を集計` : `${label}の打球方向入力がまだありません`}</span>
     </div>
   `;
 }
@@ -1757,7 +1771,24 @@ function renderPitcherStatsTable(tbody, rows) {
 function renderAnalysis() {
   const stats = calculateStats(state.plateAppearances);
   renderMetrics(els.analysisMetrics, stats);
-  renderBattedDirectionChart(state.plateAppearances);
+  renderBattedDirectionChart(
+    els.battedDirectionChart,
+    els.battedDirectionSummary,
+    state.plateAppearances,
+    "全体",
+  );
+  renderBattedDirectionChart(
+    els.battedHitDirectionChart,
+    els.battedHitDirectionSummary,
+    state.plateAppearances.filter(isBattedHit),
+    "安打",
+  );
+  renderBattedDirectionChart(
+    els.battedOutDirectionChart,
+    els.battedOutDirectionSummary,
+    state.plateAppearances.filter(isBattedOut),
+    "凡打",
+  );
   renderPitchTypeOutcomeChart(state.plateAppearances);
   renderPitcherStatsTable(
     els.pitcherStatsBody,

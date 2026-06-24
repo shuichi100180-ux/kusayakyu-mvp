@@ -793,10 +793,26 @@
 
         <section class="surface batted-direction-section">
           <div class="surface-header">
-            <h3>打球方向比率</h3>
+            <h3>打球方向比率（全体）</h3>
             <span id="battedDirectionSummary" class="pill">0打球</span>
           </div>
           <div id="battedDirectionChart" class="batted-direction-chart"></div>
+        </section>
+
+        <section class="surface batted-direction-section">
+          <div class="surface-header">
+            <h3>打球方向比率（安打）</h3>
+            <span id="battedHitDirectionSummary" class="pill">0打球</span>
+          </div>
+          <div id="battedHitDirectionChart" class="batted-direction-chart"></div>
+        </section>
+
+        <section class="surface batted-direction-section">
+          <div class="surface-header">
+            <h3>打球方向比率（凡打）</h3>
+            <span id="battedOutDirectionSummary" class="pill">0打球</span>
+          </div>
+          <div id="battedOutDirectionChart" class="batted-direction-chart"></div>
         </section>
 
         <div class="table-section">
@@ -1098,6 +1114,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=33"></script>
+    <script src="./app.js?v=34"></script>
   </body>
 </html>
