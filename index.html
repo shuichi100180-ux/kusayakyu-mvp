@@ -183,8 +183,78 @@
                   </select>
                 </label>
                 <label>
+                  打席結果
+                  <select name="result" required>
+                    <option value="">選択してください</option>
+                    <option value="single">単打</option>
+                    <option value="double">二塁打</option>
+                    <option value="triple">三塁打</option>
+                    <option value="homer">本塁打</option>
+                    <option value="walk">四球</option>
+                    <option value="hbp">死球</option>
+                    <option value="strikeout">三振</option>
+                    <option value="out">アウト</option>
+                    <option value="groundout">ゴロアウト</option>
+                    <option value="flyout">フライアウト</option>
+                    <option value="lineout">ライナーアウト</option>
+                    <option value="fielderChoice">野選</option>
+                    <option value="error">失策出塁</option>
+                    <option value="sacFly">犠飛</option>
+                    <option value="sacBunt">犠打</option>
+                  </select>
+                </label>
+              </div>
+              <label class="checkbox-line">
+                <input name="risp" type="checkbox" />
+                得点圏での打席
+              </label>
+              <div class="score-row">
+                <label>
+                  ランナー
+                  <select name="runners">
+                    <option>ランナーなし</option>
+                    <option>1塁</option>
+                    <option>2塁</option>
+                    <option>3塁</option>
+                    <option>1・2塁</option>
+                    <option>1・3塁</option>
+                    <option>2・3塁</option>
+                    <option>満塁</option>
+                  </select>
+                </label>
+                <label>
+                  サイン
+                  <select name="sign">
+                    <option>なし</option>
+                    <option>バント</option>
+                    <option>エンドラン</option>
+                    <option>スクイズ</option>
+                  </select>
+                </label>
+              </div>
+              <div class="score-row">
+                <label>
                   打点
                   <input name="rbi" type="number" min="0" max="4" value="0" inputmode="numeric" />
+                </label>
+                <label>
+                  盗塁
+                  <select name="stolenBase">
+                    <option>なし</option>
+                    <option>盗塁成功1</option>
+                    <option>盗塁成功2</option>
+                    <option>盗塁失敗</option>
+                    <option>盗塁1成功1失敗</option>
+                  </select>
+                </label>
+              </div>
+              <div class="score-row">
+                <label>
+                  得点
+                  <select name="runScored">
+                    <option value="1">1</option>
+                    <option value="0" selected>0</option>
+                  </select>
                 </label>
               </div>
               <div class="score-row">
@@ -218,44 +288,6 @@
                   </select>
                 </label>
               </div>
-              <label>
-                打席結果
-                <select name="result" required>
-                  <option value="">選択してください</option>
-                  <option value="single">単打</option>
-                  <option value="double">二塁打</option>
-                  <option value="triple">三塁打</option>
-                  <option value="homer">本塁打</option>
-                  <option value="walk">四球</option>
-                  <option value="hbp">死球</option>
-                  <option value="strikeout">三振</option>
-                  <option value="out">アウト</option>
-                  <option value="groundout">ゴロアウト</option>
-                  <option value="flyout">フライアウト</option>
-                  <option value="lineout">ライナーアウト</option>
-                  <option value="fielderChoice">野選</option>
-                  <option value="error">失策出塁</option>
-                  <option value="sacFly">犠飛</option>
-                  <option value="sacBunt">犠打</option>
-                </select>
-              </label>
-              <label class="checkbox-line">
-                <input name="risp" type="checkbox" />
-                得点圏での打席
-              </label>
-              <label>
-                ランナー
-                <select name="runners">
-                  <option>ランナーなし</option>
-                  <option>1塁</option>
-                  <option>2塁</option>
-                  <option>3塁</option>
-                  <option>1・2塁</option>
-                  <option>1・3塁</option>
-                  <option>2・3塁</option>
-                  <option>満塁</option>
-                </select>
-              </label>
               <div class="score-row">
                 <label>
                   ストレートの球速
@@ -283,6 +315,8 @@
                     <option>不明</option>
                   </select>
                 </label>
+              </div>
+              <div class="score-row">
                 <label>
                   変化球2
                   <select name="breakingBall2">
@@ -320,42 +354,6 @@
               </div>
               <div class="score-row">
                 <label>
-                  勝負球の球種
-                  <select name="pitchType">
-                    <option value="">未選択</option>
-                    <option>ストレート</option>
-                    <option>ツーシーム</option>
-                    <option>カットボール</option>
-                    <option>スライダー</option>
-                    <option>カーブ</option>
-                    <option>スローボール</option>
-                    <option>フォーク</option>
-                    <option>チェンジアップ</option>
-                    <option>シンカー</option>
-                    <option>シュート</option>
-                    <option>不明</option>
-                  </select>
-                </label>
-                <label>
-                  コース
-                  <select name="course">
-                    <option value="">未選択</option>
-                    <option>外角高め</option>
-                    <option>真ん中高め</option>
-                    <option>内角高め</option>
-                    <option>外角真ん中</option>
-                    <option>真ん中</option>
-                    <option>内角真ん中</option>
-                    <option>外角低め</option>
-                    <option>真ん中低め</option>
-                    <option>内角低め</option>
-                    <option>ボール球</option>
-                    <option>不明</option>
-                  </select>
-                </label>
-              </div>
-              <div class="score-row">
-                <label>
                   カウント
                   <select name="count">
                     <option value="">未選択</option>
@@ -374,15 +372,40 @@
                   </select>
                 </label>
                 <label>
-                  サイン
-                  <select name="sign">
-                    <option>なし</option>
-                    <option>バント</option>
-                    <option>エンドラン</option>
-                    <option>スクイズ</option>
+                  勝負球の球種
+                  <select name="pitchType">
+                    <option value="">未選択</option>
+                    <option>ストレート</option>
+                    <option>ツーシーム</option>
+                    <option>カットボール</option>
+                    <option>スライダー</option>
+                    <option>カーブ</option>
+                    <option>スローボール</option>
+                    <option>フォーク</option>
+                    <option>チェンジアップ</option>
+                    <option>シンカー</option>
+                    <option>シュート</option>
+                    <option>不明</option>
                   </select>
                 </label>
               </div>
+              <label>
+                コース
+                <select name="course">
+                  <option value="">未選択</option>
+                  <option>外角高め</option>
+                  <option>真ん中高め</option>
+                  <option>内角高め</option>
+                  <option>外角真ん中</option>
+                  <option>真ん中</option>
+                  <option>内角真ん中</option>
+                  <option>外角低め</option>
+                  <option>真ん中低め</option>
+                  <option>内角低め</option>
+                  <option>ボール球</option>
+                  <option>不明</option>
+                </select>
+              </label>
               <div class="score-row">
                 <label>
                   打球方向
@@ -410,25 +433,6 @@
                     <option>ポップフライ</option>
                     <option>バント</option>
                     <option>不明</option>
-                  </select>
-                </label>
-              </div>
-              <div class="score-row">
-                <label>
-                  盗塁
-                  <select name="stolenBase">
-                    <option>なし</option>
-                    <option>盗塁成功1</option>
-                    <option>盗塁成功2</option>
-                    <option>盗塁失敗</option>
-                    <option>盗塁1成功1失敗</option>
-                  </select>
-                </label>
-                <label>
-                  得点
-                  <select name="runScored">
-                    <option value="1">1</option>
-                    <option value="0" selected>0</option>
                   </select>
                 </label>
               </div>
