@@ -1542,7 +1542,7 @@ function renderMobilePitcherPresets() {
   els.mobilePitcherPresets.innerHTML = rows.map((row) => `
     <button class="mobile-pitcher-button" data-mobile-pitcher-key="${escapeHtml(row.key)}" type="button">
       <strong>${escapeHtml(row.pitcher)}</strong>
-      <span>${escapeHtml(row.opponent)} / #${escapeHtml(row.number)}</span>
+      <span>${escapeHtml(row.opponent)} / 背番号 ${escapeHtml(row.number)}</span>
     </button>
   `).join("");
 }
