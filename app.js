@@ -15,6 +15,7 @@ const RESULT_DEFS = {
   walk: { label: "四球", atBat: false, hit: false, totalBases: 0, onBase: true, walk: true },
   hbp: { label: "死球", atBat: false, hit: false, totalBases: 0, onBase: true, hbp: true },
   strikeout: { label: "三振", atBat: true, hit: false, totalBases: 0, onBase: false },
+  out: { label: "アウト", atBat: true, hit: false, totalBases: 0, onBase: false },
   groundout: { label: "ゴロアウト", atBat: true, hit: false, totalBases: 0, onBase: false },
   flyout: { label: "フライアウト", atBat: true, hit: false, totalBases: 0, onBase: false },
   lineout: { label: "ライナーアウト", atBat: true, hit: false, totalBases: 0, onBase: false },
@@ -22,12 +23,6 @@ const RESULT_DEFS = {
   error: { label: "失策出塁", atBat: true, hit: false, totalBases: 0, onBase: false, error: true },
   sacFly: { label: "犠飛", atBat: false, hit: false, totalBases: 0, onBase: false, sacFly: true },
   sacBunt: { label: "犠打", atBat: false, hit: false, totalBases: 0, onBase: false, sacBunt: true },
-};
-
-const RESULT_BATTED_TYPE_DEFAULTS = {
-  groundout: "ゴロ",
-  flyout: "フライ",
-  lineout: "ライナー",
 };
 
 const BATTED_DIRECTION_MARKERS = [
@@ -48,7 +43,7 @@ const BATTED_DIRECTION_ALIASES = {
   右方向: "ライト方向",
 };
 
-const BATTED_OUT_RESULTS = new Set(["groundout", "flyout", "lineout"]);
+const BATTED_OUT_RESULTS = new Set(["out", "groundout", "flyout", "lineout"]);
 
 const COURSE_GRID = [
   "外角高め",
@@ -1434,8 +1429,6 @@ function setMobileChoice(name, value) {
   if (field) field.value = value || "";
   updateMobileChoiceButtons(name);
   if (name === "result") {
-    const battedType = RESULT_BATTED_TYPE_DEFAULTS[value];
-    if (battedType) setMobileChoice("battedType", battedType);
     syncMobileBattedBallFields();
   }
 }

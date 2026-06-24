@@ -229,6 +229,7 @@
                   <option value="walk">四球</option>
                   <option value="hbp">死球</option>
                   <option value="strikeout">三振</option>
+                  <option value="out">アウト</option>
                   <option value="groundout">ゴロアウト</option>
                   <option value="flyout">フライアウト</option>
                   <option value="lineout">ライナーアウト</option>
@@ -509,9 +510,7 @@
               <button data-choice-name="result" data-choice-value="walk" type="button">四球</button>
               <button data-choice-name="result" data-choice-value="hbp" type="button">死球</button>
               <button data-choice-name="result" data-choice-value="strikeout" type="button">三振</button>
-              <button data-choice-name="result" data-choice-value="groundout" type="button">ゴロアウト</button>
-              <button data-choice-name="result" data-choice-value="flyout" type="button">フライアウト</button>
-              <button data-choice-name="result" data-choice-value="lineout" type="button">ライナーアウト</button>
+              <button data-choice-name="result" data-choice-value="out" type="button">アウト</button>
               <button data-choice-name="result" data-choice-value="fielderChoice" type="button">野選</button>
               <button data-choice-name="result" data-choice-value="error" type="button">失策出塁</button>
               <button data-choice-name="result" data-choice-value="sacFly" type="button">犠飛</button>
@@ -1114,6 +1113,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=35"></script>
+    <script src="./app.js?v=36"></script>
   </body>
 </html>
