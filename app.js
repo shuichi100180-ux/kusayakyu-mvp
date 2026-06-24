@@ -2411,7 +2411,7 @@ function isTabAvailable(name) {
 
 function unavailableTabMessage(name) {
   if (name === "mobile") return "スマホ入力はスマホで表示されます";
-  if (name === "entry") return "PC・修正用はPCで表示されます";
+  if (name === "entry") return "PC入力はPCで表示されます";
   return "";
 }
 

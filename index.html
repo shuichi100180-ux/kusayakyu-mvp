@@ -26,7 +26,7 @@
       <button class="tab" data-tab="analysis" type="button">個人成績</button>
       <button class="tab" data-tab="pitchers" type="button">投手データ</button>
       <button class="tab mobile-only-tab" data-tab="mobile" type="button">スマホ入力</button>
-      <button class="tab pc-only-tab" data-tab="entry" type="button">PC・修正用</button>
+      <button class="tab pc-only-tab" data-tab="entry" type="button">PC入力</button>
       <button class="tab" data-tab="sync" type="button">同期設定</button>
     </nav>
 
@@ -173,92 +173,6 @@
               </label>
               <div class="score-row">
                 <label>
-                  打席
-                  <select name="plateAppearance">
-                    <option value="">未選択</option>
-                    <option>第1打席</option>
-                    <option>第2打席</option>
-                    <option>第3打席</option>
-                    <option>第4打席</option>
-                  </select>
-                </label>
-                <label>
-                  打席結果
-                  <select name="result" required>
-                    <option value="">選択してください</option>
-                    <option value="single">単打</option>
-                    <option value="double">二塁打</option>
-                    <option value="triple">三塁打</option>
-                    <option value="homer">本塁打</option>
-                    <option value="walk">四球</option>
-                    <option value="hbp">死球</option>
-                    <option value="strikeout">三振</option>
-                    <option value="out">アウト</option>
-                    <option value="groundout">ゴロアウト</option>
-                    <option value="flyout">フライアウト</option>
-                    <option value="lineout">ライナーアウト</option>
-                    <option value="fielderChoice">野選</option>
-                    <option value="error">失策出塁</option>
-                    <option value="sacFly">犠飛</option>
-                    <option value="sacBunt">犠打</option>
-                  </select>
-                </label>
-              </div>
-              <label class="checkbox-line">
-                <input name="risp" type="checkbox" />
-                得点圏での打席
-              </label>
-              <div class="score-row">
-                <label>
-                  ランナー
-                  <select name="runners">
-                    <option>ランナーなし</option>
-                    <option>1塁</option>
-                    <option>2塁</option>
-                    <option>3塁</option>
-                    <option>1・2塁</option>
-                    <option>1・3塁</option>
-                    <option>2・3塁</option>
-                    <option>満塁</option>
-                  </select>
-                </label>
-                <label>
-                  サイン
-                  <select name="sign">
-                    <option>なし</option>
-                    <option>バント</option>
-                    <option>エンドラン</option>
-                    <option>スクイズ</option>
-                  </select>
-                </label>
-              </div>
-              <div class="score-row">
-                <label>
-                  打点
-                  <input name="rbi" type="number" min="0" max="4" value="0" inputmode="numeric" />
-                </label>
-                <label>
-                  盗塁
-                  <select name="stolenBase">
-                    <option>なし</option>
-                    <option>盗塁成功1</option>
-                    <option>盗塁成功2</option>
-                    <option>盗塁失敗</option>
-                    <option>盗塁1成功1失敗</option>
-                  </select>
-                </label>
-              </div>
-              <div class="score-row">
-                <label>
-                  得点
-                  <select name="runScored">
-                    <option value="1">1</option>
-                    <option value="0" selected>0</option>
-                  </select>
-                </label>
-              </div>
-              <div class="score-row">
-                <label>
                   相手投手
                   <input name="pitcherName" type="text" placeholder="投手名" required />
                 </label>
@@ -349,6 +263,92 @@
                     <option>シンカー</option>
                     <option>シュート</option>
                     <option>不明</option>
+                  </select>
+                </label>
+              </div>
+              <div class="score-row">
+                <label>
+                  打席
+                  <select name="plateAppearance">
+                    <option value="">未選択</option>
+                    <option>第1打席</option>
+                    <option>第2打席</option>
+                    <option>第3打席</option>
+                    <option>第4打席</option>
+                  </select>
+                </label>
+                <label>
+                  打席結果
+                  <select name="result" required>
+                    <option value="">選択してください</option>
+                    <option value="single">単打</option>
+                    <option value="double">二塁打</option>
+                    <option value="triple">三塁打</option>
+                    <option value="homer">本塁打</option>
+                    <option value="walk">四球</option>
+                    <option value="hbp">死球</option>
+                    <option value="strikeout">三振</option>
+                    <option value="out">アウト</option>
+                    <option value="groundout">ゴロアウト</option>
+                    <option value="flyout">フライアウト</option>
+                    <option value="lineout">ライナーアウト</option>
+                    <option value="fielderChoice">野選</option>
+                    <option value="error">失策出塁</option>
+                    <option value="sacFly">犠飛</option>
+                    <option value="sacBunt">犠打</option>
+                  </select>
+                </label>
+              </div>
+              <label class="checkbox-line">
+                <input name="risp" type="checkbox" />
+                得点圏での打席
+              </label>
+              <div class="score-row">
+                <label>
+                  ランナー
+                  <select name="runners">
+                    <option>ランナーなし</option>
+                    <option>1塁</option>
+                    <option>2塁</option>
+                    <option>3塁</option>
+                    <option>1・2塁</option>
+                    <option>1・3塁</option>
+                    <option>2・3塁</option>
+                    <option>満塁</option>
+                  </select>
+                </label>
+                <label>
+                  サイン
+                  <select name="sign">
+                    <option>なし</option>
+                    <option>バント</option>
+                    <option>エンドラン</option>
+                    <option>スクイズ</option>
+                  </select>
+                </label>
+              </div>
+              <div class="score-row">
+                <label>
+                  打点
+                  <input name="rbi" type="number" min="0" max="4" value="0" inputmode="numeric" />
+                </label>
+                <label>
+                  盗塁
+                  <select name="stolenBase">
+                    <option>なし</option>
+                    <option>盗塁成功1</option>
+                    <option>盗塁成功2</option>
+                    <option>盗塁失敗</option>
+                    <option>盗塁1成功1失敗</option>
+                  </select>
+                </label>
+              </div>
+              <div class="score-row">
+                <label>
+                  得点
+                  <select name="runScored">
+                    <option value="1">1</option>
+                    <option value="0" selected>0</option>
                   </select>
                 </label>
               </div>
@@ -1117,6 +1117,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=38"></script>
+    <script src="./app.js?v=39"></script>
   </body>
 </html>
