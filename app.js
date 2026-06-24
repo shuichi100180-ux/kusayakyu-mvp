@@ -44,6 +44,11 @@ const BATTED_DIRECTION_ALIASES = {
 };
 
 const BATTED_OUT_RESULTS = new Set(["out", "groundout", "flyout", "lineout"]);
+const LEGACY_OUT_BATTED_TYPES = {
+  groundout: "ゴロ",
+  flyout: "フライ",
+  lineout: "ライナー",
+};
 
 const COURSE_GRID = [
   "外角高め",
@@ -115,6 +120,7 @@ let syncTimer = null;
 let syncInProgress = false;
 let editingGameId = "";
 let editingPaId = "";
+let mobileEditingPaId = "";
 let selectedMemoGameId = "";
 let selectedEntryGameId = "";
 let selectedPitcherKey = "";
@@ -140,6 +146,7 @@ const els = {
   gameForm: $("#gameForm"),
   paForm: $("#paForm"),
   mobilePaForm: $("#mobilePaForm"),
+  mobilePaSubmitButton: $("#mobilePaSubmitButton"),
   gameSelect: $("#gameSelect"),
   mobileGameSelect: $("#mobileGameSelect"),
   mobileGameSummary: $("#mobileGameSummary"),
@@ -866,6 +873,16 @@ function nextPlateAppearanceForGame(gameId) {
   return "第4打席";
 }
 
+function plateAppearanceSlot(pa) {
+  return pa?.plateAppearance || pa?.inning || "";
+}
+
+function findPlateAppearanceForGameSlot(gameId, slot) {
+  if (!gameId || !slot) return null;
+  return sortedPlateAppearances()
+    .find((pa) => pa.gameId === gameId && plateAppearanceSlot(pa) === slot) || null;
+}
+
 function latestPaForPitcher(row) {
   return sortedPlateAppearances().find((pa) => pitcherProfileKey(pa) === row.key) || row.plateAppearances[0] || null;
 }
@@ -1473,7 +1490,10 @@ function renderMobileGameSummary() {
   }
 
   const paCount = state.plateAppearances.filter((pa) => pa.gameId === game.id).length;
-  els.mobileGameSummary.textContent = `${gameTitle(game)} / ${paCount}打席済み / 次は ${nextPlateAppearanceForGame(game.id)}`;
+  const selectedSlot = els.mobilePaForm?.elements?.plateAppearance?.value || "";
+  const selectedPa = findPlateAppearanceForGameSlot(game.id, selectedSlot);
+  const nextText = selectedPa ? `${selectedSlot}を編集中` : `次は ${nextPlateAppearanceForGame(game.id)}`;
+  els.mobileGameSummary.textContent = `${gameTitle(game)} / ${paCount}打席済み / ${nextText}`;
 }
 
 function renderMobileGameSelect() {
@@ -2022,6 +2042,7 @@ function renderEditState() {
   const editingPa = Boolean(editingPaId);
   els.paSubmitButton.textContent = editingPa ? "打席を更新" : "打席を保存";
   els.cancelPaEditButton.classList.toggle("is-hidden", !editingPa);
+  renderMobileEditState();
 }
 
 function resetGameForm() {
@@ -2055,9 +2076,125 @@ function fillMobilePitcherFromPa(pa) {
   syncPitcherStrategyField(els.mobilePaForm);
 }
 
+function mobileResultForForm(pa) {
+  if (!pa?.result) return "";
+  return BATTED_OUT_RESULTS.has(pa.result) ? "out" : pa.result;
+}
+
+function mobileBattedTypeForForm(pa) {
+  return pa?.battedType || LEGACY_OUT_BATTED_TYPES[pa?.result] || "";
+}
+
+function setMobilePitcherFields(values = {}) {
+  ["pitcherName", "pitcherNumber", "pitcherHand", "pitchingForm", "straightVelocity", "breakingBall1", "breakingBall2", "breakingBall3", "pitcherStrategy"]
+    .forEach((name) => setFieldValue(els.mobilePaForm, name, values[name] || ""));
+}
+
+function mobilePitcherFieldValues() {
+  return {
+    pitcherName: els.mobilePaForm.elements.pitcherName.value,
+    pitcherNumber: els.mobilePaForm.elements.pitcherNumber.value,
+    pitcherHand: els.mobilePaForm.elements.pitcherHand.value,
+    pitchingForm: els.mobilePaForm.elements.pitchingForm.value,
+    straightVelocity: els.mobilePaForm.elements.straightVelocity.value,
+    breakingBall1: els.mobilePaForm.elements.breakingBall1.value,
+    breakingBall2: els.mobilePaForm.elements.breakingBall2.value,
+    breakingBall3: els.mobilePaForm.elements.breakingBall3.value,
+    pitcherStrategy: els.mobilePaForm.elements.pitcherStrategy.value,
+  };
+}
+
+function clearMobilePlateAppearanceFields(options = {}) {
+  if (!els.mobilePaForm) return;
+  const gameId = els.mobilePaForm.elements.gameId.value;
+  const slot = els.mobilePaForm.elements.plateAppearance.value;
+  const pitcherValues = options.preservePitcher ? mobilePitcherFieldValues() : null;
+
+  els.mobilePaForm.reset();
+  setFieldValue(els.mobilePaForm, "gameId", gameId);
+  setMobileChoice("plateAppearance", slot);
+  setFieldValue(els.mobilePaForm, "rbi", 0);
+  setFieldValue(els.mobilePaForm, "risp", false);
+  setFieldValue(els.mobilePaForm, "stolenBase", "なし");
+  setFieldValue(els.mobilePaForm, "runners", "ランナーなし");
+  setFieldValue(els.mobilePaForm, "sign", "なし");
+  setMobileChoice("runScored", "0");
+  setMobileChoice("result", "");
+  setMobileChoice("course", "");
+  setMobileChoice("battedDirection", "");
+  setMobileChoice("battedType", "");
+  if (pitcherValues) setMobilePitcherFields(pitcherValues);
+  syncMobileRunnerOptions();
+  syncMobileBattedBallFields();
+}
+
+function fillMobilePlateAppearanceForm(pa) {
+  if (!els.mobilePaForm || !pa) return;
+  const breakingBalls = breakingBallsForPa(pa);
+  setFieldValue(els.mobilePaForm, "gameId", pa.gameId || "");
+  setMobileChoice("plateAppearance", plateAppearanceSlot(pa));
+  setFieldValue(els.mobilePaForm, "rbi", Number(pa.rbi) || 0);
+  setFieldValue(els.mobilePaForm, "risp", pa.risp);
+  syncMobileRunnerOptions();
+  setFieldValue(els.mobilePaForm, "runners", pa.runners || "ランナーなし");
+  setFieldValue(els.mobilePaForm, "sign", pa.sign || "なし");
+  setFieldValue(els.mobilePaForm, "stolenBase", pa.stolenBase || "なし");
+  setMobileChoice("runScored", String(pa.runScored ?? 0));
+  setMobileChoice("result", mobileResultForForm(pa));
+  setFieldValue(els.mobilePaForm, "pitcherName", pa.pitcherName || "");
+  setFieldValue(els.mobilePaForm, "pitcherNumber", pa.pitcherNumber || "");
+  setFieldValue(els.mobilePaForm, "pitcherHand", pa.pitcherHand || "");
+  setFieldValue(els.mobilePaForm, "pitchingForm", pa.pitchingForm || "");
+  setFieldValue(els.mobilePaForm, "straightVelocity", pa.straightVelocity || "");
+  setFieldValue(els.mobilePaForm, "breakingBall1", breakingBalls[0] || "");
+  setFieldValue(els.mobilePaForm, "breakingBall2", breakingBalls[1] || "");
+  setFieldValue(els.mobilePaForm, "breakingBall3", breakingBalls[2] || "");
+  setFieldValue(els.mobilePaForm, "count", normalizeCountLabel(pa.count));
+  setFieldValue(els.mobilePaForm, "pitchType", pa.pitchType || "");
+  setMobileChoice("course", pa.course || "");
+
+  if (!skipsBattedBall(pa.result)) {
+    setMobileChoice("battedDirection", normalizeBattedDirection(pa.battedDirection));
+    setMobileChoice("battedType", mobileBattedTypeForForm(pa));
+  }
+
+  setFieldValue(els.mobilePaForm, "memo", pa.memo || "");
+  setFieldValue(els.mobilePaForm, "pitcherStrategy", pitcherStrategyText(pitcherProfileKey(pa)));
+  syncMobileChoiceButtons();
+  syncMobileRunnerOptions();
+  syncMobileBattedBallFields();
+}
+
+function renderMobileEditState() {
+  if (!els.mobilePaSubmitButton) return;
+  els.mobilePaSubmitButton.textContent = mobileEditingPaId ? "上書きして次の打席" : "保存して次の打席";
+}
+
+function syncMobilePlateAppearanceSelection(options = {}) {
+  if (!els.mobilePaForm) return null;
+  const gameId = els.mobilePaForm.elements.gameId.value;
+  const slot = els.mobilePaForm.elements.plateAppearance.value;
+  const pa = findPlateAppearanceForGameSlot(gameId, slot);
+
+  if (pa) {
+    mobileEditingPaId = pa.id;
+    fillMobilePlateAppearanceForm(pa);
+  } else {
+    mobileEditingPaId = "";
+    if (options.clearWhenEmpty) {
+      clearMobilePlateAppearanceFields({ preservePitcher: options.preservePitcherWhenEmpty !== false });
+    }
+  }
+
+  renderMobileGameSummary();
+  renderMobileEditState();
+  return pa;
+}
+
 function resetMobilePlateAppearanceForm(options = {}) {
   if (!els.mobilePaForm) return;
   const selectedGame = options.gameId || els.mobileGameSelect?.value || sortedGames()[0]?.id || "";
+  const selectedSlot = options.plateAppearance || nextPlateAppearanceForGame(selectedGame);
   const keepPitcher = options.keepPitcher;
   const previousPa = options.previousPa;
   const pitcherValues = keepPitcher
@@ -2080,23 +2217,25 @@ function resetMobilePlateAppearanceForm(options = {}) {
   setFieldValue(els.mobilePaForm, "stolenBase", "なし");
   setFieldValue(els.mobilePaForm, "runners", "ランナーなし");
   setFieldValue(els.mobilePaForm, "sign", "なし");
-  setMobileChoice("plateAppearance", nextPlateAppearanceForGame(selectedGame));
+  setMobileChoice("plateAppearance", selectedSlot);
   setMobileChoice("runScored", "0");
   setMobileChoice("result", "");
   setMobileChoice("course", "");
   setMobileChoice("battedDirection", "");
   setMobileChoice("battedType", "");
+  mobileEditingPaId = "";
 
   if (previousPa) {
     fillMobilePitcherFromPa(previousPa);
   } else if (pitcherValues) {
-    Object.entries(pitcherValues).forEach(([name, value]) => setFieldValue(els.mobilePaForm, name, value));
+    setMobilePitcherFields(pitcherValues);
   }
 
   renderMobileGameSummary();
   syncMobileChoiceButtons();
   syncMobileRunnerOptions();
   syncMobileBattedBallFields();
+  syncMobilePlateAppearanceSelection();
 }
 
 function cancelGameEdit() {
@@ -2607,12 +2746,16 @@ els.mobileGameSelect.addEventListener("change", () => {
   renderMobileGameSummary();
   renderMobilePitcherPresets();
   syncPitcherStrategyField(els.mobilePaForm);
+  syncMobilePlateAppearanceSelection({ clearWhenEmpty: true, preservePitcherWhenEmpty: false });
 });
 
 els.mobilePaForm.addEventListener("click", (event) => {
   const choiceButton = event.target.closest("[data-choice-name]");
   if (choiceButton) {
     setMobileChoice(choiceButton.dataset.choiceName, choiceButton.dataset.choiceValue);
+    if (choiceButton.dataset.choiceName === "plateAppearance") {
+      syncMobilePlateAppearanceSelection({ clearWhenEmpty: true });
+    }
     return;
   }
 
@@ -2724,20 +2867,29 @@ els.mobilePaForm.addEventListener("submit", (event) => {
   }
 
   syncMobileBattedBallFields();
-  const pa = plateAppearanceFromForm(form);
+  const existingPa = (mobileEditingPaId ? getPlateAppearance(mobileEditingPaId) : null)
+    || findPlateAppearanceForGameSlot(form.elements.gameId.value, form.elements.plateAppearance.value);
+  const pa = plateAppearanceFromForm(form, existingPa);
   selectedEntryGameId = pa.gameId;
   selectedPitcherKey = pitcherProfileKey(pa);
 
   const nextState = withPitcherStrategy(
     {
       games: [...state.games],
-      plateAppearances: [...state.plateAppearances, pa],
+      plateAppearances: existingPa
+        ? state.plateAppearances.map((item) => item.id === existingPa.id ? pa : item)
+        : [...state.plateAppearances, pa],
     },
     pa,
     form.elements.pitcherStrategy.value,
   );
 
-  if (commitState(nextState, "スマホ入力で打席を保存しました", "スマホ打席保存")) {
+  const saved = existingPa
+    ? commitState(nextState, "スマホ入力で打席を上書きしました", "スマホ打席更新")
+    : commitState(nextState, "スマホ入力で打席を保存しました", "スマホ打席保存");
+
+  if (saved) {
+    mobileEditingPaId = "";
     resetMobilePlateAppearanceForm({ gameId: pa.gameId, previousPa: pa });
     switchTab("mobile");
   }
@@ -2768,6 +2920,7 @@ els.gameList.addEventListener("click", (event) => {
 
   if (editingGameId === gameId) editingGameId = "";
   if (editingPaId && getPlateAppearance(editingPaId)?.gameId === gameId) editingPaId = "";
+  if (mobileEditingPaId && getPlateAppearance(mobileEditingPaId)?.gameId === gameId) mobileEditingPaId = "";
   commitState(
     {
       games: state.games.filter((item) => item.id !== gameId),
@@ -2794,6 +2947,7 @@ els.paList.addEventListener("click", (event) => {
   if (!ok) return;
 
   if (editingPaId === paId) editingPaId = "";
+  if (mobileEditingPaId === paId) mobileEditingPaId = "";
   commitState(
     {
       games: [...state.games],
