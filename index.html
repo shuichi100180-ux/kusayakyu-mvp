@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=39" />
+    <link rel="stylesheet" href="./styles.css?v=40" />
   </head>
   <body>
     <header class="app-header">
@@ -25,8 +25,8 @@
       <button class="tab is-active" data-tab="home" type="button">ホーム</button>
       <button class="tab" data-tab="analysis" type="button">個人成績</button>
       <button class="tab" data-tab="pitchers" type="button">投手データ</button>
-      <button class="tab" data-tab="mobile" type="button">スマホ入力</button>
-      <button class="tab" data-tab="entry" type="button">PC・修正用</button>
+      <button class="tab mobile-only-tab" data-tab="mobile" type="button">スマホ入力</button>
+      <button class="tab pc-only-tab" data-tab="entry" type="button">PC・修正用</button>
       <button class="tab" data-tab="sync" type="button">同期設定</button>
     </nav>
 
@@ -478,7 +478,7 @@
           <section class="mobile-card mobile-context-card">
             <div class="mobile-card-header">
               <h3>対象試合</h3>
-              <button class="text-button" data-jump-tab="entry" type="button">試合登録へ</button>
+              <button class="text-button pc-only-action" data-jump-tab="entry" type="button">試合登録へ</button>
             </div>
             <label>
               試合
@@ -1113,6 +1113,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=37"></script>
+    <script src="./app.js?v=38"></script>
   </body>
 </html>

@@ -1560,12 +1560,15 @@ function renderMobilePitcherPresets() {
   `).join("");
 }
 
+function isPhoneLayout() {
+  return window.matchMedia("(max-width: 950px)").matches
+    || window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+}
+
 function syncRecentGamesHeight() {
   els.recentGames.style.removeProperty("max-height");
 
-  const isPhoneLayout = window.matchMedia("(max-width: 950px)").matches
-    || window.matchMedia("(hover: none) and (pointer: coarse)").matches;
-  if (!isPhoneLayout) return;
+  if (!isPhoneLayout()) return;
 
   const gameButtons = [...els.recentGames.querySelectorAll("[data-memo-game]")];
   if (gameButtons.length < 4) return;
@@ -2295,6 +2298,11 @@ function fillPlateAppearanceForm(pa) {
 }
 
 function startGameEdit(gameId) {
+  if (!isTabAvailable("entry")) {
+    showToast(unavailableTabMessage("entry"));
+    return;
+  }
+
   const game = getGame(gameId);
   if (!game) {
     showToast("編集する試合が見つかりません");
@@ -2309,6 +2317,11 @@ function startGameEdit(gameId) {
 }
 
 function startPlateAppearanceEdit(paId) {
+  if (!isTabAvailable("entry")) {
+    showToast(unavailableTabMessage("entry"));
+    return;
+  }
+
   const pa = getPlateAppearance(paId);
   if (!pa) {
     showToast("編集する打席が見つかりません");
@@ -2385,8 +2398,38 @@ function syncMobileBattedBallFields() {
   });
 }
 
+function tabExists(name) {
+  return els.tabs.some((tab) => tab.dataset.tab === name);
+}
+
+function isTabAvailable(name) {
+  if (!tabExists(name)) return false;
+  if (name === "mobile") return isPhoneLayout();
+  if (name === "entry") return !isPhoneLayout();
+  return true;
+}
+
+function unavailableTabMessage(name) {
+  if (name === "mobile") return "スマホ入力はスマホで表示されます";
+  if (name === "entry") return "PC・修正用はPCで表示されます";
+  return "";
+}
+
 function validTabName(name) {
-  return els.tabs.some((tab) => tab.dataset.tab === name) ? name : "";
+  return isTabAvailable(name) ? name : "";
+}
+
+function syncDeviceTabVisibility() {
+  els.tabs.forEach((tab) => {
+    const available = isTabAvailable(tab.dataset.tab);
+    tab.hidden = !available;
+    tab.setAttribute("aria-hidden", String(!available));
+  });
+
+  const activeTab = els.tabs.find((tab) => tab.classList.contains("is-active"))?.dataset.tab;
+  if (activeTab && !isTabAvailable(activeTab)) {
+    switchTab("home", { persist: false, notifyUnavailable: false });
+  }
 }
 
 function tabNameFromHash() {
@@ -2406,6 +2449,11 @@ function initialTabName() {
 }
 
 function switchTab(name, options = {}) {
+  const unavailable = tabExists(name) && !isTabAvailable(name);
+  if (unavailable && options.notifyUnavailable !== false) {
+    showToast(unavailableTabMessage(name));
+  }
+
   const tabName = validTabName(name) || "home";
   els.tabs.forEach((tab) => tab.classList.toggle("is-active", tab.dataset.tab === tabName));
   els.panels.forEach((panel) => panel.classList.toggle("is-active", panel.id === `${tabName}Panel`));
@@ -2694,7 +2742,10 @@ window.addEventListener("hashchange", () => {
   switchTab(initialTabName(), { persist: false });
 });
 
-window.addEventListener("resize", syncRecentGamesHeight);
+window.addEventListener("resize", () => {
+  syncRecentGamesHeight();
+  syncDeviceTabVisibility();
+});
 
 $$("[data-jump-tab]").forEach((button) => {
   button.addEventListener("click", () => switchTab(button.dataset.jumpTab));
@@ -3006,6 +3057,7 @@ els.importInput.addEventListener("change", (event) => {
 $("#gameDate").value = todayValue();
 syncBattedBallFields();
 render();
+syncDeviceTabVisibility();
 switchTab(initialTabName(), { persist: false });
 initializeCloudSync();
 registerAppWorker();
