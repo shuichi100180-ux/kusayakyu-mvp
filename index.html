@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=49" />
+    <link rel="stylesheet" href="./styles.css?v=50" />
   </head>
   <body>
     <header class="app-header">
@@ -179,9 +179,11 @@
                   <select id="gameSelect" name="gameId" required></select>
                 </label>
                 <div class="pitcher-preset-field">
-                  <p class="muted">同じ試合の過去打席がある投手を選ぶと、入力データを読み込んで修正できます。</p>
                   <label>
-                    過去に登録した投手
+                    <span class="field-label-with-note">
+                      過去に登録した投手
+                      <small>同じ試合の過去打席を読み込んで修正できます</small>
+                    </span>
                     <select id="pcPitcherSelect">
                       <option value="">新規入力</option>
                     </select>
