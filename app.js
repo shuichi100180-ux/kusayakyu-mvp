@@ -28,15 +28,15 @@ const RESULT_DEFS = {
 };
 
 const BATTED_DIRECTION_MARKERS = [
-  { key: "レフト方向", label: "レフト", x: 17, y: 31, type: "outfield" },
-  { key: "センター方向", label: "センター", x: 50, y: 15, type: "outfield" },
-  { key: "ライト方向", label: "ライト", x: 83, y: 31, type: "outfield" },
-  { key: "三塁方向", label: "三塁", x: 27, y: 61, type: "infield" },
-  { key: "遊撃方向", label: "遊撃", x: 35, y: 50, type: "infield" },
-  { key: "投手方向", label: "投手", x: 50, y: 62, type: "infield" },
-  { key: "二塁方向", label: "二塁", x: 65, y: 50, type: "infield" },
-  { key: "一塁方向", label: "一塁", x: 73, y: 61, type: "infield" },
-  { key: "捕手方向", label: "捕手", x: 50, y: 88, type: "infield" },
+  { key: "レフト方向", label: "レフト", x: 18, y: 27, type: "outfield" },
+  { key: "センター方向", label: "センター", x: 50, y: 14, type: "outfield" },
+  { key: "ライト方向", label: "ライト", x: 82, y: 27, type: "outfield" },
+  { key: "三塁方向", label: "三塁", x: 22, y: 66, type: "infield" },
+  { key: "遊撃方向", label: "遊撃", x: 32, y: 45, type: "infield" },
+  { key: "投手方向", label: "投手", x: 50, y: 60, type: "infield" },
+  { key: "二塁方向", label: "二塁", x: 68, y: 45, type: "infield" },
+  { key: "一塁方向", label: "一塁", x: 78, y: 66, type: "infield" },
+  { key: "捕手方向", label: "捕手", x: 50, y: 90, type: "infield" },
 ];
 
 const BATTED_DIRECTION_ALIASES = {
