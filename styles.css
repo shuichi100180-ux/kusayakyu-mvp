@@ -1353,7 +1353,7 @@ textarea {
 }
 
 .memo-row {
-  grid-template-columns: max-content minmax(0, 1fr);
+  grid-template-columns: 7.5em minmax(0, 1fr);
   align-items: start;
   column-gap: 1em;
 }
