@@ -2169,12 +2169,12 @@ function fillMobilePitcherFromPa(pa) {
   fillPitcherFieldsFromPa(els.mobilePaForm, pa);
 }
 
-function mobileResultForForm(pa) {
+function resultForForm(pa) {
   if (!pa?.result) return "";
   return BATTED_OUT_RESULTS.has(pa.result) ? "out" : pa.result;
 }
 
-function mobileBattedTypeForForm(pa) {
+function battedTypeForForm(pa) {
   return pa?.battedType || LEGACY_OUT_BATTED_TYPES[pa?.result] || "";
 }
 
@@ -2233,7 +2233,7 @@ function fillMobilePlateAppearanceForm(pa) {
   setFieldValue(els.mobilePaForm, "sign", pa.sign || "なし");
   setFieldValue(els.mobilePaForm, "stolenBase", pa.stolenBase || "なし");
   setMobileChoice("runScored", String(pa.runScored ?? 0));
-  setMobileChoice("result", mobileResultForForm(pa));
+  setMobileChoice("result", resultForForm(pa));
   setFieldValue(els.mobilePaForm, "pitcherName", pa.pitcherName || "");
   setFieldValue(els.mobilePaForm, "pitcherNumber", pa.pitcherNumber || "");
   setFieldValue(els.mobilePaForm, "pitcherHand", pa.pitcherHand || "");
@@ -2248,7 +2248,7 @@ function fillMobilePlateAppearanceForm(pa) {
 
   if (!skipsBattedBall(pa.result)) {
     setMobileChoice("battedDirection", normalizeBattedDirection(pa.battedDirection));
-    setMobileChoice("battedType", mobileBattedTypeForForm(pa));
+    setMobileChoice("battedType", battedTypeForForm(pa));
   }
 
   setFieldValue(els.mobilePaForm, "memo", pa.memo || "");
@@ -2367,7 +2367,7 @@ function fillPlateAppearanceForm(pa) {
   setFieldValue(els.paForm, "pitcherNumber", pa.pitcherNumber || "");
   setFieldValue(els.paForm, "pitcherHand", pa.pitcherHand || "");
   setFieldValue(els.paForm, "pitchingForm", pa.pitchingForm || "");
-  setFieldValue(els.paForm, "result", pa.result || "");
+  setFieldValue(els.paForm, "result", resultForForm(pa));
   setFieldValue(els.paForm, "risp", pa.risp);
   setFieldValue(els.paForm, "runners", pa.runners || "ランナーなし");
   setFieldValue(els.paForm, "straightVelocity", pa.straightVelocity || "");
@@ -2379,7 +2379,7 @@ function fillPlateAppearanceForm(pa) {
   setFieldValue(els.paForm, "count", normalizeCountLabel(pa.count));
   setFieldValue(els.paForm, "sign", pa.sign || "なし");
   setFieldValue(els.paForm, "battedDirection", normalizeBattedDirection(pa.battedDirection));
-  setFieldValue(els.paForm, "battedType", pa.battedType || "");
+  setFieldValue(els.paForm, "battedType", battedTypeForForm(pa));
   setFieldValue(els.paForm, "stolenBase", pa.stolenBase || "なし");
   setFieldValue(els.paForm, "runScored", pa.runScored ?? 0);
   setFieldValue(els.paForm, "memo", pa.memo || "");
