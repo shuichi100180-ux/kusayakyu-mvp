@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=43" />
+    <link rel="stylesheet" href="./styles.css?v=44" />
   </head>
   <body>
     <header class="app-header">
@@ -64,43 +64,45 @@
           <section class="surface">
             <h3>試合登録</h3>
             <form id="gameForm" class="form-grid">
-              <label>
-                日付
-                <input id="gameDate" name="date" type="date" required />
-              </label>
-              <label>
-                試合種別
-                <select name="gameType">
-                  <option value="">未選択</option>
-                  <option>リーグ戦</option>
-                  <option>トーナメント</option>
-                  <option>練習試合</option>
-                </select>
-              </label>
-              <label>
-                対戦相手
-                <input name="opponent" type="text" placeholder="例：青空クラブ" required />
-              </label>
-              <label>
-                対戦相手クラス
-                <select name="opponentClass">
-                  <option value="">未選択</option>
-                  <option>A級</option>
-                  <option>B級</option>
-                  <option>C級</option>
-                </select>
-              </label>
-              <label>
-                球場
-                <select name="ballpark">
-                  <option value="">未選択</option>
-                  <option>大倉山球場</option>
-                  <option>あじさいメイン</option>
-                  <option>あじさいサブ</option>
-                  <option>糀台球場</option>
-                  <option>その他</option>
-                </select>
-              </label>
+              <div class="game-basic-row">
+                <label>
+                  日付
+                  <input id="gameDate" name="date" type="date" required />
+                </label>
+                <label>
+                  試合種別
+                  <select name="gameType">
+                    <option value="">未選択</option>
+                    <option>リーグ戦</option>
+                    <option>トーナメント</option>
+                    <option>練習試合</option>
+                  </select>
+                </label>
+                <label>
+                  対戦相手
+                  <input name="opponent" type="text" placeholder="例：青空クラブ" required />
+                </label>
+                <label>
+                  対戦相手クラス
+                  <select name="opponentClass">
+                    <option value="">未選択</option>
+                    <option>A級</option>
+                    <option>B級</option>
+                    <option>C級</option>
+                  </select>
+                </label>
+                <label>
+                  球場
+                  <select name="ballpark">
+                    <option value="">未選択</option>
+                    <option>大倉山球場</option>
+                    <option>あじさいメイン</option>
+                    <option>あじさいサブ</option>
+                    <option>糀台球場</option>
+                    <option>その他</option>
+                  </select>
+                </label>
+              </div>
               <div class="score-row">
                 <label>
                   自チーム得点
