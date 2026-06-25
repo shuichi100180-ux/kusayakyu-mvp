@@ -6,6 +6,7 @@ const SYNC_META_KEY = "kusayakyu-sync-meta-v1";
 const SYNC_TABLE = "kusayakyu_sync_data";
 const SYNC_PROFILE_ID = "default";
 const MAX_BACKUPS = 10;
+const MOBILE_NEW_GAME_VALUE = "__new_game__";
 
 const RESULT_DEFS = {
   single: { label: "単打", atBat: true, hit: true, totalBases: 1, onBase: true, single: true },
@@ -150,6 +151,8 @@ const els = {
   gameSelect: $("#gameSelect"),
   pcPitcherSelect: $("#pcPitcherSelect"),
   mobileGameSelect: $("#mobileGameSelect"),
+  mobileGameRegistration: $("#mobileGameRegistration"),
+  mobileGameSaveButton: $("#mobileGameSaveButton"),
   mobileGameSummary: $("#mobileGameSummary"),
   mobilePitcherPresets: $("#mobilePitcherPresets"),
   mobileBattedFields: $("#mobileBattedFields"),
@@ -1489,11 +1492,56 @@ function syncMobileRunnerOptions() {
   syncRunnerOptions(els.mobilePaForm);
 }
 
+function setControlsDisabled(container, disabled) {
+  if (!container) return;
+  container.querySelectorAll("button, input, select, textarea").forEach((field) => {
+    field.disabled = disabled;
+  });
+}
+
+function resetMobileGameRegistrationFields() {
+  if (!els.mobileGameRegistration) return;
+  els.mobileGameRegistration.querySelectorAll("input, select, textarea").forEach((field) => {
+    if (field.type === "date") {
+      field.value = todayValue();
+    } else if (field.tagName === "SELECT") {
+      field.selectedIndex = 0;
+    } else {
+      field.value = "";
+    }
+  });
+}
+
+function syncMobileGameMode() {
+  if (!els.mobileGameSelect) return;
+  const registeringNewGame = els.mobileGameSelect.value === MOBILE_NEW_GAME_VALUE;
+  els.mobileGameRegistration?.classList.toggle("is-hidden", !registeringNewGame);
+  setControlsDisabled(els.mobileGameRegistration, !registeringNewGame);
+
+  $$("[data-mobile-pa-section]").forEach((section) => {
+    section.classList.toggle("is-hidden", registeringNewGame);
+    setControlsDisabled(section, registeringNewGame);
+  });
+
+  if (registeringNewGame) {
+    mobileEditingPaId = "";
+    const dateField = els.mobileGameRegistration?.querySelector('input[name="date"]');
+    if (dateField && !dateField.value) dateField.value = todayValue();
+  }
+
+  renderMobileEditState();
+}
+
 function renderMobileGameSummary() {
   if (!els.mobileGameSummary || !els.mobileGameSelect) return;
+  if (els.mobileGameSelect.value === MOBILE_NEW_GAME_VALUE) {
+    els.mobileGameSummary.textContent = "試合情報を入力して保存すると、この試合の打席入力へ進めます。";
+    return;
+  }
+
   const game = getGame(els.mobileGameSelect.value);
   if (!game) {
-    els.mobileGameSummary.textContent = "試合を選ぶと、次の打席候補が入ります。";
+    els.mobileGameSummary.textContent = "試合を選ぶか、新規登録してください。";
     return;
   }
 
@@ -1507,27 +1555,24 @@ function renderMobileGameSummary() {
 function renderMobileGameSelect() {
   if (!els.mobileGameSelect) return;
 
-  if (!state.games.length) {
-    els.mobileGameSelect.innerHTML = `<option value="">先に試合を登録してください</option>`;
-    els.mobileGameSelect.disabled = true;
-    if (els.mobilePaForm) els.mobilePaForm.querySelectorAll("button, input, select, textarea").forEach((field) => {
-      if (field !== els.mobileGameSelect) field.disabled = true;
-    });
+  const games = sortedGames();
+  const current = els.mobileGameSelect.value || selectedEntryGameId || games[0]?.id || MOBILE_NEW_GAME_VALUE;
+  const selectedId = current === MOBILE_NEW_GAME_VALUE || !games.length
+    ? MOBILE_NEW_GAME_VALUE
+    : games.some((game) => game.id === current) ? current : games[0].id;
+  els.mobileGameSelect.disabled = false;
+  els.mobileGameSelect.innerHTML = [
+    `<option value="${MOBILE_NEW_GAME_VALUE}">新規登録</option>`,
+    ...games.map((game) => `<option value="${escapeHtml(game.id)}">${escapeHtml(gameTitle(game))}</option>`),
+  ].join("");
+  els.mobileGameSelect.value = selectedId;
+  syncMobileGameMode();
+
+  if (selectedId === MOBILE_NEW_GAME_VALUE) {
     renderMobileGameSummary();
+    syncMobileChoiceButtons();
     return;
   }
-
-  const games = sortedGames();
-  const current = els.mobileGameSelect.value || selectedEntryGameId || games[0].id;
-  const selectedId = games.some((game) => game.id === current) ? current : games[0].id;
-  els.mobileGameSelect.disabled = false;
-  if (els.mobilePaForm) els.mobilePaForm.querySelectorAll("button, input, select, textarea").forEach((field) => {
-    field.disabled = false;
-  });
-  els.mobileGameSelect.innerHTML = games
-    .map((game) => `<option value="${escapeHtml(game.id)}">${escapeHtml(gameTitle(game))}</option>`)
-    .join("");
-  els.mobileGameSelect.value = selectedId;
 
   if (els.mobilePaForm && !els.mobilePaForm.elements.plateAppearance.value) {
     setMobileChoice("plateAppearance", nextPlateAppearanceForGame(selectedId));
@@ -2334,6 +2379,38 @@ function resetMobilePlateAppearanceForm(options = {}) {
   syncMobilePlateAppearanceSelection();
 }
 
+function saveMobileGameFromRegistration() {
+  if (!els.mobilePaForm) return false;
+
+  if (!els.mobilePaForm.reportValidity()) {
+    showValidationFailure("スマホ入力で試合を保存できませんでした");
+    return false;
+  }
+
+  const game = gameFromForm(els.mobilePaForm);
+  selectedMemoGameId = game.id;
+  selectedEntryGameId = game.id;
+
+  const saved = commitState(
+    {
+      games: [...state.games, game],
+      plateAppearances: [...state.plateAppearances],
+    },
+    "スマホ入力で試合を保存しました",
+    "スマホ試合保存",
+  );
+
+  if (!saved) return false;
+
+  resetMobileGameRegistrationFields();
+  resetMobilePlateAppearanceForm({ gameId: game.id });
+  renderMobileGameSelect();
+  renderMobilePitcherPresets();
+  syncPitcherStrategyField(els.mobilePaForm);
+  els.mobilePaForm.querySelector(".mobile-result-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  return true;
+}
+
 function cancelGameEdit() {
   editingGameId = "";
   resetGameForm();
@@ -2908,12 +2985,24 @@ els.pcPitcherSelect.addEventListener("input", syncPcPitcherPresetSelection);
 });
 
 els.mobileGameSelect.addEventListener("change", () => {
+  if (els.mobileGameSelect.value === MOBILE_NEW_GAME_VALUE) {
+    syncMobileGameMode();
+    renderMobileGameSummary();
+    renderMobilePitcherPresets();
+    syncPitcherStrategyField(els.mobilePaForm);
+    return;
+  }
+
+  selectedEntryGameId = els.mobileGameSelect.value;
   setMobileChoice("plateAppearance", nextPlateAppearanceForGame(els.mobileGameSelect.value));
+  syncMobileGameMode();
   renderMobileGameSummary();
   renderMobilePitcherPresets();
   syncPitcherStrategyField(els.mobilePaForm);
   syncMobilePlateAppearanceSelection({ clearWhenEmpty: true, preservePitcherWhenEmpty: false });
 });
+
+els.mobileGameSaveButton.addEventListener("click", saveMobileGameFromRegistration);
 
 els.mobilePaForm.addEventListener("click", (event) => {
   const choiceButton = event.target.closest("[data-choice-name]");
@@ -3013,6 +3102,11 @@ els.paForm.addEventListener("submit", (event) => {
 
 els.mobilePaForm.addEventListener("submit", (event) => {
   event.preventDefault();
+
+  if (event.currentTarget.elements.gameId.value === MOBILE_NEW_GAME_VALUE) {
+    saveMobileGameFromRegistration();
+    return;
+  }
 
   if (!state.games.length) {
     showToast("先に試合を登録してください");

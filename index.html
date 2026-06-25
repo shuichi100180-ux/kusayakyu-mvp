@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=41" />
+    <link rel="stylesheet" href="./styles.css?v=42" />
   </head>
   <body>
     <header class="app-header">
@@ -495,9 +495,109 @@
               <select id="mobileGameSelect" name="gameId" required></select>
             </label>
             <p id="mobileGameSummary" class="muted">試合を選ぶと、次の打席候補が入ります。</p>
+            <div id="mobileGameRegistration" class="mobile-game-registration is-hidden">
+              <div class="mobile-two-grid">
+                <label>
+                  日付
+                  <input name="date" type="date" required />
+                </label>
+                <label>
+                  試合種別
+                  <select name="gameType">
+                    <option value="">未選択</option>
+                    <option>リーグ戦</option>
+                    <option>トーナメント</option>
+                    <option>練習試合</option>
+                  </select>
+                </label>
+              </div>
+              <label>
+                対戦相手
+                <input name="opponent" type="text" placeholder="例：青空クラブ" required />
+              </label>
+              <div class="mobile-two-grid">
+                <label>
+                  対戦相手クラス
+                  <select name="opponentClass">
+                    <option value="">未選択</option>
+                    <option>A級</option>
+                    <option>B級</option>
+                    <option>C級</option>
+                  </select>
+                </label>
+                <label>
+                  球場
+                  <select name="ballpark">
+                    <option value="">未選択</option>
+                    <option>大倉山球場</option>
+                    <option>あじさいメイン</option>
+                    <option>あじさいサブ</option>
+                    <option>糀台球場</option>
+                    <option>その他</option>
+                  </select>
+                </label>
+              </div>
+              <div class="mobile-two-grid">
+                <label>
+                  自チーム得点
+                  <input name="ownScore" type="number" min="0" inputmode="numeric" />
+                </label>
+                <label>
+                  相手得点
+                  <input name="opponentScore" type="number" min="0" inputmode="numeric" />
+                </label>
+              </div>
+              <div class="mobile-two-grid">
+                <label>
+                  打順
+                  <select name="battingOrder">
+                    <option value="">未選択</option>
+                    <option value="1">1番</option>
+                    <option value="2">2番</option>
+                    <option value="3">3番</option>
+                    <option value="4">4番</option>
+                    <option value="5">5番</option>
+                    <option value="6">6番</option>
+                    <option value="7">7番</option>
+                    <option value="8">8番</option>
+                    <option value="9">9番</option>
+                  </select>
+                </label>
+                <label>
+                  守備位置
+                  <select name="position">
+                    <option value="">未選択</option>
+                    <option>投手</option>
+                    <option>捕手</option>
+                    <option>一塁手</option>
+                    <option>二塁手</option>
+                    <option>三塁手</option>
+                    <option>遊撃手</option>
+                    <option>左翼手</option>
+                    <option>中堅手</option>
+                    <option>右翼手</option>
+                    <option>指名打者</option>
+                    <option>ベンチスタート</option>
+                  </select>
+                </label>
+              </div>
+              <label>
+                守備の振り返り
+                <textarea name="defenseMemo" rows="3" placeholder="捕球、送球、判断、声かけなど"></textarea>
+              </label>
+              <label>
+                走塁の振り返り
+                <textarea name="baserunningMemo" rows="3" placeholder="スタート、リード、進塁判断など"></textarea>
+              </label>
+              <label>
+                試合メモ
+                <textarea name="gameMemo" rows="3" placeholder="次回意識すること、試合全体の感触など"></textarea>
+              </label>
+              <button class="primary-button" id="mobileGameSaveButton" type="button">試合を保存して打席入力へ</button>
+            </div>
           </section>
 
-          <section class="mobile-card mobile-result-card">
+          <section class="mobile-card mobile-result-card" data-mobile-pa-section>
             <h3>打席結果</h3>
             <h4 class="mobile-field-heading">打席</h4>
             <input name="plateAppearance" type="hidden" />
@@ -574,7 +674,7 @@
             </div>
           </section>
 
-          <section class="mobile-card mobile-pitcher-card">
+          <section class="mobile-card mobile-pitcher-card" data-mobile-pa-section>
             <h3>相手投手</h3>
             <div id="mobilePitcherPresets" class="mobile-pitcher-presets"></div>
             <details class="mobile-pitcher-registration">
@@ -682,7 +782,7 @@
             </details>
           </section>
 
-          <section class="mobile-card">
+          <section class="mobile-card" data-mobile-pa-section>
             <h3>勝負球</h3>
             <div class="mobile-two-grid">
               <label>
@@ -740,7 +840,7 @@
             </div>
           </section>
 
-          <section class="mobile-card" id="mobileBattedFields">
+          <section class="mobile-card" id="mobileBattedFields" data-mobile-pa-section>
             <h3>打球</h3>
             <h4 class="mobile-field-heading">打球方向</h4>
             <input name="battedDirection" type="hidden" />
@@ -770,7 +870,7 @@
             </div>
           </section>
 
-          <section class="mobile-card">
+          <section class="mobile-card" data-mobile-pa-section>
             <h3>メモ</h3>
             <label>
               打席メモ
@@ -782,7 +882,7 @@
             </label>
           </section>
 
-          <div class="mobile-save-bar">
+          <div class="mobile-save-bar" data-mobile-pa-section>
             <button class="primary-button" id="mobilePaSubmitButton" type="submit">保存して次の打席</button>
             <button class="ghost-button" id="mobileClearButton" type="button">リセット</button>
           </div>
@@ -1123,6 +1223,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=47"></script>
+    <script src="./app.js?v=48"></script>
   </body>
 </html>

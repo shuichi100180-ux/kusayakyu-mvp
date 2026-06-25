@@ -1148,6 +1148,14 @@ main {
   gap: 10px;
 }
 
+.mobile-game-registration {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 12px;
+  margin-top: 4px;
+  padding-top: 12px;
+}
+
 .mobile-choice-grid,
 .mobile-course-grid {
   display: grid;
