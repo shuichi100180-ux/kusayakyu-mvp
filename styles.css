@@ -1066,6 +1066,11 @@ main {
   gap: 13px;
 }
 
+.pitcher-preset-field {
+  display: grid;
+  gap: 8px;
+}
+
 .sync-supabase-details {
   display: grid;
   gap: 12px;

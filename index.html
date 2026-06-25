@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=40" />
+    <link rel="stylesheet" href="./styles.css?v=41" />
   </head>
   <body>
     <header class="app-header">
@@ -171,6 +171,15 @@
                 対象試合
                 <select id="gameSelect" name="gameId" required></select>
               </label>
+              <div class="pitcher-preset-field">
+                <label>
+                  過去に登録した投手
+                  <select id="pcPitcherSelect">
+                    <option value="">新規入力</option>
+                  </select>
+                </label>
+                <p class="muted">未登録の投手は、下の投手情報を入力して保存すると次回から選べます。</p>
+              </div>
               <div class="score-row">
                 <label>
                   相手投手
@@ -1117,6 +1126,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=39"></script>
+    <script src="./app.js?v=45"></script>
   </body>
 </html>

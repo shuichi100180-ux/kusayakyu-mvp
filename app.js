@@ -148,6 +148,7 @@ const els = {
   mobilePaForm: $("#mobilePaForm"),
   mobilePaSubmitButton: $("#mobilePaSubmitButton"),
   gameSelect: $("#gameSelect"),
+  pcPitcherSelect: $("#pcPitcherSelect"),
   mobileGameSelect: $("#mobileGameSelect"),
   mobileGameSummary: $("#mobileGameSummary"),
   mobilePitcherPresets: $("#mobilePitcherPresets"),
@@ -1431,13 +1432,18 @@ function renderGameSelect() {
   if (!state.games.length) {
     els.gameSelect.innerHTML = `<option value="">先に試合を登録してください</option>`;
     els.gameSelect.disabled = true;
+    renderPcPitcherPresets();
     return;
   }
 
+  const games = sortedGames();
+  const current = els.gameSelect.value || selectedEntryGameId || games[0].id;
+  const selectedId = games.some((game) => game.id === current) ? current : games[0].id;
   els.gameSelect.disabled = false;
-  els.gameSelect.innerHTML = sortedGames()
+  els.gameSelect.innerHTML = games
     .map((game) => `<option value="${escapeHtml(game.id)}">${escapeHtml(gameTitle(game))}</option>`)
     .join("");
+  els.gameSelect.value = selectedId;
 }
 
 function setMobileChoice(name, value) {
@@ -1533,6 +1539,60 @@ function renderMobileGameSelect() {
   syncMobileBattedBallFields();
 }
 
+function pitcherRowsForGame(gameId) {
+  const game = getGame(gameId);
+  if (!game) return [];
+
+  const opponent = String(game.opponent || "").trim();
+  return groupPitcherStats(state.plateAppearances)
+    .filter((row) => String(row.opponent || "").trim() === opponent)
+    .slice(0, 6);
+}
+
+function renderPcPitcherPresets() {
+  if (!els.pcPitcherSelect || !els.gameSelect) return;
+  const game = getGame(els.gameSelect.value);
+  if (!game) {
+    els.pcPitcherSelect.innerHTML = `<option value="">試合を選択してください</option>`;
+    els.pcPitcherSelect.disabled = true;
+    return;
+  }
+
+  const rows = pitcherRowsForGame(game.id);
+  if (!rows.length) {
+    const opponentLabel = String(game.opponent || "").trim() || "この対戦相手";
+    els.pcPitcherSelect.innerHTML = `<option value="">${escapeHtml(opponentLabel)}の投手データなし（新規入力）</option>`;
+    els.pcPitcherSelect.disabled = true;
+    return;
+  }
+
+  const selectedKey = pitcherStrategyKeyForForm(els.paForm);
+  els.pcPitcherSelect.disabled = false;
+  els.pcPitcherSelect.innerHTML = `
+    <option value="">新規入力</option>
+    ${rows.map((row) => {
+    const pa = latestPaForPitcher(row) || {};
+    const breakingBalls = breakingBallsForPa(pa);
+    return `
+      <option
+        value="${escapeHtml(row.key)}"
+        data-pitcher-name="${escapeHtml(pa.pitcherName || "")}"
+        data-pitcher-number="${escapeHtml(pa.pitcherNumber || "")}"
+        data-pitcher-hand="${escapeHtml(pa.pitcherHand || "")}"
+        data-pitching-form="${escapeHtml(pa.pitchingForm || "")}"
+        data-straight-velocity="${escapeHtml(pa.straightVelocity || "")}"
+        data-breaking-ball-1="${escapeHtml(breakingBalls[0] || "")}"
+        data-breaking-ball-2="${escapeHtml(breakingBalls[1] || "")}"
+        data-breaking-ball-3="${escapeHtml(breakingBalls[2] || "")}"
+      >
+        ${escapeHtml(`${row.pitcher} / 背番号 ${row.number}`)}
+      </option>
+    `;
+  }).join("")}
+  `;
+  els.pcPitcherSelect.value = rows.some((row) => row.key === selectedKey) ? selectedKey : "";
+}
+
 function renderMobilePitcherPresets() {
   if (!els.mobilePitcherPresets || !els.mobileGameSelect) return;
   const game = getGame(els.mobileGameSelect.value);
@@ -1542,9 +1602,7 @@ function renderMobilePitcherPresets() {
   }
 
   const opponent = String(game.opponent || "").trim();
-  const rows = groupPitcherStats(state.plateAppearances)
-    .filter((row) => String(row.opponent || "").trim() === opponent)
-    .slice(0, 6);
+  const rows = pitcherRowsForGame(game.id);
 
   if (!rows.length) {
     const opponentLabel = opponent || "この対戦相手";
@@ -2063,20 +2121,52 @@ function resetPlateAppearanceForm() {
   els.paForm.elements.stolenBase.value = "なし";
   els.paForm.elements.runScored.value = "0";
   syncBattedBallFields();
+  renderPcPitcherPresets();
+}
+
+function fillPitcherFieldsFromPa(form, pa) {
+  if (!form || !pa) return;
+  const breakingBalls = breakingBallsForPa(pa);
+  setFieldValue(form, "pitcherName", pa.pitcherName || "");
+  setFieldValue(form, "pitcherNumber", pa.pitcherNumber || "");
+  setFieldValue(form, "pitcherHand", pa.pitcherHand || "");
+  setFieldValue(form, "pitchingForm", pa.pitchingForm || "");
+  setFieldValue(form, "straightVelocity", pa.straightVelocity || "");
+  setFieldValue(form, "breakingBall1", breakingBalls[0] || "");
+  setFieldValue(form, "breakingBall2", breakingBalls[1] || "");
+  setFieldValue(form, "breakingBall3", breakingBalls[2] || "");
+  syncPitcherStrategyField(form);
+}
+
+function clearPcPitcherFields() {
+  if (!els.paForm) return;
+
+  ["pitcherName", "pitcherNumber", "pitcherHand", "pitchingForm", "straightVelocity", "breakingBall1", "breakingBall2", "breakingBall3"]
+    .forEach((name) => setFieldValue(els.paForm, name, ""));
+  syncPitcherStrategyField(els.paForm);
+}
+
+function fillPcPitcherFromPresetOption(option) {
+  if (!els.paForm || !option?.value) {
+    clearPcPitcherFields();
+    return;
+  }
+
+  const { dataset } = option;
+
+  setFieldValue(els.paForm, "pitcherName", dataset.pitcherName || "");
+  setFieldValue(els.paForm, "pitcherNumber", dataset.pitcherNumber || "");
+  setFieldValue(els.paForm, "pitcherHand", dataset.pitcherHand || "");
+  setFieldValue(els.paForm, "pitchingForm", dataset.pitchingForm || "");
+  setFieldValue(els.paForm, "straightVelocity", dataset.straightVelocity || "");
+  setFieldValue(els.paForm, "breakingBall1", dataset.breakingBall1 || "");
+  setFieldValue(els.paForm, "breakingBall2", dataset.breakingBall2 || "");
+  setFieldValue(els.paForm, "breakingBall3", dataset.breakingBall3 || "");
+  syncPitcherStrategyField(els.paForm);
 }
 
 function fillMobilePitcherFromPa(pa) {
-  if (!els.mobilePaForm || !pa) return;
-  const breakingBalls = breakingBallsForPa(pa);
-  setFieldValue(els.mobilePaForm, "pitcherName", pa.pitcherName || "");
-  setFieldValue(els.mobilePaForm, "pitcherNumber", pa.pitcherNumber || "");
-  setFieldValue(els.mobilePaForm, "pitcherHand", pa.pitcherHand || "");
-  setFieldValue(els.mobilePaForm, "pitchingForm", pa.pitchingForm || "");
-  setFieldValue(els.mobilePaForm, "straightVelocity", pa.straightVelocity || "");
-  setFieldValue(els.mobilePaForm, "breakingBall1", breakingBalls[0] || "");
-  setFieldValue(els.mobilePaForm, "breakingBall2", breakingBalls[1] || "");
-  setFieldValue(els.mobilePaForm, "breakingBall3", breakingBalls[2] || "");
-  syncPitcherStrategyField(els.mobilePaForm);
+  fillPitcherFieldsFromPa(els.mobilePaForm, pa);
 }
 
 function mobileResultForForm(pa) {
@@ -2295,6 +2385,7 @@ function fillPlateAppearanceForm(pa) {
   setFieldValue(els.paForm, "memo", pa.memo || "");
   setFieldValue(els.paForm, "pitcherStrategy", pitcherStrategyText(pitcherProfileKey(pa)));
   syncBattedBallFields();
+  renderPcPitcherPresets();
 }
 
 function startGameEdit(gameId) {
@@ -2337,6 +2428,7 @@ function startPlateAppearanceEdit(paId) {
 
 function render() {
   renderGameSelect();
+  renderPcPitcherPresets();
   renderMobileGameSelect();
   renderMobilePitcherPresets();
   renderHome();
@@ -2787,10 +2879,28 @@ els.mobilePaForm.addEventListener("invalid", () => {
   showValidationFailure("スマホ入力を保存できませんでした");
 }, true);
 
+els.gameSelect.addEventListener("change", () => {
+  renderPcPitcherPresets();
+  syncPitcherStrategyField(els.paForm);
+});
+
 els.paForm.elements.result.addEventListener("change", syncBattedBallFields);
 els.mobilePaForm.elements.risp.addEventListener("change", syncMobileRunnerOptions);
 bindPitcherStrategyLookup(els.paForm);
 bindPitcherStrategyLookup(els.mobilePaForm);
+
+function syncPcPitcherPresetSelection() {
+  fillPcPitcherFromPresetOption(els.pcPitcherSelect.selectedOptions[0]);
+}
+
+els.pcPitcherSelect.addEventListener("change", syncPcPitcherPresetSelection);
+els.pcPitcherSelect.addEventListener("input", syncPcPitcherPresetSelection);
+
+["pitcherName", "pitcherNumber"].forEach((name) => {
+  els.paForm.elements[name].addEventListener("input", () => {
+    if (els.pcPitcherSelect) els.pcPitcherSelect.value = "";
+  });
+});
 
 els.mobileGameSelect.addEventListener("change", () => {
   setMobileChoice("plateAppearance", nextPlateAppearanceForGame(els.mobileGameSelect.value));
