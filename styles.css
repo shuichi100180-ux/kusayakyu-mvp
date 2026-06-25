@@ -1058,6 +1058,16 @@ main {
     minmax(150px, 1fr);
 }
 
+.game-player-row {
+  display: grid;
+  gap: 10px;
+  grid-template-columns:
+    minmax(120px, 0.75fr)
+    minmax(120px, 0.75fr)
+    minmax(120px, 0.7fr)
+    minmax(180px, 1.2fr);
+}
+
 .align-start {
   align-items: start;
 }
