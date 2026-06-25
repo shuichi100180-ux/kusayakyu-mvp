@@ -2243,6 +2243,84 @@ function fillPcPitcherFromPresetOption(option) {
   syncPitcherStrategyField(els.paForm);
 }
 
+function pcPlateAppearancesForSelectedPitcher() {
+  if (!els.paForm || !els.pcPitcherSelect?.value) return [];
+  const gameId = els.paForm.elements.gameId.value;
+  const pitcherKey = els.pcPitcherSelect.value;
+  return sortedPlateAppearances()
+    .filter((pa) => pa.gameId === gameId && pitcherProfileKey(pa) === pitcherKey);
+}
+
+function selectedPcPitcherPlateAppearance(options = {}) {
+  const rows = pcPlateAppearancesForSelectedPitcher();
+  if (!rows.length) return null;
+
+  const selectedSlot = els.paForm.elements.plateAppearance.value;
+  const selectedPa = rows.find((pa) => plateAppearanceSlot(pa) === selectedSlot);
+  if (selectedPa) return selectedPa;
+  return options.fallbackToLatest === false ? null : rows[0];
+}
+
+function syncPcPlateAppearanceFromPitcherSelection() {
+  const option = els.pcPitcherSelect.selectedOptions[0];
+  const wasEditing = Boolean(editingPaId);
+  fillPcPitcherFromPresetOption(option);
+
+  if (!option?.value) {
+    if (wasEditing) clearPcPlateAppearanceDetails();
+    editingPaId = "";
+    renderEditState();
+    return;
+  }
+
+  const pa = selectedPcPitcherPlateAppearance();
+  if (!pa) {
+    if (wasEditing) clearPcPlateAppearanceDetails();
+    editingPaId = "";
+    renderEditState();
+    return;
+  }
+
+  editingPaId = pa.id;
+  fillPlateAppearanceForm(pa);
+  renderEditState();
+  showToast(`${plateAppearanceSlot(pa) || "打席"}の入力データを読み込みました`);
+}
+
+function clearPcPlateAppearanceDetails() {
+  if (!els.paForm) return;
+  setFieldValue(els.paForm, "result", "");
+  setFieldValue(els.paForm, "rbi", 0);
+  setFieldValue(els.paForm, "risp", false);
+  syncRunnerOptions(els.paForm);
+  setFieldValue(els.paForm, "runners", "ランナーなし");
+  setFieldValue(els.paForm, "pitchType", "");
+  setFieldValue(els.paForm, "course", "");
+  setFieldValue(els.paForm, "count", "");
+  setFieldValue(els.paForm, "sign", "なし");
+  setFieldValue(els.paForm, "battedDirection", "");
+  setFieldValue(els.paForm, "battedType", "");
+  setFieldValue(els.paForm, "stolenBase", "なし");
+  setFieldValue(els.paForm, "runScored", "0");
+  setFieldValue(els.paForm, "memo", "");
+  syncBattedBallFields();
+}
+
+function syncPcPlateAppearanceFromSlotSelection() {
+  if (!els.pcPitcherSelect?.value) return;
+
+  const pa = selectedPcPitcherPlateAppearance({ fallbackToLatest: false });
+  if (pa) {
+    editingPaId = pa.id;
+    fillPlateAppearanceForm(pa);
+  } else {
+    editingPaId = "";
+    clearPcPlateAppearanceDetails();
+  }
+
+  renderEditState();
+}
+
 function fillMobilePitcherFromPa(pa) {
   fillPitcherFieldsFromPa(els.mobilePaForm, pa);
 }
@@ -3033,18 +3111,21 @@ els.mobilePaForm.addEventListener("invalid", () => {
 }, true);
 
 els.gameSelect.addEventListener("change", () => {
+  editingPaId = "";
   renderPcPitcherPresets();
   syncPitcherStrategyField(els.paForm);
+  renderEditState();
 });
 
 els.paForm.elements.result.addEventListener("change", syncBattedBallFields);
+els.paForm.elements.plateAppearance.addEventListener("change", syncPcPlateAppearanceFromSlotSelection);
 els.paForm.elements.risp.addEventListener("change", () => syncRunnerOptions(els.paForm));
 els.mobilePaForm.elements.risp.addEventListener("change", syncMobileRunnerOptions);
 bindPitcherStrategyLookup(els.paForm);
 bindPitcherStrategyLookup(els.mobilePaForm);
 
 function syncPcPitcherPresetSelection() {
-  fillPcPitcherFromPresetOption(els.pcPitcherSelect.selectedOptions[0]);
+  syncPcPlateAppearanceFromPitcherSelection();
 }
 
 els.pcPitcherSelect.addEventListener("change", syncPcPitcherPresetSelection);
@@ -3148,7 +3229,9 @@ els.paForm.addEventListener("submit", (event) => {
     return;
   }
 
-  const existingPa = editingPaId ? getPlateAppearance(editingPaId) : null;
+  const form = event.currentTarget;
+  const existingPa = (editingPaId ? getPlateAppearance(editingPaId) : null)
+    || findPlateAppearanceForGameSlot(form.elements.gameId.value, form.elements.plateAppearance.value);
 
   if (editingPaId && !existingPa) {
     showToast("更新する打席が見つかりません");
@@ -3156,12 +3239,12 @@ els.paForm.addEventListener("submit", (event) => {
     return;
   }
 
-  const pa = plateAppearanceFromForm(event.currentTarget, existingPa);
+  const pa = plateAppearanceFromForm(form, existingPa);
   selectedEntryGameId = pa.gameId;
   const plateAppearanceState = existingPa
     ? {
         games: [...state.games],
-        plateAppearances: state.plateAppearances.map((item) => item.id === editingPaId ? pa : item),
+        plateAppearances: state.plateAppearances.map((item) => item.id === existingPa.id ? pa : item),
       }
     : {
         games: [...state.games],
@@ -3170,7 +3253,7 @@ els.paForm.addEventListener("submit", (event) => {
   const nextState = withPitcherStrategy(
     plateAppearanceState,
     pa,
-    event.currentTarget.elements.pitcherStrategy.value,
+    form.elements.pitcherStrategy.value,
   );
 
   if (commitState(nextState, existingPa ? "打席を更新しました" : "打席を保存しました", existingPa ? "打席更新" : "打席保存")) {
