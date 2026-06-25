@@ -1,9 +1,9 @@
-const CACHE_NAME = "kusayakyu-log-v53";
+const CACHE_NAME = "kusayakyu-log-v54";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./styles.css?v=41",
-  "./app.js?v=46",
+  "./app.js?v=47",
   "./manifest.webmanifest",
   "./icon.svg",
 ];

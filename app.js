@@ -72,7 +72,7 @@ const PITCH_OUTCOME_CATEGORIES = [
 const COUNT_HEATMAP_STRIKES = ["0S", "1S", "2S"];
 const COUNT_HEATMAP_BALLS = ["0B", "1B", "2B", "3B"];
 
-const MOBILE_RUNNER_OPTIONS = {
+const RUNNER_OPTIONS = {
   regular: ["ランナーなし", "1塁"],
   risp: ["2塁", "3塁", "1・2塁", "1・3塁", "2・3塁", "満塁"],
 };
@@ -1475,16 +1475,18 @@ function syncMobileChoiceButtons() {
     .forEach(updateMobileChoiceButtons);
 }
 
-function syncMobileRunnerOptions() {
-  if (!els.mobilePaForm) return;
-  const runners = els.mobilePaForm.elements.runners;
+function syncRunnerOptions(form) {
+  if (!form?.elements?.runners || !form.elements.risp) return;
+  const runners = form.elements.runners;
   const currentValue = runners.value;
-  const options = els.mobilePaForm.elements.risp.checked
-    ? MOBILE_RUNNER_OPTIONS.risp
-    : MOBILE_RUNNER_OPTIONS.regular;
+  const options = form.elements.risp.checked ? RUNNER_OPTIONS.risp : RUNNER_OPTIONS.regular;
 
   runners.innerHTML = options.map((value) => `<option>${escapeHtml(value)}</option>`).join("");
   runners.value = options.includes(currentValue) ? currentValue : options[0];
+}
+
+function syncMobileRunnerOptions() {
+  syncRunnerOptions(els.mobilePaForm);
 }
 
 function renderMobileGameSummary() {
@@ -2117,6 +2119,7 @@ function resetPlateAppearanceForm() {
   els.gameSelect.value = selectedGame;
   els.paForm.elements.rbi.value = 0;
   els.paForm.elements.sign.value = "なし";
+  syncRunnerOptions(els.paForm);
   els.paForm.elements.runners.value = "ランナーなし";
   els.paForm.elements.stolenBase.value = "なし";
   els.paForm.elements.runScored.value = "0";
@@ -2369,6 +2372,7 @@ function fillPlateAppearanceForm(pa) {
   setFieldValue(els.paForm, "pitchingForm", pa.pitchingForm || "");
   setFieldValue(els.paForm, "result", resultForForm(pa));
   setFieldValue(els.paForm, "risp", pa.risp);
+  syncRunnerOptions(els.paForm);
   setFieldValue(els.paForm, "runners", pa.runners || "ランナーなし");
   setFieldValue(els.paForm, "straightVelocity", pa.straightVelocity || "");
   setFieldValue(els.paForm, "breakingBall1", breakingBalls[0] || "");
@@ -2885,6 +2889,7 @@ els.gameSelect.addEventListener("change", () => {
 });
 
 els.paForm.elements.result.addEventListener("change", syncBattedBallFields);
+els.paForm.elements.risp.addEventListener("change", () => syncRunnerOptions(els.paForm));
 els.mobilePaForm.elements.risp.addEventListener("change", syncMobileRunnerOptions);
 bindPitcherStrategyLookup(els.paForm);
 bindPitcherStrategyLookup(els.mobilePaForm);
@@ -3165,6 +3170,7 @@ els.importInput.addEventListener("change", (event) => {
 });
 
 $("#gameDate").value = todayValue();
+syncRunnerOptions(els.paForm);
 syncBattedBallFields();
 render();
 syncDeviceTabVisibility();
