@@ -509,7 +509,13 @@
               </div>
               <label>
                 対戦相手
-                <input name="opponent" type="text" placeholder="例：青空クラブ" required />
+                <select id="mobileOpponentSelect" name="opponentSelect" required>
+                  <option value="__new_opponent__">新規登録</option>
+                </select>
+              </label>
+              <label class="opponent-new-field" id="mobileOpponentNewField">
+                新規対戦相手
+                <input id="mobileOpponentInput" name="opponent" type="text" placeholder="例：青空クラブ" required />
               </label>
               <div class="mobile-two-grid">
                 <label>
@@ -1219,6 +1225,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=51"></script>
+    <script src="./app.js?v=52"></script>
   </body>
 </html>

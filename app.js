@@ -158,6 +158,9 @@ const els = {
   mobileGameSelect: $("#mobileGameSelect"),
   mobileGameRegistration: $("#mobileGameRegistration"),
   mobileGameSaveButton: $("#mobileGameSaveButton"),
+  mobileOpponentSelect: $("#mobileOpponentSelect"),
+  mobileOpponentInput: $("#mobileOpponentInput"),
+  mobileOpponentNewField: $("#mobileOpponentNewField"),
   mobileGameSummary: $("#mobileGameSummary"),
   mobilePitcherPresets: $("#mobilePitcherPresets"),
   mobileBattedFields: $("#mobileBattedFields"),
@@ -1461,36 +1464,60 @@ function opponentOptions() {
     .sort((a, b) => a.localeCompare(b, "ja"));
 }
 
-function syncOpponentInputMode() {
-  if (!els.opponentSelect || !els.opponentInput || !els.opponentNewField) return;
-  const isNew = els.opponentSelect.value === NEW_OPPONENT_VALUE;
-  els.opponentNewField.closest(".game-basic-row")?.classList.toggle("is-new-opponent", isNew);
-  els.opponentNewField.classList.toggle("is-hidden", !isNew);
-  els.opponentInput.required = isNew;
-  els.opponentInput.disabled = !isNew;
-  if (!isNew) els.opponentInput.value = "";
+function opponentControls(mode = "desktop") {
+  if (mode === "mobile") {
+    return {
+      select: els.mobileOpponentSelect,
+      input: els.mobileOpponentInput,
+      newField: els.mobileOpponentNewField,
+    };
+  }
+  return {
+    select: els.opponentSelect,
+    input: els.opponentInput,
+    newField: els.opponentNewField,
+  };
 }
 
-function currentOpponentFormValue() {
-  if (!els.opponentSelect || !els.opponentInput) return "";
-  return els.opponentSelect.value === NEW_OPPONENT_VALUE
-    ? els.opponentInput.value
-    : els.opponentSelect.value;
+function syncOpponentInputMode(controls = opponentControls()) {
+  const { select, input, newField } = controls;
+  if (!select || !input || !newField) return;
+  const isNew = select.value === NEW_OPPONENT_VALUE;
+  newField.closest(".game-basic-row")?.classList.toggle("is-new-opponent", isNew);
+  newField.classList.toggle("is-hidden", !isNew);
+  input.required = isNew;
+  input.disabled = !isNew;
+  if (!isNew) input.value = "";
 }
 
-function renderOpponentSelect(preferredValue = currentOpponentFormValue()) {
-  if (!els.opponentSelect) return;
+function currentOpponentFormValue(controls = opponentControls()) {
+  const { select, input } = controls;
+  if (!select || !input) return "";
+  return select.value === NEW_OPPONENT_VALUE ? input.value : select.value;
+}
+
+function renderOpponentOptions(controls = opponentControls(), preferredValue = currentOpponentFormValue(controls)) {
+  const { select, input } = controls;
+  if (!select) return;
   const opponents = opponentOptions();
   const selectedValue = opponents.includes(preferredValue) ? preferredValue : NEW_OPPONENT_VALUE;
   const newOpponentValue = selectedValue === NEW_OPPONENT_VALUE ? preferredValue : "";
 
-  els.opponentSelect.innerHTML = [
+  select.innerHTML = [
     `<option value="${NEW_OPPONENT_VALUE}">新規登録</option>`,
     ...opponents.map((opponent) => `<option value="${escapeHtml(opponent)}">${escapeHtml(opponent)}</option>`),
   ].join("");
-  els.opponentSelect.value = selectedValue;
-  if (els.opponentInput) els.opponentInput.value = newOpponentValue;
-  syncOpponentInputMode();
+  select.value = selectedValue;
+  if (input) input.value = newOpponentValue;
+  syncOpponentInputMode(controls);
+}
+
+function renderOpponentSelect(preferredValue = currentOpponentFormValue(opponentControls())) {
+  renderOpponentOptions(opponentControls(), preferredValue);
+}
+
+function renderMobileOpponentSelect(preferredValue = currentOpponentFormValue(opponentControls("mobile"))) {
+  renderOpponentOptions(opponentControls("mobile"), preferredValue);
 }
 
 function setMobileChoice(name, value) {
@@ -1554,12 +1581,14 @@ function resetMobileGameRegistrationFields() {
       field.value = "";
     }
   });
+  renderMobileOpponentSelect();
 }
 
 function fillMobileGameRegistrationFields(game) {
   if (!els.mobilePaForm || !game) return;
   setFieldValue(els.mobilePaForm, "date", game.date || todayValue());
   setFieldValue(els.mobilePaForm, "gameType", game.gameType || "");
+  renderMobileOpponentSelect(game.opponent || "");
   setFieldValue(els.mobilePaForm, "opponent", game.opponent || "");
   setFieldValue(els.mobilePaForm, "opponentClass", game.opponentClass || "");
   setFieldValue(els.mobilePaForm, "ballpark", game.ballpark || "");
@@ -2704,6 +2733,7 @@ function startPlateAppearanceEdit(paId) {
 
 function render() {
   renderOpponentSelect();
+  renderMobileOpponentSelect();
   renderGameSelect();
   renderPcPitcherPresets();
   renderMobileGameSelect();
@@ -3155,6 +3185,13 @@ els.opponentSelect.addEventListener("change", () => {
     els.opponentInput.value = "";
   }
   syncOpponentInputMode();
+});
+
+els.mobileOpponentSelect.addEventListener("change", () => {
+  if (els.mobileOpponentSelect.value === NEW_OPPONENT_VALUE) {
+    els.mobileOpponentInput.value = "";
+  }
+  syncOpponentInputMode(opponentControls("mobile"));
 });
 
 els.paForm.addEventListener("invalid", () => {
