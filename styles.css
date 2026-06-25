@@ -1042,6 +1042,11 @@ main {
   gap: 16px;
 }
 
+.entry-stack {
+  display: grid;
+  gap: 16px;
+}
+
 .align-start {
   align-items: start;
 }
