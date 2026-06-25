@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=47" />
+    <link rel="stylesheet" href="./styles.css?v=48" />
   </head>
   <body>
     <header class="app-header">
@@ -167,20 +167,22 @@
           <section class="surface">
             <h3>打席入力</h3>
             <form id="paForm" class="form-grid">
-              <label>
-                対象試合
-                <select id="gameSelect" name="gameId" required></select>
-              </label>
-              <div class="pitcher-preset-field">
+              <div class="pa-game-row">
                 <label>
-                  過去に登録した投手
-                  <select id="pcPitcherSelect">
-                    <option value="">新規入力</option>
-                  </select>
+                  対象試合
+                  <select id="gameSelect" name="gameId" required></select>
                 </label>
-                <p class="muted">同じ試合の過去打席がある投手を選ぶと、入力データを読み込んで修正できます。</p>
+                <div class="pitcher-preset-field">
+                  <label>
+                    過去に登録した投手
+                    <select id="pcPitcherSelect">
+                      <option value="">新規入力</option>
+                    </select>
+                  </label>
+                  <p class="muted">同じ試合の過去打席がある投手を選ぶと、入力データを読み込んで修正できます。</p>
+                </div>
               </div>
-              <div class="score-row">
+              <div class="pa-pitcher-row">
                 <label>
                   相手投手
                   <input name="pitcherName" type="text" placeholder="投手名" required />
@@ -189,8 +191,6 @@
                   背番号
                   <input name="pitcherNumber" type="text" inputmode="numeric" placeholder="例：18" />
                 </label>
-              </div>
-              <div class="score-row">
                 <label>
                   投手の左右
                   <select name="pitcherHand">
@@ -211,7 +211,7 @@
                   </select>
                 </label>
               </div>
-              <div class="score-row">
+              <div class="pa-arsenal-row">
                 <label>
                   ストレートの球速
                   <select name="straightVelocity">
@@ -238,8 +238,6 @@
                     <option>不明</option>
                   </select>
                 </label>
-              </div>
-              <div class="score-row">
                 <label>
                   変化球2
                   <select name="breakingBall2">
@@ -275,7 +273,7 @@
                   </select>
                 </label>
               </div>
-              <div class="score-row">
+              <div class="pa-result-row">
                 <label>
                   打席
                   <select name="plateAppearance">
@@ -304,12 +302,10 @@
                     <option value="sacBunt">犠打</option>
                   </select>
                 </label>
-              </div>
-              <label class="checkbox-line">
-                <input name="risp" type="checkbox" />
-                得点圏での打席
-              </label>
-              <div class="score-row">
+                <label class="checkbox-line pa-checkbox-field">
+                  <input name="risp" type="checkbox" />
+                  得点圏での打席
+                </label>
                 <label>
                   ランナー
                   <select name="runners">
@@ -332,8 +328,6 @@
                     <option>スクイズ</option>
                   </select>
                 </label>
-              </div>
-              <div class="score-row">
                 <label>
                   打点
                   <input name="rbi" type="number" min="0" max="4" value="0" inputmode="numeric" />
@@ -348,8 +342,6 @@
                     <option>盗塁1成功1失敗</option>
                   </select>
                 </label>
-              </div>
-              <div class="score-row">
                 <label>
                   得点
                   <select name="runScored">
@@ -358,7 +350,7 @@
                   </select>
                 </label>
               </div>
-              <div class="score-row">
+              <div class="pa-pitch-row">
                 <label>
                   カウント
                   <select name="count">
@@ -394,25 +386,23 @@
                     <option>不明</option>
                   </select>
                 </label>
-              </div>
-              <label>
-                コース
-                <select name="course">
-                  <option value="">未選択</option>
-                  <option>外角高め</option>
-                  <option>真ん中高め</option>
-                  <option>内角高め</option>
-                  <option>外角真ん中</option>
-                  <option>真ん中</option>
-                  <option>内角真ん中</option>
-                  <option>外角低め</option>
-                  <option>真ん中低め</option>
-                  <option>内角低め</option>
-                  <option>ボール球</option>
-                  <option>不明</option>
-                </select>
-              </label>
-              <div class="score-row">
+                <label>
+                  コース
+                  <select name="course">
+                    <option value="">未選択</option>
+                    <option>外角高め</option>
+                    <option>真ん中高め</option>
+                    <option>内角高め</option>
+                    <option>外角真ん中</option>
+                    <option>真ん中</option>
+                    <option>内角真ん中</option>
+                    <option>外角低め</option>
+                    <option>真ん中低め</option>
+                    <option>内角低め</option>
+                    <option>ボール球</option>
+                    <option>不明</option>
+                  </select>
+                </label>
                 <label>
                   打球方向
                   <select name="battedDirection">

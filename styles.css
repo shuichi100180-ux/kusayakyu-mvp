@@ -1068,6 +1068,68 @@ main {
     minmax(180px, 1.2fr);
 }
 
+.pa-game-row,
+.pa-pitcher-row,
+.pa-arsenal-row,
+.pa-result-row,
+.pa-pitch-row {
+  display: grid;
+  gap: 10px;
+  align-items: start;
+}
+
+.pa-game-row > *,
+.pa-pitcher-row > *,
+.pa-arsenal-row > *,
+.pa-result-row > *,
+.pa-pitch-row > * {
+  min-width: 0;
+}
+
+.pa-game-row {
+  grid-template-columns: minmax(360px, 1.35fr) minmax(320px, 1fr);
+}
+
+.pa-pitcher-row {
+  grid-template-columns:
+    minmax(220px, 1.6fr)
+    minmax(90px, 0.6fr)
+    minmax(105px, 0.7fr)
+    minmax(180px, 1.1fr);
+}
+
+.pa-arsenal-row {
+  grid-template-columns:
+    minmax(140px, 0.8fr)
+    repeat(3, minmax(155px, 1fr));
+}
+
+.pa-result-row {
+  grid-template-columns:
+    minmax(92px, 0.65fr)
+    minmax(132px, 0.95fr)
+    max-content
+    minmax(125px, 0.9fr)
+    minmax(110px, 0.8fr)
+    minmax(72px, 0.5fr)
+    minmax(165px, 1.15fr)
+    minmax(70px, 0.5fr);
+}
+
+.pa-pitch-row {
+  grid-template-columns:
+    minmax(115px, 0.75fr)
+    minmax(155px, 1.05fr)
+    minmax(155px, 1.05fr)
+    minmax(155px, 1.05fr)
+    minmax(130px, 0.9fr);
+}
+
+.pa-checkbox-field {
+  align-self: end;
+  min-height: 44px;
+}
+
 .align-start {
   align-items: start;
 }
@@ -1788,6 +1850,19 @@ th {
   transform: translateX(-50%) translateY(0);
 }
 
+@media (max-width: 1100px) {
+  .pa-game-row,
+  .pa-pitcher-row,
+  .pa-arsenal-row,
+  .pa-pitch-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pa-result-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 900px) {
   .app-header,
   .section-heading {
@@ -2033,6 +2108,14 @@ th {
   .score-row {
     flex-direction: column;
     gap: 12px;
+  }
+
+  .pa-game-row,
+  .pa-pitcher-row,
+  .pa-arsenal-row,
+  .pa-result-row,
+  .pa-pitch-row {
+    grid-template-columns: 1fr;
   }
 
   .score-row > * {
