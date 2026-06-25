@@ -179,13 +179,13 @@
                   <select id="gameSelect" name="gameId" required></select>
                 </label>
                 <div class="pitcher-preset-field">
+                  <p class="muted">同じ試合の過去打席がある投手を選ぶと、入力データを読み込んで修正できます。</p>
                   <label>
                     過去に登録した投手
                     <select id="pcPitcherSelect">
                       <option value="">新規入力</option>
                     </select>
                   </label>
-                  <p class="muted">同じ試合の過去打席がある投手を選ぶと、入力データを読み込んで修正できます。</p>
                 </div>
               </div>
               <div class="pa-pitcher-row">
@@ -453,22 +453,6 @@
             </form>
           </section>
         </div>
-
-        <section class="surface">
-          <div class="surface-header">
-            <h3>登録済みの試合</h3>
-            <span id="gameCount" class="pill">0試合</span>
-          </div>
-          <div id="gameList" class="list-stack"></div>
-        </section>
-
-        <section class="surface">
-          <div class="surface-header">
-            <h3>登録済みの打席</h3>
-            <span id="paCount" class="pill">0打席</span>
-          </div>
-          <div id="paList" class="list-stack"></div>
-        </section>
       </section>
 
       <section class="tab-panel mobile-entry-panel" id="mobilePanel">
@@ -1225,6 +1209,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=52"></script>
+    <script src="./app.js?v=53"></script>
   </body>
 </html>

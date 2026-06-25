@@ -1853,6 +1853,7 @@ function renderRecentPlateAppearances() {
 }
 
 function renderGameList() {
+  if (!els.gameList || !els.gameCount) return;
   els.gameCount.textContent = `${state.games.length}試合`;
 
   if (!state.games.length) {
@@ -1896,6 +1897,7 @@ function renderGameList() {
 }
 
 function renderPlateAppearanceList() {
+  if (!els.paList || !els.paCount) return;
   const game = selectedEntryGame();
 
   if (!game) {
@@ -3414,7 +3416,7 @@ els.mobilePaForm.addEventListener("submit", (event) => {
   }
 });
 
-els.gameList.addEventListener("click", (event) => {
+els.gameList?.addEventListener("click", (event) => {
   const selectButton = event.target.closest("[data-entry-game]");
   if (selectButton) {
     selectedEntryGameId = selectButton.dataset.entryGame;
@@ -3451,7 +3453,7 @@ els.gameList.addEventListener("click", (event) => {
   );
 });
 
-els.paList.addEventListener("click", (event) => {
+els.paList?.addEventListener("click", (event) => {
   const editButton = event.target.closest("[data-edit-pa]");
   if (editButton) {
     startPlateAppearanceEdit(editButton.dataset.editPa);
