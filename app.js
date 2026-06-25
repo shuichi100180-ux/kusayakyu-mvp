@@ -7,6 +7,7 @@ const SYNC_TABLE = "kusayakyu_sync_data";
 const SYNC_PROFILE_ID = "default";
 const MAX_BACKUPS = 10;
 const MOBILE_NEW_GAME_VALUE = "__new_game__";
+const NEW_OPPONENT_VALUE = "__new_opponent__";
 
 const RESULT_DEFS = {
   single: { label: "単打", atBat: true, hit: true, totalBases: 1, onBase: true, single: true },
@@ -146,6 +147,9 @@ const els = {
   recentGames: $("#recentGames"),
   recentPlateAppearances: $("#recentPlateAppearances"),
   gameForm: $("#gameForm"),
+  opponentSelect: $("#opponentSelect"),
+  opponentInput: $("#opponentInput"),
+  opponentNewField: $("#opponentNewField"),
   paForm: $("#paForm"),
   mobilePaForm: $("#mobilePaForm"),
   mobilePaSubmitButton: $("#mobilePaSubmitButton"),
@@ -1450,6 +1454,45 @@ function renderGameSelect() {
   els.gameSelect.value = selectedId;
 }
 
+function opponentOptions() {
+  return [...new Set(state.games
+    .map((game) => String(game.opponent || "").trim())
+    .filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "ja"));
+}
+
+function syncOpponentInputMode() {
+  if (!els.opponentSelect || !els.opponentInput || !els.opponentNewField) return;
+  const isNew = els.opponentSelect.value === NEW_OPPONENT_VALUE;
+  els.opponentNewField.closest(".game-basic-row")?.classList.toggle("is-new-opponent", isNew);
+  els.opponentNewField.classList.toggle("is-hidden", !isNew);
+  els.opponentInput.required = isNew;
+  els.opponentInput.disabled = !isNew;
+  if (!isNew) els.opponentInput.value = "";
+}
+
+function currentOpponentFormValue() {
+  if (!els.opponentSelect || !els.opponentInput) return "";
+  return els.opponentSelect.value === NEW_OPPONENT_VALUE
+    ? els.opponentInput.value
+    : els.opponentSelect.value;
+}
+
+function renderOpponentSelect(preferredValue = currentOpponentFormValue()) {
+  if (!els.opponentSelect) return;
+  const opponents = opponentOptions();
+  const selectedValue = opponents.includes(preferredValue) ? preferredValue : NEW_OPPONENT_VALUE;
+  const newOpponentValue = selectedValue === NEW_OPPONENT_VALUE ? preferredValue : "";
+
+  els.opponentSelect.innerHTML = [
+    `<option value="${NEW_OPPONENT_VALUE}">新規登録</option>`,
+    ...opponents.map((opponent) => `<option value="${escapeHtml(opponent)}">${escapeHtml(opponent)}</option>`),
+  ].join("");
+  els.opponentSelect.value = selectedValue;
+  if (els.opponentInput) els.opponentInput.value = newOpponentValue;
+  syncOpponentInputMode();
+}
+
 function setMobileChoice(name, value) {
   if (!els.mobilePaForm) return;
   const field = els.mobilePaForm.elements[name];
@@ -2186,6 +2229,7 @@ function renderEditState() {
 function resetGameForm() {
   els.gameForm.reset();
   $("#gameDate").value = todayValue();
+  renderOpponentSelect();
 }
 
 function resetPlateAppearanceForm() {
@@ -2571,6 +2615,7 @@ function cancelPlateAppearanceEdit() {
 function fillGameForm(game) {
   setFieldValue(els.gameForm, "date", game.date || todayValue());
   setFieldValue(els.gameForm, "gameType", game.gameType || "");
+  renderOpponentSelect(game.opponent || "");
   setFieldValue(els.gameForm, "opponent", game.opponent || "");
   setFieldValue(els.gameForm, "opponentClass", game.opponentClass || "");
   setFieldValue(els.gameForm, "ballpark", game.ballpark || "");
@@ -2658,6 +2703,7 @@ function startPlateAppearanceEdit(paId) {
 }
 
 function render() {
+  renderOpponentSelect();
   renderGameSelect();
   renderPcPitcherPresets();
   renderMobileGameSelect();
@@ -2796,6 +2842,12 @@ function switchTab(name, options = {}) {
   }
 }
 
+function opponentFromFormData(data) {
+  const selectedOpponent = String(data.get("opponentSelect") || "").trim();
+  if (selectedOpponent && selectedOpponent !== NEW_OPPONENT_VALUE) return selectedOpponent;
+  return String(data.get("opponent") || "").trim();
+}
+
 function gameFromForm(form, existingGame = null) {
   const data = new FormData(form);
   const now = new Date().toISOString();
@@ -2803,7 +2855,7 @@ function gameFromForm(form, existingGame = null) {
     id: existingGame?.id || createId("game"),
     date: data.get("date") || todayValue(),
     gameType: data.get("gameType") || "",
-    opponent: String(data.get("opponent") || "").trim(),
+    opponent: opponentFromFormData(data),
     opponentClass: data.get("opponentClass") || "",
     ballpark: data.get("ballpark") || "",
     ownScore: data.get("ownScore") === "" ? "" : Number(data.get("ownScore")),
@@ -3097,6 +3149,13 @@ els.recentGames.addEventListener("click", (event) => {
 els.gameForm.addEventListener("invalid", () => {
   showValidationFailure("試合を保存できませんでした");
 }, true);
+
+els.opponentSelect.addEventListener("change", () => {
+  if (els.opponentSelect.value === NEW_OPPONENT_VALUE) {
+    els.opponentInput.value = "";
+  }
+  syncOpponentInputMode();
+});
 
 els.paForm.addEventListener("invalid", () => {
   showValidationFailure("打席を保存できませんでした");

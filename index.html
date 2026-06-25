@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=48" />
+    <link rel="stylesheet" href="./styles.css?v=49" />
   </head>
   <body>
     <header class="app-header">
@@ -64,7 +64,7 @@
           <section class="surface">
             <h3>試合登録</h3>
             <form id="gameForm" class="form-grid">
-              <div class="game-basic-row">
+              <div class="game-basic-row is-new-opponent">
                 <label>
                   日付
                   <input id="gameDate" name="date" type="date" required />
@@ -78,9 +78,15 @@
                     <option>練習試合</option>
                   </select>
                 </label>
-                <label>
+                <label class="opponent-select-field">
                   対戦相手
-                  <input name="opponent" type="text" placeholder="例：青空クラブ" required />
+                  <select id="opponentSelect" name="opponentSelect" required>
+                    <option value="__new_opponent__">新規登録</option>
+                  </select>
+                </label>
+                <label class="opponent-new-field" id="opponentNewField">
+                  新規対戦相手
+                  <input id="opponentInput" name="opponent" type="text" placeholder="例：青空クラブ" required />
                 </label>
                 <label>
                   対戦相手クラス
@@ -1213,6 +1219,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=50"></script>
+    <script src="./app.js?v=51"></script>
   </body>
 </html>
