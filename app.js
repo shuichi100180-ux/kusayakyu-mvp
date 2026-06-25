@@ -121,6 +121,7 @@ let syncTimer = null;
 let syncInProgress = false;
 let editingGameId = "";
 let editingPaId = "";
+let mobileEditingGameId = "";
 let mobileEditingPaId = "";
 let selectedMemoGameId = "";
 let selectedEntryGameId = "";
@@ -1512,21 +1513,45 @@ function resetMobileGameRegistrationFields() {
   });
 }
 
+function fillMobileGameRegistrationFields(game) {
+  if (!els.mobilePaForm || !game) return;
+  setFieldValue(els.mobilePaForm, "date", game.date || todayValue());
+  setFieldValue(els.mobilePaForm, "gameType", game.gameType || "");
+  setFieldValue(els.mobilePaForm, "opponent", game.opponent || "");
+  setFieldValue(els.mobilePaForm, "opponentClass", game.opponentClass || "");
+  setFieldValue(els.mobilePaForm, "ballpark", game.ballpark || "");
+  setFieldValue(els.mobilePaForm, "ownScore", game.ownScore);
+  setFieldValue(els.mobilePaForm, "opponentScore", game.opponentScore);
+  setFieldValue(els.mobilePaForm, "battingOrder", game.battingOrder || "");
+  setFieldValue(els.mobilePaForm, "position", game.position || "");
+  setFieldValue(els.mobilePaForm, "defenseMemo", game.defenseMemo || "");
+  setFieldValue(els.mobilePaForm, "baserunningMemo", game.baserunningMemo || "");
+  setFieldValue(els.mobilePaForm, "gameMemo", game.gameMemo || "");
+}
+
 function syncMobileGameMode() {
   if (!els.mobileGameSelect) return;
   const registeringNewGame = els.mobileGameSelect.value === MOBILE_NEW_GAME_VALUE;
-  els.mobileGameRegistration?.classList.toggle("is-hidden", !registeringNewGame);
-  setControlsDisabled(els.mobileGameRegistration, !registeringNewGame);
+  const editingMobileGame = Boolean(mobileEditingGameId);
+  const showingGameForm = registeringNewGame || editingMobileGame;
+  els.mobileGameRegistration?.classList.toggle("is-hidden", !showingGameForm);
+  setControlsDisabled(els.mobileGameRegistration, !showingGameForm);
 
   $$("[data-mobile-pa-section]").forEach((section) => {
-    section.classList.toggle("is-hidden", registeringNewGame);
-    setControlsDisabled(section, registeringNewGame);
+    section.classList.toggle("is-hidden", showingGameForm);
+    setControlsDisabled(section, showingGameForm);
   });
 
-  if (registeringNewGame) {
+  if (showingGameForm) {
     mobileEditingPaId = "";
     const dateField = els.mobileGameRegistration?.querySelector('input[name="date"]');
     if (dateField && !dateField.value) dateField.value = todayValue();
+  }
+
+  if (els.mobileGameSaveButton) {
+    els.mobileGameSaveButton.textContent = editingMobileGame
+      ? "試合を更新して打席入力へ"
+      : "試合を保存して打席入力へ";
   }
 
   renderMobileEditState();
@@ -1534,6 +1559,11 @@ function syncMobileGameMode() {
 
 function renderMobileGameSummary() {
   if (!els.mobileGameSummary || !els.mobileGameSelect) return;
+  if (mobileEditingGameId) {
+    els.mobileGameSummary.textContent = "試合情報を編集中です。更新すると、この試合の打席入力へ進めます。";
+    return;
+  }
+
   if (els.mobileGameSelect.value === MOBILE_NEW_GAME_VALUE) {
     els.mobileGameSummary.textContent = "試合情報を入力して保存すると、この試合の打席入力へ進めます。";
     return;
@@ -2387,21 +2417,32 @@ function saveMobileGameFromRegistration() {
     return false;
   }
 
-  const game = gameFromForm(els.mobilePaForm);
+  const existingGame = mobileEditingGameId ? getGame(mobileEditingGameId) : null;
+  if (mobileEditingGameId && !existingGame) {
+    showToast("更新する試合が見つかりません");
+    mobileEditingGameId = "";
+    renderMobileGameSelect();
+    return false;
+  }
+
+  const game = gameFromForm(els.mobilePaForm, existingGame);
   selectedMemoGameId = game.id;
   selectedEntryGameId = game.id;
 
   const saved = commitState(
     {
-      games: [...state.games, game],
+      games: existingGame
+        ? state.games.map((item) => item.id === game.id ? game : item)
+        : [...state.games, game],
       plateAppearances: [...state.plateAppearances],
     },
-    "スマホ入力で試合を保存しました",
-    "スマホ試合保存",
+    existingGame ? "スマホ入力で試合を更新しました" : "スマホ入力で試合を保存しました",
+    existingGame ? "スマホ試合更新" : "スマホ試合保存",
   );
 
   if (!saved) return false;
 
+  mobileEditingGameId = "";
   resetMobileGameRegistrationFields();
   resetMobilePlateAppearanceForm({ gameId: game.id });
   renderMobileGameSelect();
@@ -2409,6 +2450,32 @@ function saveMobileGameFromRegistration() {
   syncPitcherStrategyField(els.mobilePaForm);
   els.mobilePaForm.querySelector(".mobile-result-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
   return true;
+}
+
+function startMobileGameEdit(gameId) {
+  if (!isTabAvailable("mobile")) {
+    showToast(unavailableTabMessage("mobile"));
+    return;
+  }
+
+  const game = getGame(gameId);
+  if (!game) {
+    showToast("編集する試合が見つかりません");
+    return;
+  }
+
+  mobileEditingGameId = gameId;
+  mobileEditingPaId = "";
+  selectedMemoGameId = gameId;
+  selectedEntryGameId = gameId;
+  switchTab("mobile");
+  renderMobileGameSelect();
+  setFieldValue(els.mobilePaForm, "gameId", gameId);
+  fillMobileGameRegistrationFields(game);
+  syncMobileGameMode();
+  renderMobileGameSummary();
+  renderMobilePitcherPresets();
+  els.mobileGameSelect?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function cancelGameEdit() {
@@ -2470,6 +2537,11 @@ function fillPlateAppearanceForm(pa) {
 }
 
 function startGameEdit(gameId) {
+  if (isPhoneLayout()) {
+    startMobileGameEdit(gameId);
+    return;
+  }
+
   if (!isTabAvailable("entry")) {
     showToast(unavailableTabMessage("entry"));
     return;
@@ -2985,7 +3057,15 @@ els.pcPitcherSelect.addEventListener("input", syncPcPitcherPresetSelection);
 });
 
 els.mobileGameSelect.addEventListener("change", () => {
+  const selectedValue = els.mobileGameSelect.value;
+  if (mobileEditingGameId && selectedValue !== mobileEditingGameId) {
+    mobileEditingGameId = "";
+    resetMobileGameRegistrationFields();
+  }
+
   if (els.mobileGameSelect.value === MOBILE_NEW_GAME_VALUE) {
+    mobileEditingGameId = "";
+    resetMobileGameRegistrationFields();
     syncMobileGameMode();
     renderMobileGameSummary();
     renderMobilePitcherPresets();
@@ -2993,8 +3073,8 @@ els.mobileGameSelect.addEventListener("change", () => {
     return;
   }
 
-  selectedEntryGameId = els.mobileGameSelect.value;
-  setMobileChoice("plateAppearance", nextPlateAppearanceForGame(els.mobileGameSelect.value));
+  selectedEntryGameId = selectedValue;
+  setMobileChoice("plateAppearance", nextPlateAppearanceForGame(selectedValue));
   syncMobileGameMode();
   renderMobileGameSummary();
   renderMobilePitcherPresets();
@@ -3103,7 +3183,7 @@ els.paForm.addEventListener("submit", (event) => {
 els.mobilePaForm.addEventListener("submit", (event) => {
   event.preventDefault();
 
-  if (event.currentTarget.elements.gameId.value === MOBILE_NEW_GAME_VALUE) {
+  if (event.currentTarget.elements.gameId.value === MOBILE_NEW_GAME_VALUE || mobileEditingGameId) {
     saveMobileGameFromRegistration();
     return;
   }
@@ -3179,6 +3259,7 @@ els.gameList.addEventListener("click", (event) => {
   if (!ok) return;
 
   if (editingGameId === gameId) editingGameId = "";
+  if (mobileEditingGameId === gameId) mobileEditingGameId = "";
   if (editingPaId && getPlateAppearance(editingPaId)?.gameId === gameId) editingPaId = "";
   if (mobileEditingPaId && getPlateAppearance(mobileEditingPaId)?.gameId === gameId) mobileEditingPaId = "";
   commitState(
