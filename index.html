@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=50" />
+    <link rel="stylesheet" href="./styles.css?v=51" />
   </head>
   <body>
     <header class="app-header">
@@ -888,29 +888,31 @@
 
         <div class="metric-grid" id="analysisMetrics"></div>
 
-        <section class="surface batted-direction-section">
-          <div class="surface-header">
-            <h3>打球方向比率（全体）</h3>
-            <span id="battedDirectionSummary" class="pill">0打球</span>
-          </div>
-          <div id="battedDirectionChart" class="batted-direction-chart"></div>
-        </section>
+        <div class="batted-direction-grid">
+          <section class="surface batted-direction-section">
+            <div class="surface-header">
+              <h3>打球方向比率（全体）</h3>
+              <span id="battedDirectionSummary" class="pill">0打球</span>
+            </div>
+            <div id="battedDirectionChart" class="batted-direction-chart"></div>
+          </section>
 
-        <section class="surface batted-direction-section">
-          <div class="surface-header">
-            <h3>打球方向比率（安打）</h3>
-            <span id="battedHitDirectionSummary" class="pill">0打球</span>
-          </div>
-          <div id="battedHitDirectionChart" class="batted-direction-chart"></div>
-        </section>
+          <section class="surface batted-direction-section">
+            <div class="surface-header">
+              <h3>打球方向比率（安打）</h3>
+              <span id="battedHitDirectionSummary" class="pill">0打球</span>
+            </div>
+            <div id="battedHitDirectionChart" class="batted-direction-chart"></div>
+          </section>
 
-        <section class="surface batted-direction-section">
-          <div class="surface-header">
-            <h3>打球方向比率（凡打）</h3>
-            <span id="battedOutDirectionSummary" class="pill">0打球</span>
-          </div>
-          <div id="battedOutDirectionChart" class="batted-direction-chart"></div>
-        </section>
+          <section class="surface batted-direction-section">
+            <div class="surface-header">
+              <h3>打球方向比率（凡打）</h3>
+              <span id="battedOutDirectionSummary" class="pill">0打球</span>
+            </div>
+            <div id="battedOutDirectionChart" class="batted-direction-chart"></div>
+          </section>
+        </div>
 
         <div class="table-section">
           <section class="surface analysis-wide-section pitch-type-main-section">

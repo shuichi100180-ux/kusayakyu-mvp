@@ -509,8 +509,15 @@ main {
   line-height: 1.1;
 }
 
-.batted-direction-section {
+.batted-direction-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-bottom: 16px;
+}
+
+.batted-direction-section {
+  margin-bottom: 0;
 }
 
 .batted-direction-chart {
@@ -1928,6 +1935,10 @@ th {
   }
 
   .two-column {
+    grid-template-columns: 1fr;
+  }
+
+  .batted-direction-grid {
     grid-template-columns: 1fr;
   }
 }
