@@ -1673,6 +1673,9 @@ table {
 }
 
 .pitcher-main-table.analysis-wide-table {
+  --pitcher-main-team-width: 160px;
+  --pitcher-main-pitcher-width: 48px;
+  --pitcher-main-number-width: 48px;
   border-collapse: separate;
   border-spacing: 0;
   min-width: 760px;
@@ -1680,15 +1683,23 @@ table {
 
 .pitcher-main-table th:first-child,
 .pitcher-main-table td:first-child {
-  width: 10em;
-  max-width: 10em;
+  width: var(--pitcher-main-team-width);
+  min-width: var(--pitcher-main-team-width);
+  max-width: var(--pitcher-main-team-width);
 }
 
 .pitcher-main-table th:nth-child(2),
 .pitcher-main-table td:nth-child(2) {
-  width: 7em;
-  min-width: 7em;
-  max-width: 7em;
+  width: var(--pitcher-main-pitcher-width);
+  min-width: var(--pitcher-main-pitcher-width);
+  max-width: var(--pitcher-main-pitcher-width);
+}
+
+.pitcher-main-table th:nth-child(3),
+.pitcher-main-table td:nth-child(3) {
+  width: var(--pitcher-main-number-width);
+  min-width: var(--pitcher-main-number-width);
+  max-width: var(--pitcher-main-number-width);
 }
 
 .pitcher-main-section .analysis-wide-wrap {
@@ -1711,7 +1722,7 @@ table {
 
 .pitcher-main-table th:nth-child(2),
 .pitcher-main-table td:nth-child(2) {
-  left: 10em;
+  left: var(--pitcher-main-team-width);
 }
 
 .pitcher-main-table th {
