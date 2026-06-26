@@ -520,6 +520,16 @@ main {
   margin-bottom: 0;
 }
 
+.batted-direction-title {
+  display: grid;
+  gap: 6px;
+}
+
+.batted-direction-mobile-toggle {
+  display: none;
+  width: fit-content;
+}
+
 .batted-direction-chart {
   display: grid;
   gap: 12px;
@@ -2025,6 +2035,97 @@ th {
     min-width: 560px;
   }
 
+  .batted-direction-grid {
+    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .batted-direction-grid:not(.is-showing-out) .batted-out-direction-section {
+    display: none;
+  }
+
+  .batted-direction-grid.is-showing-out .batted-hit-direction-section {
+    display: none;
+  }
+
+  .batted-direction-grid.is-showing-out .batted-out-direction-section {
+    display: grid;
+  }
+
+  .batted-direction-section {
+    padding: 8px;
+  }
+
+  .batted-direction-section .surface-header {
+    align-items: start;
+    gap: 4px;
+  }
+
+  .batted-direction-section h3 {
+    font-size: 11px;
+    line-height: 1.25;
+  }
+
+  .batted-direction-section .pill {
+    min-width: auto;
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+
+  .batted-direction-mobile-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 24px;
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+
+  .batted-direction-chart {
+    gap: 4px;
+  }
+
+  .batted-field {
+    aspect-ratio: 1 / 1;
+  }
+
+  .direction-marker {
+    min-width: 34px;
+    padding: 2px 3px;
+    border-radius: 5px;
+    box-shadow: 0 2px 7px rgba(19, 45, 37, 0.1);
+    line-height: 1.05;
+  }
+
+  .direction-marker.is-outfield {
+    width: 42px;
+    height: 42px;
+    padding: 4px;
+  }
+
+  .direction-marker span {
+    font-size: 7px;
+  }
+
+  .direction-marker strong {
+    font-size: 9px;
+  }
+
+  .direction-extra {
+    gap: 4px;
+  }
+
+  .direction-extra span {
+    min-height: 22px;
+    padding: 2px 5px;
+    font-size: 9px;
+    border-radius: 5px;
+  }
+
+  .direction-extra span + span {
+    display: none;
+  }
+
   .pitcher-stats-table.analysis-wide-table,
   .pitch-type-stats-table.analysis-wide-table,
   .course-stats-table,
@@ -2203,6 +2304,31 @@ th {
 
   .direction-marker strong {
     font-size: 16px;
+  }
+
+  .surface.batted-direction-section {
+    padding: 8px;
+  }
+
+  .batted-direction-grid .direction-marker {
+    min-width: 34px;
+    padding: 2px 3px;
+    border-radius: 5px;
+    line-height: 1.05;
+  }
+
+  .batted-direction-grid .direction-marker.is-outfield {
+    width: 42px;
+    height: 42px;
+    padding: 4px;
+  }
+
+  .batted-direction-grid .direction-marker span {
+    font-size: 7px;
+  }
+
+  .batted-direction-grid .direction-marker strong {
+    font-size: 9px;
   }
 
   .course-cell {

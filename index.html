@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=52" />
+    <link rel="stylesheet" href="./styles.css?v=53" />
   </head>
   <body>
     <header class="app-header">
@@ -888,8 +888,8 @@
 
         <div class="metric-grid" id="analysisMetrics"></div>
 
-        <div class="batted-direction-grid">
-          <section class="surface batted-direction-section">
+        <div class="batted-direction-grid" id="battedDirectionGrid">
+          <section class="surface batted-direction-section batted-total-direction-section">
             <div class="surface-header">
               <h3>打球方向比率（全体）</h3>
               <span id="battedDirectionSummary" class="pill">0打球</span>
@@ -897,17 +897,23 @@
             <div id="battedDirectionChart" class="batted-direction-chart"></div>
           </section>
 
-          <section class="surface batted-direction-section">
-            <div class="surface-header">
-              <h3>打球方向比率（安打）</h3>
+          <section class="surface batted-direction-section batted-hit-direction-section">
+            <div class="surface-header batted-direction-header">
+              <div class="batted-direction-title">
+                <h3>打球方向比率（安打）</h3>
+                <button class="ghost-button compact-button batted-direction-mobile-toggle" type="button" data-batted-direction-view="out">凡打</button>
+              </div>
               <span id="battedHitDirectionSummary" class="pill">0打球</span>
             </div>
             <div id="battedHitDirectionChart" class="batted-direction-chart"></div>
           </section>
 
-          <section class="surface batted-direction-section">
-            <div class="surface-header">
-              <h3>打球方向比率（凡打）</h3>
+          <section class="surface batted-direction-section batted-out-direction-section">
+            <div class="surface-header batted-direction-header">
+              <div class="batted-direction-title">
+                <h3>打球方向比率（凡打）</h3>
+                <button class="ghost-button compact-button batted-direction-mobile-toggle" type="button" data-batted-direction-view="hit">安打</button>
+              </div>
               <span id="battedOutDirectionSummary" class="pill">0打球</span>
             </div>
             <div id="battedOutDirectionChart" class="batted-direction-chart"></div>
@@ -1213,6 +1219,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=54"></script>
+    <script src="./app.js?v=55"></script>
   </body>
 </html>

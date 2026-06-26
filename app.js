@@ -28,9 +28,9 @@ const RESULT_DEFS = {
 };
 
 const BATTED_DIRECTION_MARKERS = [
-  { key: "レフト方向", label: "レフト", x: 18, y: 27, type: "outfield" },
-  { key: "センター方向", label: "センター", x: 50, y: 14, type: "outfield" },
-  { key: "ライト方向", label: "ライト", x: 82, y: 27, type: "outfield" },
+  { key: "レフト方向", label: "レフト", x: 18, y: 23, type: "outfield" },
+  { key: "センター方向", label: "センター", x: 50, y: 12, type: "outfield" },
+  { key: "ライト方向", label: "ライト", x: 82, y: 23, type: "outfield" },
   { key: "三塁方向", label: "三塁", x: 22, y: 66, type: "infield" },
   { key: "遊撃方向", label: "遊撃", x: 32, y: 45, type: "infield" },
   { key: "投手方向", label: "投手", x: 50, y: 60, type: "infield" },
@@ -136,6 +136,8 @@ const els = {
   tabs: $$(".tab"),
   panels: $$(".tab-panel"),
   analysisMetrics: $("#analysisMetrics"),
+  battedDirectionGrid: $("#battedDirectionGrid"),
+  battedDirectionToggles: $$(".batted-direction-mobile-toggle"),
   battedDirectionChart: $("#battedDirectionChart"),
   battedDirectionSummary: $("#battedDirectionSummary"),
   battedHitDirectionChart: $("#battedHitDirectionChart"),
@@ -2036,6 +2038,15 @@ function renderAnalysis() {
   );
 }
 
+function setMobileBattedDirectionView(view) {
+  const showOut = view === "out";
+  els.battedDirectionGrid?.classList.toggle("is-showing-out", showOut);
+  els.battedDirectionToggles.forEach((button) => {
+    const targetView = button.dataset.battedDirectionView;
+    button.setAttribute("aria-pressed", String(targetView === (showOut ? "hit" : "out")));
+  });
+}
+
 function renderPitcherCards() {
   const allRows = groupPitcherStats(state.plateAppearances);
 
@@ -3158,6 +3169,10 @@ $$("[data-jump-tab]").forEach((button) => {
   button.addEventListener("click", () => switchTab(button.dataset.jumpTab));
 });
 
+els.battedDirectionToggles.forEach((button) => {
+  button.addEventListener("click", () => setMobileBattedDirectionView(button.dataset.battedDirectionView));
+});
+
 $$("[data-edit-selected-game]").forEach((button) => {
   button.addEventListener("click", () => {
     const game = selectedMemoGame();
@@ -3526,6 +3541,7 @@ els.importInput.addEventListener("change", (event) => {
 });
 
 $("#gameDate").value = todayValue();
+setMobileBattedDirectionView("hit");
 syncRunnerOptions(els.paForm);
 syncBattedBallFields();
 render();
