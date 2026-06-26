@@ -1684,6 +1684,11 @@ table {
     + var(--pitcher-main-number-width)
     + var(--pitcher-main-rate-width)
     + var(--pitcher-main-rate-width)
+    + var(--pitcher-main-rate-width)
+    + var(--pitcher-main-rate-width)
+    + var(--pitcher-main-count-width)
+    + var(--pitcher-main-count-width)
+    + var(--pitcher-main-count-width)
     + var(--pitcher-main-count-width)
     + var(--pitcher-main-count-width)
     + var(--pitcher-main-count-width)
@@ -1718,18 +1723,28 @@ table {
 .pitcher-main-table th:nth-child(4),
 .pitcher-main-table td:nth-child(4),
 .pitcher-main-table th:nth-child(5),
-.pitcher-main-table td:nth-child(5) {
+.pitcher-main-table td:nth-child(5),
+.pitcher-main-table th:nth-child(6),
+.pitcher-main-table td:nth-child(6),
+.pitcher-main-table th:nth-child(7),
+.pitcher-main-table td:nth-child(7) {
   width: var(--pitcher-main-rate-width);
   min-width: var(--pitcher-main-rate-width);
   max-width: var(--pitcher-main-rate-width);
 }
 
-.pitcher-main-table th:nth-child(6),
-.pitcher-main-table td:nth-child(6),
-.pitcher-main-table th:nth-child(7),
-.pitcher-main-table td:nth-child(7),
 .pitcher-main-table th:nth-child(8),
-.pitcher-main-table td:nth-child(8) {
+.pitcher-main-table td:nth-child(8),
+.pitcher-main-table th:nth-child(9),
+.pitcher-main-table td:nth-child(9),
+.pitcher-main-table th:nth-child(10),
+.pitcher-main-table td:nth-child(10),
+.pitcher-main-table th:nth-child(11),
+.pitcher-main-table td:nth-child(11),
+.pitcher-main-table th:nth-child(12),
+.pitcher-main-table td:nth-child(12),
+.pitcher-main-table th:nth-child(13),
+.pitcher-main-table td:nth-child(13) {
   width: var(--pitcher-main-count-width);
   min-width: var(--pitcher-main-count-width);
   max-width: var(--pitcher-main-count-width);
