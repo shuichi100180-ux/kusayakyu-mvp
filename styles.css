@@ -1692,6 +1692,9 @@ table {
     + var(--pitcher-main-count-width)
     + var(--pitcher-main-count-width)
     + var(--pitcher-main-count-width)
+    + var(--pitcher-main-count-width)
+    + var(--pitcher-main-count-width)
+    + var(--pitcher-main-count-width)
   );
   border-collapse: separate;
   border-spacing: 0;
@@ -1744,7 +1747,13 @@ table {
 .pitcher-main-table th:nth-child(12),
 .pitcher-main-table td:nth-child(12),
 .pitcher-main-table th:nth-child(13),
-.pitcher-main-table td:nth-child(13) {
+.pitcher-main-table td:nth-child(13),
+.pitcher-main-table th:nth-child(14),
+.pitcher-main-table td:nth-child(14),
+.pitcher-main-table th:nth-child(15),
+.pitcher-main-table td:nth-child(15),
+.pitcher-main-table th:nth-child(16),
+.pitcher-main-table td:nth-child(16) {
   width: var(--pitcher-main-count-width);
   min-width: var(--pitcher-main-count-width);
   max-width: var(--pitcher-main-count-width);

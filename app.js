@@ -2022,7 +2022,7 @@ function renderPitcherMainTable(tbody, summary, rows) {
   summary.textContent = `${rows.length}投手`;
 
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="13">まだ集計できる投手データがありません。</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="16">まだ集計できる投手データがありません。</td></tr>`;
     return;
   }
 
@@ -2041,6 +2041,9 @@ function renderPitcherMainTable(tbody, summary, rows) {
       <td>${row.runs}</td>
       <td>${row.bb}</td>
       <td>${row.hbp}</td>
+      <td>${row.steals}</td>
+      <td>${row.sh}</td>
+      <td>${row.sf}</td>
     </tr>
   `).join("");
 }
