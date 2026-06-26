@@ -2010,6 +2010,16 @@ th {
   margin: 0;
 }
 
+.pitcher-history-scroll {
+  --pitcher-history-visible-lines: 20;
+  max-height: calc(var(--pitcher-history-visible-lines) * 1.6rem);
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding-right: 4px;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+
 .pitcher-history .list-item p {
   margin: 8px 0 0;
 }
@@ -2535,6 +2545,10 @@ th {
 
   .pitcher-profile-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pitcher-history-scroll {
+    --pitcher-history-visible-lines: 15;
   }
 
   .list-item,

@@ -2219,7 +2219,7 @@ function renderPitcherCards() {
         <strong>攻略法</strong>
         <p>${strategy ? escapeHtml(strategy).replace(/\n/g, "<br>") : "未入力"}</p>
       </section>
-      <div class="list-stack">
+      <div class="list-stack pitcher-history-scroll">
         ${history || `<div class="empty">この投手との打席はまだありません。</div>`}
       </div>
     </section>
