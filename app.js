@@ -146,6 +146,8 @@ const els = {
   battedOutDirectionSummary: $("#battedOutDirectionSummary"),
   pitchTypeOutcomeChart: $("#pitchTypeOutcomeChart"),
   pitchTypeOutcomeSummary: $("#pitchTypeOutcomeSummary"),
+  pitcherMainBody: $("#pitcherMainBody"),
+  pitcherMainSummary: $("#pitcherMainSummary"),
   recentGames: $("#recentGames"),
   recentPlateAppearances: $("#recentPlateAppearances"),
   gameForm: $("#gameForm"),
@@ -1995,8 +1997,52 @@ function renderPitcherStatsTable(tbody, rows) {
   `).join("");
 }
 
+function pitcherMainTone(row) {
+  if (!row.ab || !Number.isFinite(row.avg)) return "is-empty";
+  if (row.avg >= 0.3) return "is-good";
+  if (row.avg >= 0.2) return "is-caution";
+  return "is-danger";
+}
+
+function sortPitcherMainRows(rows) {
+  return [...rows].sort((a, b) => {
+    const avgA = Number.isFinite(a.avg) ? a.avg : -1;
+    const avgB = Number.isFinite(b.avg) ? b.avg : -1;
+    const opsA = Number.isFinite(a.ops) ? a.ops : -1;
+    const opsB = Number.isFinite(b.ops) ? b.ops : -1;
+    return avgB - avgA
+      || opsB - opsA
+      || b.ab - a.ab
+      || a.opponent.localeCompare(b.opponent, "ja")
+      || a.pitcher.localeCompare(b.pitcher, "ja");
+  });
+}
+
+function renderPitcherMainTable(tbody, summary, rows) {
+  summary.textContent = `${rows.length}投手`;
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="8">まだ集計できる投手データがありません。</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = sortPitcherMainRows(rows).map((row) => `
+    <tr class="${pitcherMainTone(row)}">
+      <td>${escapeHtml(row.pitcher)}</td>
+      <td>${escapeHtml(row.opponent)}</td>
+      <td>${escapeHtml(row.number)}</td>
+      <td>${formatRate(row.avg)}</td>
+      <td>${formatRate(row.ops)}</td>
+      <td>${row.ab}</td>
+      <td>${row.h}</td>
+      <td>${row.rbi}</td>
+    </tr>
+  `).join("");
+}
+
 function renderAnalysis() {
   const stats = calculateStats(state.plateAppearances);
+  const pitcherRows = groupPitcherStats(state.plateAppearances);
   renderMetrics(els.analysisMetrics, stats);
   renderBattedDirectionChart(
     els.battedDirectionChart,
@@ -2017,9 +2063,14 @@ function renderAnalysis() {
     "凡打",
   );
   renderPitchTypeOutcomeChart(state.plateAppearances);
+  renderPitcherMainTable(
+    els.pitcherMainBody,
+    els.pitcherMainSummary,
+    pitcherRows,
+  );
   renderPitcherStatsTable(
     els.pitcherStatsBody,
-    groupPitcherStats(state.plateAppearances),
+    pitcherRows,
   );
   renderStatsTable(
     els.pitchTypeStatsBody,

@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=53" />
+    <link rel="stylesheet" href="./styles.css?v=54" />
   </head>
   <body>
     <header class="app-header">
@@ -1030,27 +1030,59 @@
             </div>
           </details>
 
-          <section class="surface analysis-wide-section">
-            <h3>対投手別成績</h3>
+          <section class="surface analysis-wide-section pitcher-main-section">
+            <div class="surface-header">
+              <h3>対投手別成績メイン</h3>
+              <span id="pitcherMainSummary" class="pill">0投手</span>
+            </div>
             <div class="table-wrap analysis-wide-wrap">
-              <table class="pitcher-stats-table analysis-wide-table">
+              <table class="pitcher-main-table analysis-wide-table">
                 <thead>
                   <tr>
-                    <th>対戦相手</th>
-                    <th>投手</th>
+                    <th>投手名</th>
+                    <th>チーム</th>
                     <th>背番号</th>
                     <th>打率</th>
                     <th>OPS</th>
                     <th>打数</th>
                     <th>安打</th>
-                    <th>本塁打</th>
                     <th>打点</th>
                   </tr>
                 </thead>
-                <tbody id="pitcherStatsBody"></tbody>
+                <tbody id="pitcherMainBody"></tbody>
               </table>
             </div>
           </section>
+
+          <details class="surface analysis-wide-section pitcher-sub-details">
+            <summary>
+              <h3>対投手別成績サブ</h3>
+              <span class="ghost-button compact-button pitcher-sub-toggle">
+                <span class="when-closed">表示する</span>
+                <span class="when-open">閉じる</span>
+              </span>
+            </summary>
+            <div class="pitcher-sub-body">
+              <div class="table-wrap analysis-wide-wrap">
+                <table class="pitcher-stats-table analysis-wide-table">
+                  <thead>
+                    <tr>
+                      <th>対戦相手</th>
+                      <th>投手</th>
+                      <th>背番号</th>
+                      <th>打率</th>
+                      <th>OPS</th>
+                      <th>打数</th>
+                      <th>安打</th>
+                      <th>本塁打</th>
+                      <th>打点</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pitcherStatsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </details>
         </div>
       </section>
 
@@ -1219,6 +1251,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=55"></script>
+    <script src="./app.js?v=56"></script>
   </body>
 </html>

@@ -896,14 +896,16 @@ main {
 
 .course-sub-details,
 .pitch-type-sub-details,
-.count-sub-details {
+.count-sub-details,
+.pitcher-sub-details {
   overflow: hidden;
   padding: 0;
 }
 
 .course-sub-details summary,
 .pitch-type-sub-details summary,
-.count-sub-details summary {
+.count-sub-details summary,
+.pitcher-sub-details summary {
   align-items: center;
   cursor: pointer;
   display: flex;
@@ -915,19 +917,22 @@ main {
 
 .course-sub-details summary::-webkit-details-marker,
 .pitch-type-sub-details summary::-webkit-details-marker,
-.count-sub-details summary::-webkit-details-marker {
+.count-sub-details summary::-webkit-details-marker,
+.pitcher-sub-details summary::-webkit-details-marker {
   display: none;
 }
 
 .course-sub-details summary h3,
 .pitch-type-sub-details summary h3,
-.count-sub-details summary h3 {
+.count-sub-details summary h3,
+.pitcher-sub-details summary h3 {
   margin: 0;
 }
 
 .course-sub-toggle,
 .pitch-type-sub-toggle,
-.count-sub-toggle {
+.count-sub-toggle,
+.pitcher-sub-toggle {
   align-items: center;
   display: inline-flex;
   flex: 0 0 auto;
@@ -939,19 +944,23 @@ main {
 .pitch-type-sub-toggle .when-open,
 .pitch-type-sub-details[open] .pitch-type-sub-toggle .when-closed,
 .count-sub-toggle .when-open,
-.count-sub-details[open] .count-sub-toggle .when-closed {
+.count-sub-details[open] .count-sub-toggle .when-closed,
+.pitcher-sub-toggle .when-open,
+.pitcher-sub-details[open] .pitcher-sub-toggle .when-closed {
   display: none;
 }
 
 .course-sub-details[open] .course-sub-toggle .when-open,
 .pitch-type-sub-details[open] .pitch-type-sub-toggle .when-open,
-.count-sub-details[open] .count-sub-toggle .when-open {
+.count-sub-details[open] .count-sub-toggle .when-open,
+.pitcher-sub-details[open] .pitcher-sub-toggle .when-open {
   display: inline;
 }
 
 .course-sub-body,
 .pitch-type-sub-body,
-.count-sub-body {
+.count-sub-body,
+.pitcher-sub-body {
   border-top: 1px solid var(--line);
   padding: 16px 18px 18px;
 }
@@ -1661,6 +1670,36 @@ table {
 
 .pitcher-stats-table {
   min-width: 760px;
+}
+
+.pitcher-main-table.analysis-wide-table {
+  min-width: 680px;
+}
+
+.pitcher-main-table th {
+  background: #0d5aa7;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.pitcher-main-table td {
+  font-weight: 700;
+}
+
+.pitcher-main-table tr.is-good td {
+  background: #dff3e3;
+}
+
+.pitcher-main-table tr.is-caution td {
+  background: #fff2bd;
+}
+
+.pitcher-main-table tr.is-danger td {
+  background: #ffd6d1;
+}
+
+.pitcher-main-table tr.is-empty td {
+  background: #eef3f1;
 }
 
 .analysis-wide-table {
