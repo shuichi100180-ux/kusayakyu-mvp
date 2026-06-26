@@ -1674,7 +1674,7 @@ table {
 
 .pitcher-main-table.analysis-wide-table {
   --pitcher-main-team-width: 160px;
-  --pitcher-main-pitcher-width: 48px;
+  --pitcher-main-pitcher-width: 64px;
   --pitcher-main-number-width: 48px;
   border-collapse: separate;
   border-spacing: 0;
