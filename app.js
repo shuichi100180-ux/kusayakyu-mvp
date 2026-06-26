@@ -2028,8 +2028,8 @@ function renderPitcherMainTable(tbody, summary, rows) {
 
   tbody.innerHTML = sortPitcherMainRows(rows).map((row) => `
     <tr class="${pitcherMainTone(row)}">
-      <td>${escapeHtml(row.pitcher)}</td>
       <td>${escapeHtml(row.opponent)}</td>
+      <td>${escapeHtml(row.pitcher)}</td>
       <td>${escapeHtml(row.number)}</td>
       <td>${formatRate(row.avg)}</td>
       <td>${formatRate(row.ops)}</td>

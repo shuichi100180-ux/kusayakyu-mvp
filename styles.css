@@ -1676,6 +1676,12 @@ table {
   min-width: 680px;
 }
 
+.pitcher-main-table th:first-child,
+.pitcher-main-table td:first-child {
+  width: 10em;
+  max-width: 10em;
+}
+
 .pitcher-main-table th {
   background: #0d5aa7;
   color: #ffffff;
