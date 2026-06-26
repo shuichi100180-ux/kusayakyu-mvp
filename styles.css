@@ -1675,10 +1675,23 @@ table {
 .pitcher-main-table.analysis-wide-table {
   --pitcher-main-team-width: 160px;
   --pitcher-main-pitcher-width: 64px;
-  --pitcher-main-number-width: 48px;
+  --pitcher-main-number-width: 64px;
+  --pitcher-main-rate-width: 96px;
+  --pitcher-main-count-width: 48px;
+  --pitcher-main-table-width: calc(
+    var(--pitcher-main-team-width)
+    + var(--pitcher-main-pitcher-width)
+    + var(--pitcher-main-number-width)
+    + var(--pitcher-main-rate-width)
+    + var(--pitcher-main-rate-width)
+    + var(--pitcher-main-count-width)
+    + var(--pitcher-main-count-width)
+    + var(--pitcher-main-count-width)
+  );
   border-collapse: separate;
   border-spacing: 0;
-  min-width: 760px;
+  min-width: var(--pitcher-main-table-width);
+  width: max-content;
 }
 
 .pitcher-main-table th:first-child,
@@ -1700,6 +1713,26 @@ table {
   width: var(--pitcher-main-number-width);
   min-width: var(--pitcher-main-number-width);
   max-width: var(--pitcher-main-number-width);
+}
+
+.pitcher-main-table th:nth-child(4),
+.pitcher-main-table td:nth-child(4),
+.pitcher-main-table th:nth-child(5),
+.pitcher-main-table td:nth-child(5) {
+  width: var(--pitcher-main-rate-width);
+  min-width: var(--pitcher-main-rate-width);
+  max-width: var(--pitcher-main-rate-width);
+}
+
+.pitcher-main-table th:nth-child(6),
+.pitcher-main-table td:nth-child(6),
+.pitcher-main-table th:nth-child(7),
+.pitcher-main-table td:nth-child(7),
+.pitcher-main-table th:nth-child(8),
+.pitcher-main-table td:nth-child(8) {
+  width: var(--pitcher-main-count-width);
+  min-width: var(--pitcher-main-count-width);
+  max-width: var(--pitcher-main-count-width);
 }
 
 .pitcher-main-section .analysis-wide-wrap {
@@ -2232,7 +2265,7 @@ th {
   }
 
   .pitcher-main-table.analysis-wide-table {
-    min-width: 760px;
+    min-width: var(--pitcher-main-table-width);
   }
 
   .analysis-wide-table th,
