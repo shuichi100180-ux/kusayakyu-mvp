@@ -2628,9 +2628,12 @@ th {
     grid-template-columns: 1fr;
   }
 
-  .mobile-pitcher-presets,
   .mobile-save-bar {
     grid-template-columns: 1fr;
+  }
+
+  .mobile-pitcher-presets {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .mobile-choice-grid.four-columns {
