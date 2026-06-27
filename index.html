@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=73" />
+    <link rel="stylesheet" href="./styles.css?v=74" />
   </head>
   <body>
     <header class="app-header">
@@ -830,7 +830,10 @@
 
           <section class="mobile-card" id="mobileBattedFields" data-mobile-pa-section>
             <h3>打球</h3>
-            <h4 class="mobile-field-heading">打球方向</h4>
+            <div class="mobile-heading-choice-row">
+              <h4 class="mobile-field-heading">打球方向</h4>
+              <button class="mobile-heading-choice-button" data-choice-name="battedDirection" data-choice-value="不明" type="button">不明</button>
+            </div>
             <input name="battedDirection" type="hidden" />
             <div class="mobile-choice-grid three-columns" data-choice-group="battedDirection" aria-label="打球方向">
               <button data-choice-name="battedDirection" data-choice-value="レフト方向" type="button">レフト</button>
@@ -842,7 +845,6 @@
               <button data-choice-name="battedDirection" data-choice-value="三塁方向" type="button">サード</button>
               <button data-choice-name="battedDirection" data-choice-value="捕手方向" type="button">キャッチャー</button>
               <button data-choice-name="battedDirection" data-choice-value="一塁方向" type="button">ファースト</button>
-              <button data-choice-name="battedDirection" data-choice-value="不明" type="button">不明</button>
             </div>
 
             <div class="mobile-field-separator">

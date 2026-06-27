@@ -1279,6 +1279,28 @@ main {
   padding-top: 12px;
 }
 
+.mobile-heading-choice-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  align-items: center;
+}
+
+.mobile-heading-choice-row .mobile-field-heading {
+  grid-column: 1 / 3;
+}
+
+.mobile-heading-choice-button {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  font-weight: 800;
+  padding: 7px 8px;
+  text-align: center;
+}
+
 .mobile-card-header {
   display: flex;
   align-items: center;
@@ -1369,6 +1391,7 @@ main {
 
 .mobile-choice-grid button.is-selected,
 .mobile-course-grid button.is-selected,
+.mobile-heading-choice-button.is-selected,
 .mobile-pitcher-button.is-selected {
   background: var(--accent);
   border-color: var(--accent);
