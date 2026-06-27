@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=69" />
+    <link rel="stylesheet" href="./styles.css?v=70" />
   </head>
   <body>
     <header class="app-header">
@@ -615,11 +615,11 @@
               <button data-choice-name="result" data-choice-value="sacBunt" type="button">犠打</button>
             </div>
 
-            <label class="checkbox-line mobile-checkbox">
-              <input name="risp" type="checkbox" />
-              得点圏での打席
-            </label>
-            <div class="mobile-two-grid">
+            <div class="mobile-result-context-row">
+              <label class="checkbox-line mobile-checkbox">
+                <input name="risp" type="checkbox" />
+                得点圏での打席
+              </label>
               <label>
                 ランナー
                 <select name="runners">
@@ -627,6 +627,9 @@
                   <option>1塁</option>
                 </select>
               </label>
+            </div>
+
+            <div class="mobile-result-action-row">
               <label>
                 サイン
                 <select name="sign">
@@ -636,9 +639,6 @@
                   <option>スクイズ</option>
                 </select>
               </label>
-            </div>
-
-            <div class="mobile-two-grid">
               <label>
                 打点
                 <input name="rbi" type="number" min="0" max="4" value="0" inputmode="numeric" />

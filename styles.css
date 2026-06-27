@@ -1292,6 +1292,30 @@ main {
   gap: 10px;
 }
 
+.mobile-result-context-row,
+.mobile-result-action-row {
+  display: grid;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.mobile-result-context-row {
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+}
+
+.mobile-result-action-row {
+  grid-template-columns: minmax(0, 1fr) minmax(56px, 0.65fr) minmax(0, 1.45fr);
+}
+
+.mobile-result-context-row .checkbox-line {
+  min-height: 44px;
+}
+
+.mobile-result-action-row label,
+.mobile-result-context-row label {
+  min-width: 0;
+}
+
 .mobile-game-registration {
   border-top: 1px solid var(--line);
   display: grid;
