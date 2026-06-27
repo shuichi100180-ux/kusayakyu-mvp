@@ -2928,4 +2928,91 @@ th {
   .count-heatmap-cell strong {
     font-size: 22px;
   }
+
+  .analysis-main-pair .course-supplement-chart,
+  .analysis-main-pair .count-heatmap-chart {
+    gap: 5px;
+  }
+
+  .analysis-main-pair .course-grid {
+    gap: 2px;
+  }
+
+  .analysis-main-pair .course-cell {
+    min-height: 46px;
+    border-radius: 4px;
+    padding: 3px 2px;
+  }
+
+  .analysis-main-pair .course-name,
+  .analysis-main-pair .course-detail {
+    font-size: 7px;
+    line-height: 1.05;
+  }
+
+  .analysis-main-pair .course-count {
+    font-size: 8px;
+    line-height: 1.05;
+  }
+
+  .analysis-main-pair .course-cell strong {
+    font-size: 13px;
+  }
+
+  .analysis-main-pair .course-supplement-footer,
+  .analysis-main-pair .count-heatmap-footer {
+    gap: 4px;
+  }
+
+  .analysis-main-pair .course-supplement-footer > .muted,
+  .analysis-main-pair .count-heatmap-footer > .muted {
+    display: none;
+  }
+
+  .analysis-main-pair .course-legend,
+  .analysis-main-pair .count-heatmap-legend {
+    gap: 3px 5px;
+  }
+
+  .analysis-main-pair .course-legend span,
+  .analysis-main-pair .count-heatmap-legend span {
+    gap: 3px;
+    font-size: 7px;
+  }
+
+  .analysis-main-pair .course-legend i,
+  .analysis-main-pair .count-heatmap-legend i {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+  }
+
+  .analysis-main-pair .count-heatmap-title {
+    font-size: 10px;
+    line-height: 1.15;
+  }
+
+  .analysis-main-pair .count-heatmap-grid {
+    grid-template-columns: 24px repeat(3, minmax(0, 1fr));
+    gap: 2px;
+  }
+
+  .analysis-main-pair .count-heatmap-axis {
+    min-height: 22px;
+    border-radius: 4px;
+    font-size: 9px;
+  }
+
+  .analysis-main-pair .count-heatmap-strikes {
+    min-height: 14px;
+  }
+
+  .analysis-main-pair .count-heatmap-cell {
+    min-height: 34px;
+    border-radius: 4px;
+  }
+
+  .analysis-main-pair .count-heatmap-cell strong {
+    font-size: 13px;
+  }
 }
