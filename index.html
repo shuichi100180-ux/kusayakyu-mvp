@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=74" />
+    <link rel="stylesheet" href="./styles.css?v=75" />
   </head>
   <body>
     <header class="app-header">
@@ -848,15 +848,17 @@
             </div>
 
             <div class="mobile-field-separator">
-              <h4 class="mobile-field-heading">打球種類</h4>
+              <div class="mobile-heading-choice-row is-three-items">
+                <h4 class="mobile-field-heading">打球種類</h4>
+                <button class="mobile-heading-choice-button" data-choice-name="battedType" data-choice-value="バント" type="button">バント</button>
+                <button class="mobile-heading-choice-button" data-choice-name="battedType" data-choice-value="不明" type="button">不明</button>
+              </div>
             </div>
             <input name="battedType" type="hidden" />
             <div class="mobile-choice-grid three-columns" data-choice-group="battedType" aria-label="打球種類">
               <button data-choice-name="battedType" data-choice-value="ゴロ" type="button">ゴロ</button>
               <button data-choice-name="battedType" data-choice-value="ライナー" type="button">ライナー</button>
               <button data-choice-name="battedType" data-choice-value="フライ" type="button">フライ</button>
-              <button data-choice-name="battedType" data-choice-value="バント" type="button">バント</button>
-              <button data-choice-name="battedType" data-choice-value="不明" type="button">不明</button>
             </div>
           </section>
 
