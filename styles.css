@@ -2621,6 +2621,12 @@ th {
     font-size: 21px;
   }
 
+  #analysisMetrics [data-metric="ops"] .muted {
+    font-size: 10px;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+
   #analysisMetrics [data-metric="avg"] {
     order: 1;
   }
