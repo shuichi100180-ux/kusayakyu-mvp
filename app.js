@@ -1656,7 +1656,7 @@ function renderMobileGameSummary() {
   const selectedSlot = els.mobilePaForm?.elements?.plateAppearance?.value || "";
   const selectedPa = findPlateAppearanceForGameSlot(game.id, selectedSlot);
   const nextText = selectedPa ? `${selectedSlot}を編集中` : `次は ${nextPlateAppearanceForGame(game.id)}`;
-  els.mobileGameSummary.textContent = `${gameTitle(game)} / ${paCount}打席済み / ${nextText}`;
+  els.mobileGameSummary.textContent = `${paCount}打席済み / ${nextText}`;
 }
 
 function renderMobileGameSelect() {
