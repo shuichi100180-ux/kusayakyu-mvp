@@ -1203,6 +1203,7 @@ function renderMetrics(target, stats) {
     metric("死球", formatNumber(stats.hbp), "通算", "hbp"),
     metric("盗塁数", formatNumber(stats.steals), `${stats.stealAttempts}企図`, "steals"),
     metric("盗塁成功率", formatPercent(withRateValues.stealRate), `${stats.steals}成功 / ${stats.stealAttempts}企図`, "steal-rate"),
+    metric("犠打", formatNumber(stats.sh), "通算", "sac-bunt"),
     metric("出塁率", formatRate(withRateValues.obp), `${stats.bb}四球・${stats.hbp}死球`, "obp"),
     metric("長打率", formatRate(withRateValues.slg), `${stats.tb}塁打`, "slg"),
     metric("OPS", formatRate(withRateValues.ops), "出塁率 + 長打率", "ops"),
@@ -1211,7 +1212,6 @@ function renderMetrics(target, stats) {
     metric("二塁打", formatNumber(stats.doubles), "通算", "doubles"),
     metric("三塁打", formatNumber(stats.triples), "通算", "triples"),
     metric("失策出塁", formatNumber(stats.errorsReached), "通算", "errors-reached"),
-    metric("犠打", formatNumber(stats.sh), "通算", "sac-bunt"),
     metric("犠飛", formatNumber(stats.sf), "通算", "sac-fly"),
   ].join("");
 }
