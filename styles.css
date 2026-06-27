@@ -509,6 +509,12 @@ main {
   line-height: 1.1;
 }
 
+#analysisMetrics [data-metric="ops"] .muted {
+  font-size: 14px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
 .batted-direction-grid {
   display: grid;
   gap: 16px;
@@ -2619,12 +2625,6 @@ th {
   .metric strong {
     margin-top: 6px;
     font-size: 21px;
-  }
-
-  #analysisMetrics [data-metric="ops"] .muted {
-    font-size: 10px;
-    line-height: 1.15;
-    white-space: nowrap;
   }
 
   #analysisMetrics [data-metric="avg"] {
