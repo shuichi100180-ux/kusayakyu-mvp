@@ -2590,8 +2590,8 @@ th {
   }
 
   #analysisMetrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
   }
 
   .header-actions {
@@ -2609,7 +2609,16 @@ th {
 
   .metric {
     min-height: auto;
-    padding: 14px;
+    padding: 10px 8px;
+  }
+
+  .metric span {
+    font-size: 11px;
+  }
+
+  .metric strong {
+    margin-top: 6px;
+    font-size: 21px;
   }
 
   .direction-marker {
