@@ -2625,6 +2625,18 @@ th {
     line-height: 1.1;
   }
 
+  .mobile-choice-grid.result-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .mobile-choice-grid.result-grid button {
+    min-height: 38px;
+    padding: 6px 3px;
+    font-size: 12px;
+    line-height: 1.1;
+  }
+
   .metric {
     min-height: auto;
     padding: 10px 8px;
