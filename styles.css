@@ -2621,6 +2621,78 @@ th {
     font-size: 21px;
   }
 
+  #analysisMetrics [data-metric="avg"] {
+    order: 1;
+  }
+
+  #analysisMetrics [data-metric="hr"] {
+    order: 2;
+  }
+
+  #analysisMetrics [data-metric="rbi"] {
+    order: 3;
+  }
+
+  #analysisMetrics [data-metric="runs"] {
+    order: 4;
+  }
+
+  #analysisMetrics [data-metric="bb"] {
+    order: 5;
+  }
+
+  #analysisMetrics [data-metric="hbp"] {
+    order: 6;
+  }
+
+  #analysisMetrics [data-metric="ops"] {
+    order: 7;
+  }
+
+  #analysisMetrics [data-metric="obp"] {
+    order: 8;
+  }
+
+  #analysisMetrics [data-metric="slg"] {
+    order: 9;
+  }
+
+  #analysisMetrics [data-metric="risp-avg"] {
+    order: 10;
+  }
+
+  #analysisMetrics [data-metric="steals"] {
+    order: 11;
+  }
+
+  #analysisMetrics [data-metric="steal-rate"] {
+    order: 12;
+  }
+
+  #analysisMetrics [data-metric="singles"] {
+    order: 13;
+  }
+
+  #analysisMetrics [data-metric="doubles"] {
+    order: 14;
+  }
+
+  #analysisMetrics [data-metric="triples"] {
+    order: 15;
+  }
+
+  #analysisMetrics [data-metric="errors-reached"] {
+    order: 16;
+  }
+
+  #analysisMetrics [data-metric="sac-bunt"] {
+    order: 17;
+  }
+
+  #analysisMetrics [data-metric="sac-fly"] {
+    order: 18;
+  }
+
   .direction-marker {
     min-width: 56px;
     padding: 4px 6px;

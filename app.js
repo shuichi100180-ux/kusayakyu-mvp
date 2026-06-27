@@ -1182,9 +1182,10 @@ function selectedPitcherRow(rows) {
   return rows[0];
 }
 
-function metric(label, value, sub = "") {
+function metric(label, value, sub = "", key = "") {
+  const metricKey = key ? ` data-metric="${escapeHtml(key)}"` : "";
   return `
-    <div class="metric">
+    <div class="metric"${metricKey}>
       <span>${label}</span>
       <strong>${value}</strong>
       ${sub ? `<p class="muted">${sub}</p>` : ""}
@@ -1195,24 +1196,24 @@ function metric(label, value, sub = "") {
 function renderMetrics(target, stats) {
   const withRateValues = withRates(stats);
   target.innerHTML = [
-    metric("打率", formatRate(withRateValues.avg), `${stats.ab}打数 / ${stats.h}安打`),
-    metric("本塁打", formatNumber(stats.hr), "通算"),
-    metric("打点", formatNumber(stats.rbi), "通算"),
-    metric("得点", formatNumber(stats.runs), "通算"),
-    metric("四球", formatNumber(stats.bb), "通算"),
-    metric("死球", formatNumber(stats.hbp), "通算"),
-    metric("盗塁数", formatNumber(stats.steals), `${stats.stealAttempts}企図`),
-    metric("盗塁成功率", formatPercent(withRateValues.stealRate), `${stats.steals}成功 / ${stats.stealAttempts}企図`),
-    metric("出塁率", formatRate(withRateValues.obp), `${stats.bb}四球・${stats.hbp}死球`),
-    metric("長打率", formatRate(withRateValues.slg), `${stats.tb}塁打`),
-    metric("OPS", formatRate(withRateValues.ops), "出塁率 + 長打率"),
-    metric("得点圏打率", formatRate(withRateValues.rispAvg), `${stats.rispH}安打 / ${stats.rispAb}打数`),
-    metric("単打", formatNumber(stats.singles), "通算"),
-    metric("二塁打", formatNumber(stats.doubles), "通算"),
-    metric("三塁打", formatNumber(stats.triples), "通算"),
-    metric("失策出塁", formatNumber(stats.errorsReached), "通算"),
-    metric("犠打", formatNumber(stats.sh), "通算"),
-    metric("犠飛", formatNumber(stats.sf), "通算"),
+    metric("打率", formatRate(withRateValues.avg), `${stats.ab}打数 / ${stats.h}安打`, "avg"),
+    metric("本塁打", formatNumber(stats.hr), "通算", "hr"),
+    metric("打点", formatNumber(stats.rbi), "通算", "rbi"),
+    metric("得点", formatNumber(stats.runs), "通算", "runs"),
+    metric("四球", formatNumber(stats.bb), "通算", "bb"),
+    metric("死球", formatNumber(stats.hbp), "通算", "hbp"),
+    metric("盗塁数", formatNumber(stats.steals), `${stats.stealAttempts}企図`, "steals"),
+    metric("盗塁成功率", formatPercent(withRateValues.stealRate), `${stats.steals}成功 / ${stats.stealAttempts}企図`, "steal-rate"),
+    metric("出塁率", formatRate(withRateValues.obp), `${stats.bb}四球・${stats.hbp}死球`, "obp"),
+    metric("長打率", formatRate(withRateValues.slg), `${stats.tb}塁打`, "slg"),
+    metric("OPS", formatRate(withRateValues.ops), "出塁率 + 長打率", "ops"),
+    metric("得点圏打率", formatRate(withRateValues.rispAvg), `${stats.rispH}安打 / ${stats.rispAb}打数`, "risp-avg"),
+    metric("単打", formatNumber(stats.singles), "通算", "singles"),
+    metric("二塁打", formatNumber(stats.doubles), "通算", "doubles"),
+    metric("三塁打", formatNumber(stats.triples), "通算", "triples"),
+    metric("失策出塁", formatNumber(stats.errorsReached), "通算", "errors-reached"),
+    metric("犠打", formatNumber(stats.sh), "通算", "sac-bunt"),
+    metric("犠飛", formatNumber(stats.sf), "通算", "sac-fly"),
   ].join("");
 }
 
