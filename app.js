@@ -137,7 +137,6 @@ const els = {
   panels: $$(".tab-panel"),
   analysisMetrics: $("#analysisMetrics"),
   battedDirectionGrid: $("#battedDirectionGrid"),
-  battedDirectionToggles: $$(".batted-direction-mobile-toggle"),
   battedDirectionChart: $("#battedDirectionChart"),
   battedDirectionSummary: $("#battedDirectionSummary"),
   battedHitDirectionChart: $("#battedHitDirectionChart"),
@@ -1225,7 +1224,7 @@ function isBattedOut(pa) {
   return BATTED_OUT_RESULTS.has(pa.result);
 }
 
-function renderBattedDirectionChart(chart, summary, plateAppearances, label = "打球方向") {
+function renderBattedDirectionChart(chart, summary, plateAppearances, label = "打球方向", toggleView = "") {
   const stats = battedDirectionStats(plateAppearances);
   const markers = BATTED_DIRECTION_MARKERS.map((marker) => {
     const count = stats.counts[marker.key] || 0;
@@ -1246,6 +1245,9 @@ function renderBattedDirectionChart(chart, summary, plateAppearances, label = "�
     .map((marker) => `${marker.key} ${directionPercent(stats.counts[marker.key] || 0, stats.total)}`)
     .concat([`その他 ${otherPercent}`])
     .join("、");
+  const toggleButton = toggleView
+    ? `<button class="ghost-button compact-button batted-direction-mobile-toggle" type="button" data-batted-direction-view="${escapeHtml(toggleView)}">切替</button>`
+    : "";
 
   summary.textContent = `${stats.total}打球`;
   chart.innerHTML = `
@@ -1266,6 +1268,7 @@ function renderBattedDirectionChart(chart, summary, plateAppearances, label = "�
     <div class="direction-extra">
       <span>その他 ${otherPercent}</span>
       <span>${stats.total ? `${stats.total}打球を集計` : `${label}の打球方向入力がまだありません`}</span>
+      ${toggleButton}
     </div>
   `;
 }
@@ -2064,13 +2067,16 @@ function renderAnalysis() {
     els.battedHitDirectionSummary,
     state.plateAppearances.filter(isBattedHit),
     "安打",
+    "out",
   );
   renderBattedDirectionChart(
     els.battedOutDirectionChart,
     els.battedOutDirectionSummary,
     state.plateAppearances.filter(isBattedOut),
     "凡打",
+    "hit",
   );
+  setMobileBattedDirectionView(els.battedDirectionGrid?.classList.contains("is-showing-out") ? "out" : "hit");
   renderPitchTypeOutcomeChart(state.plateAppearances);
   renderPitcherMainTable(
     els.pitcherMainBody,
@@ -2101,7 +2107,7 @@ function renderAnalysis() {
 function setMobileBattedDirectionView(view) {
   const showOut = view === "out";
   els.battedDirectionGrid?.classList.toggle("is-showing-out", showOut);
-  els.battedDirectionToggles.forEach((button) => {
+  els.battedDirectionGrid?.querySelectorAll(".batted-direction-mobile-toggle").forEach((button) => {
     const targetView = button.dataset.battedDirectionView;
     button.setAttribute("aria-pressed", String(targetView === (showOut ? "hit" : "out")));
   });
@@ -3254,8 +3260,10 @@ $$("[data-jump-tab]").forEach((button) => {
   button.addEventListener("click", () => switchTab(button.dataset.jumpTab));
 });
 
-els.battedDirectionToggles.forEach((button) => {
-  button.addEventListener("click", () => setMobileBattedDirectionView(button.dataset.battedDirectionView));
+els.battedDirectionGrid?.addEventListener("click", (event) => {
+  const button = event.target.closest(".batted-direction-mobile-toggle");
+  if (!button || !els.battedDirectionGrid.contains(button)) return;
+  setMobileBattedDirectionView(button.dataset.battedDirectionView);
 });
 
 $$("[data-edit-selected-game]").forEach((button) => {

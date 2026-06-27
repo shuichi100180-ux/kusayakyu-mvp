@@ -2297,6 +2297,7 @@ th {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    margin-left: auto;
     min-height: 24px;
     padding: 3px 8px;
     font-size: 11px;
@@ -2333,7 +2334,9 @@ th {
   }
 
   .direction-extra {
+    align-items: center;
     gap: 4px;
+    flex-wrap: nowrap;
   }
 
   .direction-extra span {
