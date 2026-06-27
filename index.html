@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=77" />
+    <link rel="stylesheet" href="./styles.css?v=78" />
   </head>
   <body>
     <header class="app-header">
@@ -931,106 +931,92 @@
             <div id="pitchTypeOutcomeChart" class="pitch-outcome-chart"></div>
           </section>
 
-          <details class="surface analysis-wide-section pitch-type-sub-details">
-            <summary>
-              <h3>球種別成績サブ</h3>
-              <span class="ghost-button compact-button pitch-type-sub-toggle">
-                <span class="when-closed">表示する</span>
-                <span class="when-open">閉じる</span>
-              </span>
-            </summary>
-            <div class="pitch-type-sub-body">
-              <div class="table-wrap analysis-wide-wrap">
-                <table class="pitch-type-stats-table analysis-wide-table">
-                  <thead>
-                    <tr>
-                      <th>球種</th>
-                      <th>打率</th>
-                      <th>OPS</th>
-                      <th>打数</th>
-                      <th>安打</th>
-                      <th>本塁打</th>
-                      <th>打点</th>
-                      <th>四球</th>
-                    </tr>
-                  </thead>
-                  <tbody id="pitchTypeStatsBody"></tbody>
-                </table>
+          <div class="analysis-main-pair">
+            <section class="surface course-supplement-section">
+              <div class="surface-header">
+                <h3>コース別成績メイン</h3>
+                <span id="courseSupplementSummary" class="pill">0打数</span>
+              </div>
+              <div id="courseSupplementChart" class="course-supplement-chart"></div>
+            </section>
+
+            <section class="surface count-heatmap-section">
+              <div class="surface-header">
+                <h3>カウント別成績メイン</h3>
+                <span id="countHeatmapSummary" class="pill">0打数</span>
+              </div>
+              <div id="countHeatmapChart" class="count-heatmap-chart"></div>
+            </section>
+          </div>
+
+          <section class="surface analysis-wide-section stats-sub-switcher">
+            <div class="stats-sub-heading">
+              <div class="stats-sub-buttons" role="tablist" aria-label="サブ成績切り替え">
+                <button class="ghost-button compact-button stats-sub-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="pitchTypeSubPanel" data-stats-sub-target="pitch-type">球種別成績サブ</button>
+                <button class="ghost-button compact-button stats-sub-tab" type="button" role="tab" aria-selected="false" aria-controls="courseSubPanel" data-stats-sub-target="course">コース別成績サブ</button>
+                <button class="ghost-button compact-button stats-sub-tab" type="button" role="tab" aria-selected="false" aria-controls="countSubPanel" data-stats-sub-target="count">カウント別成績サブ</button>
               </div>
             </div>
-          </details>
+            <div class="stats-sub-panels">
+              <div class="stats-sub-panel is-active" id="pitchTypeSubPanel" role="tabpanel" data-stats-sub-panel="pitch-type">
+                <div class="table-wrap analysis-wide-wrap">
+                  <table class="pitch-type-stats-table analysis-wide-table">
+                    <thead>
+                      <tr>
+                        <th>球種</th>
+                        <th>打率</th>
+                        <th>OPS</th>
+                        <th>打数</th>
+                        <th>安打</th>
+                        <th>本塁打</th>
+                        <th>打点</th>
+                        <th>四球</th>
+                      </tr>
+                    </thead>
+                    <tbody id="pitchTypeStatsBody"></tbody>
+                  </table>
+                </div>
+              </div>
 
-          <section class="surface course-supplement-section">
-            <div class="surface-header">
-              <h3>コース別成績メイン</h3>
-              <span id="courseSupplementSummary" class="pill">0打数</span>
+              <div class="stats-sub-panel" id="courseSubPanel" role="tabpanel" data-stats-sub-panel="course" hidden>
+                <div class="table-wrap analysis-wide-wrap">
+                  <table class="course-stats-table analysis-wide-table">
+                    <thead>
+                      <tr>
+                        <th>コース</th>
+                        <th>打率</th>
+                        <th>OPS</th>
+                        <th>打数</th>
+                        <th>安打</th>
+                        <th>本塁打</th>
+                        <th>打点</th>
+                      </tr>
+                    </thead>
+                    <tbody id="courseStatsBody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="stats-sub-panel" id="countSubPanel" role="tabpanel" data-stats-sub-panel="count" hidden>
+                <div class="table-wrap analysis-wide-wrap">
+                  <table class="count-stats-table analysis-wide-table">
+                    <thead>
+                      <tr>
+                        <th>カウント</th>
+                        <th>打率</th>
+                        <th>OPS</th>
+                        <th>打数</th>
+                        <th>安打</th>
+                        <th>本塁打</th>
+                        <th>打点</th>
+                      </tr>
+                    </thead>
+                    <tbody id="countStatsBody"></tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-            <div id="courseSupplementChart" class="course-supplement-chart"></div>
           </section>
-
-          <details class="surface course-sub-details">
-            <summary>
-              <h3>コース別成績サブ</h3>
-              <span class="ghost-button compact-button course-sub-toggle">
-                <span class="when-closed">表示する</span>
-                <span class="when-open">閉じる</span>
-              </span>
-            </summary>
-            <div class="course-sub-body">
-              <div class="table-wrap">
-                <table class="course-stats-table">
-                  <thead>
-                    <tr>
-                      <th>コース</th>
-                      <th>打率</th>
-                      <th>OPS</th>
-                      <th>打数</th>
-                      <th>安打</th>
-                      <th>本塁打</th>
-                      <th>打点</th>
-                    </tr>
-                  </thead>
-                  <tbody id="courseStatsBody"></tbody>
-                </table>
-              </div>
-            </div>
-          </details>
-
-          <section class="surface count-heatmap-section">
-            <div class="surface-header">
-              <h3>カウント別成績メイン</h3>
-              <span id="countHeatmapSummary" class="pill">0打数</span>
-            </div>
-            <div id="countHeatmapChart" class="count-heatmap-chart"></div>
-          </section>
-
-          <details class="surface count-sub-details">
-            <summary>
-              <h3>カウント別成績サブ</h3>
-              <span class="ghost-button compact-button count-sub-toggle">
-                <span class="when-closed">表示する</span>
-                <span class="when-open">閉じる</span>
-              </span>
-            </summary>
-            <div class="count-sub-body">
-              <div class="table-wrap">
-                <table class="count-stats-table">
-                  <thead>
-                    <tr>
-                      <th>カウント</th>
-                      <th>打率</th>
-                      <th>OPS</th>
-                      <th>打数</th>
-                      <th>安打</th>
-                      <th>本塁打</th>
-                      <th>打点</th>
-                    </tr>
-                  </thead>
-                  <tbody id="countStatsBody"></tbody>
-                </table>
-              </div>
-            </div>
-          </details>
 
           <section class="surface analysis-wide-section pitcher-main-section">
             <div class="surface-header">
@@ -1261,6 +1247,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=69"></script>
+    <script src="./app.js?v=70"></script>
   </body>
 </html>

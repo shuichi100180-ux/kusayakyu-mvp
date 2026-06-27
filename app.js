@@ -174,6 +174,8 @@ const els = {
   pitcherStatsBody: $("#pitcherStatsBody"),
   pitchTypeStatsBody: $("#pitchTypeStatsBody"),
   courseStatsBody: $("#courseStatsBody"),
+  statsSubTabs: $$(".stats-sub-tab"),
+  statsSubPanels: $$(".stats-sub-panel"),
   courseSupplementChart: $("#courseSupplementChart"),
   courseSupplementSummary: $("#courseSupplementSummary"),
   countHeatmapChart: $("#countHeatmapChart"),
@@ -2113,6 +2115,23 @@ function setMobileBattedDirectionView(view) {
   });
 }
 
+function setStatsSubPanel(target = "pitch-type") {
+  const hasTarget = els.statsSubPanels.some((panel) => panel.dataset.statsSubPanel === target);
+  const activeTarget = hasTarget ? target : "pitch-type";
+
+  els.statsSubTabs.forEach((button) => {
+    const isActive = button.dataset.statsSubTarget === activeTarget;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+  });
+
+  els.statsSubPanels.forEach((panel) => {
+    const isActive = panel.dataset.statsSubPanel === activeTarget;
+    panel.classList.toggle("is-active", isActive);
+    panel.hidden = !isActive;
+  });
+}
+
 function renderPitcherCards() {
   const allRows = groupPitcherStats(state.plateAppearances);
 
@@ -3266,6 +3285,10 @@ els.battedDirectionGrid?.addEventListener("click", (event) => {
   setMobileBattedDirectionView(button.dataset.battedDirectionView);
 });
 
+els.statsSubTabs.forEach((button) => {
+  button.addEventListener("click", () => setStatsSubPanel(button.dataset.statsSubTarget));
+});
+
 $$("[data-edit-selected-game]").forEach((button) => {
   button.addEventListener("click", () => {
     const game = selectedMemoGame();
@@ -3641,6 +3664,7 @@ setMobileBattedDirectionView("hit");
 syncRunnerOptions(els.paForm);
 syncBattedBallFields();
 render();
+setStatsSubPanel("pitch-type");
 syncMobilePitchTypeOptions();
 syncDeviceTabVisibility();
 switchTab(initialTabName(), { persist: false });

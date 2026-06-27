@@ -642,13 +642,13 @@ main {
 
 .pitch-outcome-chart {
   display: grid;
-  gap: 14px;
+  gap: 8px;
 }
 
 .pitch-outcome-title {
   margin: 0;
   text-align: center;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 800;
 }
 
@@ -663,18 +663,18 @@ main {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 18px;
+  gap: 14px;
   width: max-content;
   min-width: 100%;
-  padding: 8px 12px 4px;
+  padding: 4px 10px 2px;
 }
 
 .pitch-outcome-column {
   display: grid;
-  flex: 0 0 96px;
-  gap: 6px;
+  flex: 0 0 88px;
+  gap: 4px;
   justify-items: center;
-  width: 96px;
+  width: 88px;
   text-align: center;
 }
 
@@ -698,8 +698,8 @@ main {
 .pitch-outcome-bar {
   display: flex;
   flex-direction: column;
-  width: 72px;
-  height: 230px;
+  width: 62px;
+  height: 154px;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 6px 6px 0 0;
@@ -761,21 +761,59 @@ main {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px 18px;
+  gap: 6px 14px;
 }
 
 .pitch-outcome-legend span {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
 }
 
 .pitch-outcome-legend i {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border-radius: 3px;
+}
+
+.stats-sub-switcher {
+  overflow: hidden;
+  padding: 0;
+}
+
+.stats-sub-heading {
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px;
+}
+
+.stats-sub-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stats-sub-tab {
+  justify-content: center;
+  min-width: 0;
+  text-align: center;
+}
+
+.stats-sub-tab.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.stats-sub-panels {
+  border-top: 1px solid var(--line);
+  padding: 16px 18px 18px;
+}
+
+.stats-sub-panel[hidden] {
+  display: none;
 }
 
 .count-heatmap-chart {
@@ -1719,6 +1757,13 @@ button:focus-visible {
   grid-column: 1 / -1;
 }
 
+.analysis-main-pair {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
 .analysis-wide-wrap {
   overflow-x: visible;
 }
@@ -2141,6 +2186,10 @@ th {
   .card-grid,
   .pitcher-button-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .analysis-main-pair {
+    gap: 8px;
   }
 
   .save-status {
@@ -2653,9 +2702,51 @@ th {
     grid-template-columns: 1fr;
   }
 
+  .analysis-main-pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .analysis-main-pair .surface {
+    padding: 8px;
+  }
+
+  .analysis-main-pair .surface-header {
+    align-items: start;
+    gap: 4px;
+  }
+
+  .analysis-main-pair h3 {
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .analysis-main-pair .pill {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+
   #analysisMetrics {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
+  }
+
+  .stats-sub-buttons {
+    gap: 6px;
+  }
+
+  .stats-sub-tab {
+    min-height: 34px;
+    padding: 5px 4px;
+    font-size: 11px;
+    line-height: 1.15;
+  }
+
+  .stats-sub-heading {
+    padding: 12px;
+  }
+
+  .stats-sub-panels {
+    padding: 12px;
   }
 
   .header-actions {
