@@ -2940,24 +2940,24 @@ th {
   }
 
   .analysis-main-pair .course-cell {
-    min-height: 46px;
+    min-height: 60px;
     border-radius: 4px;
-    padding: 3px 2px;
+    padding: 4px 2px;
   }
 
   .analysis-main-pair .course-name,
   .analysis-main-pair .course-detail {
-    font-size: 7px;
-    line-height: 1.05;
-  }
-
-  .analysis-main-pair .course-count {
     font-size: 8px;
     line-height: 1.05;
   }
 
+  .analysis-main-pair .course-count {
+    font-size: 9px;
+    line-height: 1.05;
+  }
+
   .analysis-main-pair .course-cell strong {
-    font-size: 13px;
+    font-size: 15px;
   }
 
   .analysis-main-pair .course-supplement-footer,
@@ -2991,6 +2991,10 @@ th {
   .analysis-main-pair .count-heatmap-title {
     font-size: 10px;
     line-height: 1.15;
+  }
+
+  .analysis-main-pair .count-heatmap-title span {
+    display: block;
   }
 
   .analysis-main-pair .count-heatmap-grid {

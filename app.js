@@ -1432,7 +1432,10 @@ function renderCountHeatmap(plateAppearances) {
   }).join("");
 
   els.countHeatmapChart.innerHTML = `
-    <p class="count-heatmap-title">直前カウント（B=ボール、S=ストライク）</p>
+    <p class="count-heatmap-title">
+      <span>直前カウント</span>
+      <span>（B＝ボール、S＝ストライク）</span>
+    </p>
     <div class="count-heatmap-grid" role="img" aria-label="直前カウント別の打率ヒートマップです。">
       <div class="count-heatmap-corner"></div>
       ${headerCells}
