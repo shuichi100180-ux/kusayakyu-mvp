@@ -2360,6 +2360,7 @@ function fillPitcherFieldsFromPa(form, pa) {
   setFieldValue(form, "breakingBall2", breakingBalls[1] || "");
   setFieldValue(form, "breakingBall3", breakingBalls[2] || "");
   syncPitcherStrategyField(form);
+  if (form === els.mobilePaForm) syncMobilePitchTypeOptions();
 }
 
 function clearPcPitcherFields() {
@@ -2483,6 +2484,7 @@ function battedTypeForForm(pa) {
 function setMobilePitcherFields(values = {}) {
   ["pitcherName", "pitcherNumber", "pitcherHand", "pitchingForm", "straightVelocity", "breakingBall1", "breakingBall2", "breakingBall3", "pitcherStrategy"]
     .forEach((name) => setFieldValue(els.mobilePaForm, name, values[name] || ""));
+  syncMobilePitchTypeOptions();
 }
 
 function mobilePitcherFieldValues() {
@@ -2497,6 +2499,27 @@ function mobilePitcherFieldValues() {
     breakingBall3: els.mobilePaForm.elements.breakingBall3.value,
     pitcherStrategy: els.mobilePaForm.elements.pitcherStrategy.value,
   };
+}
+
+function mobilePitcherBreakingBallChoices() {
+  if (!els.mobilePaForm) return [];
+  const choices = ["breakingBall1", "breakingBall2", "breakingBall3"]
+    .map((name) => String(els.mobilePaForm.elements[name]?.value || "").trim())
+    .filter((pitch) => pitch && pitch !== "ストレート");
+  return [...new Set(choices)];
+}
+
+function syncMobilePitchTypeOptions(preferredValue = els.mobilePaForm?.elements?.pitchType?.value || "") {
+  const select = els.mobilePaForm?.elements?.pitchType;
+  if (!select) return;
+
+  const choices = mobilePitcherBreakingBallChoices();
+  const selectedValue = String(preferredValue || "").trim();
+  select.innerHTML = [
+    `<option value="">未選択</option>`,
+    ...choices.map((pitch) => `<option>${escapeHtml(pitch)}</option>`),
+  ].join("");
+  select.value = choices.includes(selectedValue) ? selectedValue : "";
 }
 
 function clearMobilePlateAppearanceFields(options = {}) {
@@ -2519,6 +2542,7 @@ function clearMobilePlateAppearanceFields(options = {}) {
   setMobileChoice("battedDirection", "");
   setMobileChoice("battedType", "");
   if (pitcherValues) setMobilePitcherFields(pitcherValues);
+  syncMobilePitchTypeOptions();
   syncMobileRunnerOptions();
   syncMobileBattedBallFields();
 }
@@ -2544,8 +2568,8 @@ function fillMobilePlateAppearanceForm(pa) {
   setFieldValue(els.mobilePaForm, "breakingBall1", breakingBalls[0] || "");
   setFieldValue(els.mobilePaForm, "breakingBall2", breakingBalls[1] || "");
   setFieldValue(els.mobilePaForm, "breakingBall3", breakingBalls[2] || "");
+  syncMobilePitchTypeOptions(pa.pitchType || "");
   setFieldValue(els.mobilePaForm, "count", normalizeCountLabel(pa.count));
-  setFieldValue(els.mobilePaForm, "pitchType", pa.pitchType || "");
   setMobileChoice("course", pa.course || "");
 
   if (!skipsBattedBall(pa.result)) {
@@ -2626,6 +2650,7 @@ function resetMobilePlateAppearanceForm(options = {}) {
     setMobilePitcherFields(pitcherValues);
   }
 
+  syncMobilePitchTypeOptions();
   renderMobileGameSummary();
   syncMobileChoiceButtons();
   syncMobileRunnerOptions();
@@ -3296,6 +3321,9 @@ els.paForm.elements.risp.addEventListener("change", () => syncRunnerOptions(els.
 els.mobilePaForm.elements.risp.addEventListener("change", syncMobileRunnerOptions);
 bindPitcherStrategyLookup(els.paForm);
 bindPitcherStrategyLookup(els.mobilePaForm);
+["breakingBall1", "breakingBall2", "breakingBall3"].forEach((name) => {
+  els.mobilePaForm.elements[name]?.addEventListener("change", () => syncMobilePitchTypeOptions());
+});
 
 function syncPcPitcherPresetSelection() {
   syncPcPlateAppearanceFromPitcherSelection();
@@ -3605,6 +3633,7 @@ setMobileBattedDirectionView("hit");
 syncRunnerOptions(els.paForm);
 syncBattedBallFields();
 render();
+syncMobilePitchTypeOptions();
 syncDeviceTabVisibility();
 switchTab(initialTabName(), { persist: false });
 initializeCloudSync();
