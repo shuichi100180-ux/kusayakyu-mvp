@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=79" />
+    <link rel="stylesheet" href="./styles.css?v=80" />
   </head>
   <body>
     <header class="app-header">
@@ -952,13 +952,13 @@
           <section class="surface analysis-wide-section stats-sub-switcher">
             <div class="stats-sub-heading">
               <div class="stats-sub-buttons" role="tablist" aria-label="サブ成績切り替え">
-                <button class="ghost-button compact-button stats-sub-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="pitchTypeSubPanel" data-stats-sub-target="pitch-type">球種別成績サブ</button>
+                <button class="ghost-button compact-button stats-sub-tab" type="button" role="tab" aria-selected="false" aria-controls="pitchTypeSubPanel" data-stats-sub-target="pitch-type">球種別成績サブ</button>
                 <button class="ghost-button compact-button stats-sub-tab" type="button" role="tab" aria-selected="false" aria-controls="courseSubPanel" data-stats-sub-target="course">コース別成績サブ</button>
                 <button class="ghost-button compact-button stats-sub-tab" type="button" role="tab" aria-selected="false" aria-controls="countSubPanel" data-stats-sub-target="count">カウント別成績サブ</button>
               </div>
             </div>
-            <div class="stats-sub-panels">
-              <div class="stats-sub-panel is-active" id="pitchTypeSubPanel" role="tabpanel" data-stats-sub-panel="pitch-type">
+            <div class="stats-sub-panels" hidden>
+              <div class="stats-sub-panel" id="pitchTypeSubPanel" role="tabpanel" data-stats-sub-panel="pitch-type" hidden>
                 <div class="table-wrap analysis-wide-wrap">
                   <table class="pitch-type-stats-table analysis-wide-table">
                     <thead>
@@ -1247,6 +1247,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=70"></script>
+    <script src="./app.js?v=71"></script>
   </body>
 </html>

@@ -175,6 +175,7 @@ const els = {
   pitchTypeStatsBody: $("#pitchTypeStatsBody"),
   courseStatsBody: $("#courseStatsBody"),
   statsSubTabs: $$(".stats-sub-tab"),
+  statsSubPanelsWrap: $(".stats-sub-panels"),
   statsSubPanels: $$(".stats-sub-panel"),
   courseSupplementChart: $("#courseSupplementChart"),
   courseSupplementSummary: $("#courseSupplementSummary"),
@@ -2115,9 +2116,9 @@ function setMobileBattedDirectionView(view) {
   });
 }
 
-function setStatsSubPanel(target = "pitch-type") {
+function setStatsSubPanel(target = "") {
   const hasTarget = els.statsSubPanels.some((panel) => panel.dataset.statsSubPanel === target);
-  const activeTarget = hasTarget ? target : "pitch-type";
+  const activeTarget = hasTarget ? target : "";
 
   els.statsSubTabs.forEach((button) => {
     const isActive = button.dataset.statsSubTarget === activeTarget;
@@ -2130,6 +2131,10 @@ function setStatsSubPanel(target = "pitch-type") {
     panel.classList.toggle("is-active", isActive);
     panel.hidden = !isActive;
   });
+
+  if (els.statsSubPanelsWrap) {
+    els.statsSubPanelsWrap.hidden = !activeTarget;
+  }
 }
 
 function renderPitcherCards() {
@@ -3286,7 +3291,10 @@ els.battedDirectionGrid?.addEventListener("click", (event) => {
 });
 
 els.statsSubTabs.forEach((button) => {
-  button.addEventListener("click", () => setStatsSubPanel(button.dataset.statsSubTarget));
+  button.addEventListener("click", () => {
+    const target = button.dataset.statsSubTarget;
+    setStatsSubPanel(button.classList.contains("is-active") ? "" : target);
+  });
 });
 
 $$("[data-edit-selected-game]").forEach((button) => {
@@ -3664,7 +3672,7 @@ setMobileBattedDirectionView("hit");
 syncRunnerOptions(els.paForm);
 syncBattedBallFields();
 render();
-setStatsSubPanel("pitch-type");
+setStatsSubPanel("");
 syncMobilePitchTypeOptions();
 syncDeviceTabVisibility();
 switchTab(initialTabName(), { persist: false });
