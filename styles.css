@@ -1292,6 +1292,10 @@ main {
   gap: 10px;
 }
 
+.mobile-pitch-selection-grid {
+  grid-template-columns: 1fr;
+}
+
 .mobile-result-context-row,
 .mobile-result-action-row {
   display: grid;
