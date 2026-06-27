@@ -22,7 +22,7 @@ const RESULT_DEFS = {
   flyout: { label: "フライアウト", atBat: true, hit: false, totalBases: 0, onBase: false },
   lineout: { label: "ライナーアウト", atBat: true, hit: false, totalBases: 0, onBase: false },
   fielderChoice: { label: "野選", atBat: true, hit: false, totalBases: 0, onBase: false },
-  error: { label: "失策出塁", atBat: true, hit: false, totalBases: 0, onBase: false, error: true },
+  error: { label: "エラー", atBat: true, hit: false, totalBases: 0, onBase: false, error: true },
   sacFly: { label: "犠飛", atBat: false, hit: false, totalBases: 0, onBase: false, sacFly: true },
   sacBunt: { label: "犠打", atBat: false, hit: false, totalBases: 0, onBase: false, sacBunt: true },
 };
