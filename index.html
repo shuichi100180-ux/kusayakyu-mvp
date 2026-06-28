@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=86" />
+    <link rel="stylesheet" href="./styles.css?v=87" />
   </head>
   <body>
     <header class="app-header">
@@ -478,7 +478,7 @@
             </label>
             <p id="mobileGameSummary" class="muted">試合を選ぶと、次の打席候補が入ります。</p>
             <div id="mobileGameRegistration" class="mobile-game-registration is-hidden">
-              <div class="mobile-two-grid">
+              <div class="mobile-two-grid mobile-game-date-row">
                 <label>
                   日付
                   <input name="date" type="date" required />
@@ -493,17 +493,19 @@
                   </select>
                 </label>
               </div>
-              <label>
-                対戦相手
-                <select id="mobileOpponentSelect" name="opponentSelect" required>
-                  <option value="__new_opponent__">新規登録</option>
-                </select>
-              </label>
-              <label class="opponent-new-field" id="mobileOpponentNewField">
-                新規対戦相手
-                <input id="mobileOpponentInput" name="opponent" type="text" placeholder="例：青空クラブ" required />
-              </label>
-              <div class="mobile-two-grid">
+              <div class="mobile-game-opponent-row is-new-opponent">
+                <label>
+                  対戦相手
+                  <select id="mobileOpponentSelect" name="opponentSelect" required>
+                    <option value="__new_opponent__">新規登録</option>
+                  </select>
+                </label>
+                <label class="opponent-new-field" id="mobileOpponentNewField">
+                  新規対戦相手
+                  <input id="mobileOpponentInput" name="opponent" type="text" placeholder="例：青空クラブ" required />
+                </label>
+              </div>
+              <div class="mobile-game-detail-column">
                 <label>
                   対戦相手クラス
                   <select name="opponentClass">
@@ -524,18 +526,6 @@
                     <option>その他</option>
                   </select>
                 </label>
-              </div>
-              <div class="mobile-two-grid">
-                <label>
-                  自チーム得点
-                  <input name="ownScore" type="number" min="0" inputmode="numeric" />
-                </label>
-                <label>
-                  相手得点
-                  <input name="opponentScore" type="number" min="0" inputmode="numeric" />
-                </label>
-              </div>
-              <div class="mobile-two-grid">
                 <label>
                   打順
                   <select name="battingOrder">
@@ -567,6 +557,16 @@
                     <option>指名打者</option>
                     <option>ベンチスタート</option>
                   </select>
+                </label>
+              </div>
+              <div class="mobile-two-grid mobile-game-score-row">
+                <label>
+                  自チーム得点
+                  <input name="ownScore" type="number" min="0" inputmode="numeric" />
+                </label>
+                <label>
+                  相手チーム得点
+                  <input name="opponentScore" type="number" min="0" inputmode="numeric" />
                 </label>
               </div>
               <label>
@@ -1253,6 +1253,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=74"></script>
+    <script src="./app.js?v=75"></script>
   </body>
 </html>

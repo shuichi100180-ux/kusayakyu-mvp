@@ -1402,6 +1402,23 @@ main {
   padding-top: 12px;
 }
 
+.mobile-game-opponent-row,
+.mobile-game-detail-column {
+  display: grid;
+  gap: 10px;
+}
+
+.mobile-game-registration .mobile-game-date-row,
+.mobile-game-registration .mobile-game-score-row,
+.mobile-game-opponent-row.is-new-opponent {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mobile-game-opponent-row:not(.is-new-opponent),
+.mobile-game-detail-column {
+  grid-template-columns: 1fr;
+}
+
 .mobile-game-actions {
   display: grid;
   gap: 8px;

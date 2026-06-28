@@ -1500,7 +1500,7 @@ function syncOpponentInputMode(controls = opponentControls()) {
   const { select, input, newField } = controls;
   if (!select || !input || !newField) return;
   const isNew = select.value === NEW_OPPONENT_VALUE;
-  newField.closest(".game-basic-row")?.classList.toggle("is-new-opponent", isNew);
+  newField.closest(".game-basic-row, .mobile-game-opponent-row")?.classList.toggle("is-new-opponent", isNew);
   newField.classList.toggle("is-hidden", !isNew);
   input.required = isNew;
   input.disabled = !isNew;
