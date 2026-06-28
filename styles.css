@@ -3015,8 +3015,9 @@ th {
 
   .analysis-main-pair .count-heatmap-legend {
     display: grid;
-    grid-template-columns: max-content minmax(0, 1fr);
+    grid-template-columns: repeat(3, max-content);
     align-items: center;
+    column-gap: 3px;
   }
 
   .analysis-main-pair .course-legend span,
@@ -3025,30 +3026,35 @@ th {
     font-size: 7px;
   }
 
+  .analysis-main-pair .count-heatmap-legend span {
+    gap: 2px;
+    font-size: 6.5px;
+  }
+
   .analysis-main-pair .count-heatmap-legend-item.is-good-label {
     grid-column: 1;
     grid-row: 1;
   }
 
   .analysis-main-pair .count-heatmap-legend-item.is-caution-label {
-    grid-column: 1;
-    grid-row: 2;
+    grid-column: 2;
+    grid-row: 1;
   }
 
   .analysis-main-pair .count-heatmap-legend-item.is-warning-label {
-    grid-column: 2;
-    grid-row: 2;
+    grid-column: 3;
+    grid-row: 1;
   }
 
   .analysis-main-pair .count-heatmap-legend-item.is-danger-label {
     grid-column: 1;
-    grid-row: 3;
+    grid-row: 2;
   }
 
   .analysis-main-pair .count-heatmap-legend .count-heatmap-mobile-note {
     display: inline-flex;
-    grid-column: 2;
-    grid-row: 3;
+    grid-column: 2 / -1;
+    grid-row: 2;
     color: var(--muted);
     font-size: 8px;
     font-weight: 800;
@@ -3061,6 +3067,11 @@ th {
     width: 8px;
     height: 8px;
     border-radius: 2px;
+  }
+
+  .analysis-main-pair .count-heatmap-legend i {
+    width: 7px;
+    height: 7px;
   }
 
   .analysis-main-pair .count-heatmap-title {
