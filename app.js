@@ -2242,7 +2242,7 @@ function renderPitcherCards() {
     </section>
     <section class="surface pitcher-history">
       <div class="surface-header">
-        <h3>${escapeHtml(selectedRow.pitcher)}の過去打席</h3>
+        <h3>${escapeHtml(selectedRow.pitcher)}の投手データ</h3>
         <span class="pill">${selectedRow.pa}打席</span>
       </div>
       <div class="pitcher-history-stats" aria-label="${escapeHtml(selectedRow.pitcher)}との過去成績">
