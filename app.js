@@ -1699,7 +1699,7 @@ function renderMobileGameSelect() {
     setMobileChoice("plateAppearance", nextPlateAppearanceForGame(selectedId));
   }
   if (els.mobilePaForm && !els.mobilePaForm.elements.runScored.value) {
-    setMobileChoice("runScored", "0");
+    setFieldValue(els.mobilePaForm, "runScored", "0");
   }
   renderMobileGameSummary();
   syncMobileChoiceButtons();
@@ -2590,7 +2590,7 @@ function clearMobilePlateAppearanceFields(options = {}) {
   setFieldValue(els.mobilePaForm, "stolenBase", "なし");
   setFieldValue(els.mobilePaForm, "runners", "ランナーなし");
   setFieldValue(els.mobilePaForm, "sign", "なし");
-  setMobileChoice("runScored", "0");
+  setFieldValue(els.mobilePaForm, "runScored", "0");
   setMobileChoice("result", "");
   setMobileChoice("course", "");
   setMobileChoice("battedDirection", "");
@@ -2612,7 +2612,7 @@ function fillMobilePlateAppearanceForm(pa) {
   setFieldValue(els.mobilePaForm, "runners", pa.runners || "ランナーなし");
   setFieldValue(els.mobilePaForm, "sign", pa.sign || "なし");
   setFieldValue(els.mobilePaForm, "stolenBase", pa.stolenBase || "なし");
-  setMobileChoice("runScored", String(pa.runScored ?? 0));
+  setFieldValue(els.mobilePaForm, "runScored", String(pa.runScored ?? 0));
   setMobileChoice("result", resultForForm(pa));
   setFieldValue(els.mobilePaForm, "pitcherName", pa.pitcherName || "");
   setFieldValue(els.mobilePaForm, "pitcherNumber", pa.pitcherNumber || "");
@@ -2691,7 +2691,7 @@ function resetMobilePlateAppearanceForm(options = {}) {
   setFieldValue(els.mobilePaForm, "runners", "ランナーなし");
   setFieldValue(els.mobilePaForm, "sign", "なし");
   setMobileChoice("plateAppearance", selectedSlot);
-  setMobileChoice("runScored", "0");
+  setFieldValue(els.mobilePaForm, "runScored", "0");
   setMobileChoice("result", "");
   setMobileChoice("course", "");
   setMobileChoice("battedDirection", "");

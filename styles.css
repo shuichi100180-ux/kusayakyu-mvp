@@ -1378,11 +1378,11 @@ main {
 }
 
 .mobile-result-context-row {
-  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  grid-template-columns: minmax(64px, 0.72fr) minmax(92px, 1.08fr) minmax(86px, 1fr);
 }
 
 .mobile-result-action-row {
-  grid-template-columns: minmax(0, 1fr) minmax(56px, 0.65fr) minmax(0, 1.45fr);
+  grid-template-columns: minmax(56px, 0.64fr) minmax(128px, 1.48fr) minmax(64px, 0.72fr);
 }
 
 .mobile-result-context-row .checkbox-line {
@@ -1391,6 +1391,11 @@ main {
 
 .mobile-result-action-row label,
 .mobile-result-context-row label {
+  min-width: 0;
+}
+
+.mobile-result-action-row select,
+.mobile-result-context-row select {
   min-width: 0;
 }
 
@@ -2941,6 +2946,23 @@ th {
     padding: 6px 3px;
     font-size: 12px;
     line-height: 1.1;
+  }
+
+  .mobile-result-context-row,
+  .mobile-result-action-row {
+    gap: 6px;
+  }
+
+  .mobile-result-context-row label,
+  .mobile-result-action-row label {
+    font-size: 12px;
+  }
+
+  .mobile-result-context-row select,
+  .mobile-result-action-row select {
+    min-height: 40px;
+    padding-inline: 6px;
+    font-size: 12px;
   }
 
   .metric {

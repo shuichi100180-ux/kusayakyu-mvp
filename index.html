@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=90" />
+    <link rel="stylesheet" href="./styles.css?v=91" />
   </head>
   <body>
     <header class="app-header">
@@ -358,8 +358,8 @@
                 <label>
                   得点
                   <select name="runScored">
-                    <option value="1">1</option>
-                    <option value="0" selected>0</option>
+                    <option value="0" selected>なし</option>
+                    <option value="1">あり</option>
                   </select>
                 </label>
               </div>
@@ -625,9 +625,6 @@
                   <option>1塁</option>
                 </select>
               </label>
-            </div>
-
-            <div class="mobile-result-action-row">
               <label>
                 サイン
                 <select name="sign">
@@ -637,6 +634,9 @@
                   <option>スクイズ</option>
                 </select>
               </label>
+            </div>
+
+            <div class="mobile-result-action-row">
               <label>
                 打点
                 <select name="rbi">
@@ -657,12 +657,13 @@
                   <option>盗塁1成功1失敗</option>
                 </select>
               </label>
-            </div>
-
-            <input name="runScored" type="hidden" value="0" />
-            <div class="mobile-choice-grid two-columns" data-choice-group="runScored" aria-label="得点">
-              <button data-choice-name="runScored" data-choice-value="0" type="button">得点なし</button>
-              <button data-choice-name="runScored" data-choice-value="1" type="button">得点あり</button>
+              <label>
+                得点
+                <select name="runScored">
+                  <option value="0" selected>なし</option>
+                  <option value="1">あり</option>
+                </select>
+              </label>
             </div>
           </section>
 
@@ -1236,6 +1237,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=78"></script>
+    <script src="./app.js?v=79"></script>
   </body>
 </html>
