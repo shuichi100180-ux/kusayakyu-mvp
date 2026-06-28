@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=88" />
+    <link rel="stylesheet" href="./styles.css?v=89" />
   </head>
   <body>
     <header class="app-header">
@@ -661,7 +661,7 @@
             <details class="mobile-pitcher-registration">
               <summary class="ghost-button">投手登録</summary>
               <div class="mobile-pitcher-registration-fields">
-                <div class="mobile-two-grid">
+                <div class="mobile-pitcher-info-row">
                   <label>
                     投手名
                     <input name="pitcherName" type="text" placeholder="投手名" required />
@@ -670,10 +670,8 @@
                     背番号
                     <input name="pitcherNumber" type="text" inputmode="numeric" placeholder="例：18" />
                   </label>
-                </div>
-                <div class="mobile-two-grid">
                   <label>
-                    左右
+                    利き手
                     <select name="pitcherHand">
                       <option value="">未選択</option>
                       <option value="右">右</option>
@@ -692,9 +690,9 @@
                     </select>
                   </label>
                 </div>
-                <div class="mobile-two-grid">
+                <div class="mobile-pitcher-arsenal-row">
                   <label>
-                    ストレート球速
+                    ストレート
                     <select name="straightVelocity">
                       <option value="">未選択</option>
                       <option>100km</option>
@@ -719,46 +717,41 @@
                       <option>不明</option>
                     </select>
                   </label>
+                  <label>
+                    変化球2
+                    <select name="breakingBall2">
+                      <option value="">未選択</option>
+                      <option>ストレート</option>
+                      <option>ツーシーム</option>
+                      <option>カットボール</option>
+                      <option>スライダー</option>
+                      <option>カーブ</option>
+                      <option>スローボール</option>
+                      <option>フォーク</option>
+                      <option>チェンジアップ</option>
+                      <option>シンカー</option>
+                      <option>シュート</option>
+                      <option>不明</option>
+                    </select>
+                  </label>
+                  <label>
+                    変化球3
+                    <select name="breakingBall3">
+                      <option value="">未選択</option>
+                      <option>ストレート</option>
+                      <option>ツーシーム</option>
+                      <option>カットボール</option>
+                      <option>スライダー</option>
+                      <option>カーブ</option>
+                      <option>スローボール</option>
+                      <option>フォーク</option>
+                      <option>チェンジアップ</option>
+                      <option>シンカー</option>
+                      <option>シュート</option>
+                      <option>不明</option>
+                    </select>
+                  </label>
                 </div>
-                <details class="mobile-details" open>
-                  <summary>変化球を追加</summary>
-                  <div class="mobile-two-grid">
-                    <label>
-                      変化球2
-                      <select name="breakingBall2">
-                        <option value="">未選択</option>
-                        <option>ストレート</option>
-                        <option>ツーシーム</option>
-                        <option>カットボール</option>
-                        <option>スライダー</option>
-                        <option>カーブ</option>
-                        <option>スローボール</option>
-                        <option>フォーク</option>
-                        <option>チェンジアップ</option>
-                        <option>シンカー</option>
-                        <option>シュート</option>
-                        <option>不明</option>
-                      </select>
-                    </label>
-                    <label>
-                      変化球3
-                      <select name="breakingBall3">
-                        <option value="">未選択</option>
-                        <option>ストレート</option>
-                        <option>ツーシーム</option>
-                        <option>カットボール</option>
-                        <option>スライダー</option>
-                        <option>カーブ</option>
-                        <option>スローボール</option>
-                        <option>フォーク</option>
-                        <option>チェンジアップ</option>
-                        <option>シンカー</option>
-                        <option>シュート</option>
-                        <option>不明</option>
-                      </select>
-                    </label>
-                  </div>
-                </details>
               </div>
             </details>
           </section>

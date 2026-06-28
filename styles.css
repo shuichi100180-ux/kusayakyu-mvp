@@ -1578,19 +1578,39 @@ main {
   gap: 12px;
 }
 
-.mobile-details {
-  border-top: 1px solid var(--line);
-  padding-top: 4px;
+.mobile-pitcher-info-row,
+.mobile-pitcher-arsenal-row {
+  display: grid;
+  gap: 8px;
+  align-items: end;
 }
 
-.mobile-details summary {
-  color: var(--accent-strong);
-  cursor: pointer;
-  font-weight: 800;
+.mobile-pitcher-info-row {
+  grid-template-columns:
+    minmax(78px, 1.35fr)
+    minmax(52px, 0.72fr)
+    minmax(52px, 0.72fr)
+    minmax(92px, 1.25fr);
 }
 
-.mobile-details[open] summary {
-  margin-bottom: 10px;
+.mobile-pitcher-arsenal-row {
+  grid-template-columns: minmax(70px, 0.78fr) repeat(3, minmax(74px, 1fr));
+}
+
+.mobile-pitcher-info-row label,
+.mobile-pitcher-arsenal-row label {
+  min-width: 0;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.mobile-pitcher-info-row input,
+.mobile-pitcher-info-row select,
+.mobile-pitcher-arsenal-row select {
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 6px;
+  font-size: 12px;
 }
 
 .mobile-checkbox {
@@ -2850,6 +2870,40 @@ th {
 
   .mobile-pitcher-presets {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mobile-pitcher-registration-fields {
+    gap: 8px;
+  }
+
+  .mobile-pitcher-info-row,
+  .mobile-pitcher-arsenal-row {
+    gap: 5px;
+  }
+
+  .mobile-pitcher-info-row {
+    grid-template-columns:
+      minmax(64px, 1.24fr)
+      minmax(43px, 0.62fr)
+      minmax(43px, 0.62fr)
+      minmax(76px, 1.08fr);
+  }
+
+  .mobile-pitcher-arsenal-row {
+    grid-template-columns: minmax(58px, 0.7fr) repeat(3, minmax(60px, 1fr));
+  }
+
+  .mobile-pitcher-info-row label,
+  .mobile-pitcher-arsenal-row label {
+    font-size: 11px;
+  }
+
+  .mobile-pitcher-info-row input,
+  .mobile-pitcher-info-row select,
+  .mobile-pitcher-arsenal-row select {
+    min-height: 38px;
+    padding: 7px 4px;
+    font-size: 11px;
   }
 
   .mobile-choice-grid.four-columns {
