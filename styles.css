@@ -1408,15 +1408,49 @@ main {
   gap: 10px;
 }
 
-.mobile-game-registration .mobile-game-date-row,
+.mobile-game-registration label,
+.mobile-game-registration input,
+.mobile-game-registration select {
+  min-width: 0;
+}
+
+.mobile-game-registration .mobile-game-date-row {
+  gap: 8px;
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
+}
+
 .mobile-game-registration .mobile-game-score-row,
 .mobile-game-opponent-row.is-new-opponent {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.mobile-game-opponent-row:not(.is-new-opponent),
 .mobile-game-detail-column {
+  gap: 6px;
+  grid-template-columns: minmax(74px, 1.15fr) minmax(76px, 1.2fr) minmax(48px, 0.7fr) minmax(62px, 0.95fr);
+}
+
+.mobile-game-opponent-row:not(.is-new-opponent) {
   grid-template-columns: 1fr;
+}
+
+.mobile-game-date-row input[type="date"],
+.mobile-game-date-row select,
+.mobile-game-detail-column select {
+  padding-inline: 7px;
+}
+
+.mobile-game-date-row input[type="date"] {
+  font-size: 13px;
+}
+
+.mobile-game-detail-column label {
+  gap: 4px;
+  font-size: 11px;
+}
+
+.mobile-game-detail-column select {
+  min-height: 40px;
+  font-size: 12px;
 }
 
 .mobile-game-actions {
