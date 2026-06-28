@@ -2185,7 +2185,7 @@ function renderPitcherCards() {
 
   const pitcherPas = sortedPlateAppearances().filter((pa) => pitcherProfileKey(pa) === selectedRow.key);
   const pitcherProfileItems = [
-    ["左右", uniquePitcherValues(pitcherPas, (pa) => [pa.pitcherHand])],
+    ["利き手", uniquePitcherValues(pitcherPas, (pa) => [pa.pitcherHand])],
     ["フォーム", uniquePitcherValues(pitcherPas, (pa) => [pa.pitchingForm])],
     ["球速", uniquePitcherValues(pitcherPas, (pa) => [pa.straightVelocity])],
     ["変化球", uniquePitcherValues(pitcherPas, pitcherBreakingBallsForPa, "未入力", 4)],
