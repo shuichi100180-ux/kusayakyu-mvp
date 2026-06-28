@@ -1415,8 +1415,8 @@ main {
 }
 
 .mobile-game-registration .mobile-game-date-row {
-  gap: 8px;
-  grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
+  gap: 12px;
+  grid-template-columns: minmax(190px, 1.25fr) minmax(116px, 0.75fr);
 }
 
 .mobile-game-registration .mobile-game-score-row,
@@ -1436,11 +1436,15 @@ main {
 .mobile-game-date-row input[type="date"],
 .mobile-game-date-row select,
 .mobile-game-detail-column select {
+  min-width: 0;
   padding-inline: 7px;
 }
 
 .mobile-game-date-row input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
   font-size: 13px;
+  max-width: 100%;
 }
 
 .mobile-game-detail-column label {
@@ -2876,6 +2880,11 @@ th {
     gap: 8px;
   }
 
+  .mobile-game-registration .mobile-game-date-row {
+    gap: 10px;
+    grid-template-columns: minmax(184px, 1.25fr) minmax(112px, 0.75fr);
+  }
+
   .mobile-pitcher-info-row,
   .mobile-pitcher-arsenal-row {
     gap: 5px;
@@ -3220,5 +3229,11 @@ th {
 
   .analysis-main-pair .count-heatmap-cell strong {
     font-size: 13px;
+  }
+}
+
+@media (max-width: 360px) {
+  .mobile-game-registration .mobile-game-date-row {
+    grid-template-columns: 1fr;
   }
 }
