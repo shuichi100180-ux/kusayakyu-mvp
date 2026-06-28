@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=85" />
+    <link rel="stylesheet" href="./styles.css?v=86" />
   </head>
   <body>
     <header class="app-header">
@@ -165,7 +165,7 @@
               </label>
               <div class="form-actions">
                 <button class="primary-button" id="gameSubmitButton" type="submit">試合を保存</button>
-                <button class="ghost-button is-hidden" id="cancelGameEditButton" type="button">編集をやめる</button>
+                <button class="danger-button is-hidden" id="deleteGameEditButton" type="button">試合を削除</button>
               </div>
             </form>
           </section>
@@ -581,7 +581,10 @@
                 試合メモ
                 <textarea name="gameMemo" rows="3" placeholder="次回意識すること、試合全体の感触など"></textarea>
               </label>
-              <button class="primary-button" id="mobileGameSaveButton" type="button">試合を保存して打席入力へ</button>
+              <div class="mobile-game-actions" id="mobileGameActions">
+                <button class="primary-button" id="mobileGameSaveButton" type="button">試合を保存して打席入力へ</button>
+                <button class="danger-button is-hidden" id="mobileGameDeleteButton" type="button">試合を削除</button>
+              </div>
             </div>
           </section>
 
@@ -1250,6 +1253,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=73"></script>
+    <script src="./app.js?v=74"></script>
   </body>
 </html>

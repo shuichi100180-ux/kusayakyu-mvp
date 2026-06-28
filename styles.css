@@ -1402,6 +1402,21 @@ main {
   padding-top: 12px;
 }
 
+.mobile-game-actions {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr;
+}
+
+.mobile-game-actions.is-editing {
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.8fr);
+}
+
+.mobile-game-actions .primary-button,
+.mobile-game-actions .danger-button {
+  width: 100%;
+}
+
 .mobile-choice-grid,
 .mobile-course-grid {
   display: grid;

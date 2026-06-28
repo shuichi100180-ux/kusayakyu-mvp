@@ -211,9 +211,11 @@ const els = {
   syncSignUpButton: $("#syncSignUpButton"),
   syncSignOutButton: $("#syncSignOutButton"),
   gameSubmitButton: $("#gameSubmitButton"),
-  cancelGameEditButton: $("#cancelGameEditButton"),
+  deleteGameEditButton: $("#deleteGameEditButton"),
   paSubmitButton: $("#paSubmitButton"),
   cancelPaEditButton: $("#cancelPaEditButton"),
+  mobileGameActions: $("#mobileGameActions"),
+  mobileGameDeleteButton: $("#mobileGameDeleteButton"),
   mobileClearButton: $("#mobileClearButton"),
 };
 
@@ -1623,6 +1625,8 @@ function syncMobileGameMode() {
   const showingGameForm = registeringNewGame || editingMobileGame;
   els.mobileGameRegistration?.classList.toggle("is-hidden", !showingGameForm);
   setControlsDisabled(els.mobileGameRegistration, !showingGameForm);
+  els.mobileGameDeleteButton?.classList.toggle("is-hidden", !editingMobileGame);
+  els.mobileGameActions?.classList.toggle("is-editing", editingMobileGame);
 
   $$("[data-mobile-pa-section]").forEach((section) => {
     section.classList.toggle("is-hidden", showingGameForm);
@@ -2354,7 +2358,7 @@ function renderSyncStatus() {
 function renderEditState() {
   const editingGame = Boolean(editingGameId);
   els.gameSubmitButton.textContent = editingGame ? "試合を更新" : "試合を保存";
-  els.cancelGameEditButton.classList.toggle("is-hidden", !editingGame);
+  els.deleteGameEditButton.classList.toggle("is-hidden", !editingGame);
 
   const editingPa = Boolean(editingPaId);
   els.paSubmitButton.textContent = editingPa ? "打席を更新" : "打席を保存";
@@ -2765,6 +2769,72 @@ function cancelGameEdit() {
   editingGameId = "";
   resetGameForm();
   renderEditState();
+}
+
+function deleteGameById(gameId) {
+  const game = getGame(gameId);
+  if (!game) {
+    showToast("削除する試合が見つかりません");
+    return false;
+  }
+
+  const ok = window.confirm(`${gameTitle(game)} を削除しますか？関連する打席も削除されます。`);
+  if (!ok) return false;
+
+  const wasPcEditingGame = editingGameId === gameId;
+  const wasMobileEditingGame = mobileEditingGameId === gameId;
+  const affectedPcPlateAppearance = editingPaId && getPlateAppearance(editingPaId)?.gameId === gameId;
+  const affectedMobilePlateAppearance = mobileEditingPaId && getPlateAppearance(mobileEditingPaId)?.gameId === gameId;
+  const previousEditState = {
+    editingGameId,
+    mobileEditingGameId,
+    editingPaId,
+    mobileEditingPaId,
+    selectedMemoGameId,
+    selectedEntryGameId,
+  };
+
+  if (wasPcEditingGame) editingGameId = "";
+  if (wasMobileEditingGame) mobileEditingGameId = "";
+  if (affectedPcPlateAppearance) editingPaId = "";
+  if (affectedMobilePlateAppearance) mobileEditingPaId = "";
+  if (selectedMemoGameId === gameId) selectedMemoGameId = "";
+  if (selectedEntryGameId === gameId) selectedEntryGameId = "";
+
+  const saved = commitState(
+    {
+      games: state.games.filter((item) => item.id !== gameId),
+      plateAppearances: state.plateAppearances.filter((item) => item.gameId !== gameId),
+    },
+    "試合を削除しました",
+    "試合削除",
+  );
+
+  if (!saved) {
+    editingGameId = previousEditState.editingGameId;
+    mobileEditingGameId = previousEditState.mobileEditingGameId;
+    editingPaId = previousEditState.editingPaId;
+    mobileEditingPaId = previousEditState.mobileEditingPaId;
+    selectedMemoGameId = previousEditState.selectedMemoGameId;
+    selectedEntryGameId = previousEditState.selectedEntryGameId;
+    renderEditState();
+    syncMobileGameMode();
+    return false;
+  }
+
+  if (wasPcEditingGame) {
+    resetGameForm();
+    renderEditState();
+  }
+
+  if (wasMobileEditingGame) {
+    resetMobileGameRegistrationFields();
+    renderMobileGameSelect();
+    renderMobilePitcherPresets();
+    syncPitcherStrategyField(els.mobilePaForm);
+  }
+
+  return true;
 }
 
 function cancelPlateAppearanceEdit() {
@@ -3408,6 +3478,10 @@ els.mobileGameSelect.addEventListener("change", () => {
 });
 
 els.mobileGameSaveButton.addEventListener("click", saveMobileGameFromRegistration);
+els.mobileGameDeleteButton.addEventListener("click", () => {
+  if (!mobileEditingGameId) return;
+  deleteGameById(mobileEditingGameId);
+});
 
 els.mobilePaForm.addEventListener("click", (event) => {
   const choiceButton = event.target.closest("[data-choice-name]");
@@ -3580,23 +3654,7 @@ els.gameList?.addEventListener("click", (event) => {
   const button = event.target.closest("[data-delete-game]");
   if (!button) return;
 
-  const gameId = button.dataset.deleteGame;
-  const game = getGame(gameId);
-  const ok = window.confirm(`${gameTitle(game)} を削除しますか？関連する打席も削除されます。`);
-  if (!ok) return;
-
-  if (editingGameId === gameId) editingGameId = "";
-  if (mobileEditingGameId === gameId) mobileEditingGameId = "";
-  if (editingPaId && getPlateAppearance(editingPaId)?.gameId === gameId) editingPaId = "";
-  if (mobileEditingPaId && getPlateAppearance(mobileEditingPaId)?.gameId === gameId) mobileEditingPaId = "";
-  commitState(
-    {
-      games: state.games.filter((item) => item.id !== gameId),
-      plateAppearances: state.plateAppearances.filter((item) => item.gameId !== gameId),
-    },
-    "試合を削除しました",
-    "試合削除",
-  );
+  deleteGameById(button.dataset.deleteGame);
 });
 
 els.paList?.addEventListener("click", (event) => {
@@ -3643,7 +3701,10 @@ els.pitcherOpponentFilter.addEventListener("change", () => {
 els.exportButton.addEventListener("click", exportData);
 els.backupExportButton.addEventListener("click", exportLatestBackup);
 els.restoreBackupButton.addEventListener("click", restoreLatestBackup);
-els.cancelGameEditButton.addEventListener("click", cancelGameEdit);
+els.deleteGameEditButton.addEventListener("click", () => {
+  if (!editingGameId) return;
+  deleteGameById(editingGameId);
+});
 els.cancelPaEditButton.addEventListener("click", cancelPlateAppearanceEdit);
 
 els.syncConfigForm.addEventListener("submit", (event) => {
