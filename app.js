@@ -1433,8 +1433,8 @@ function renderCountHeatmap(plateAppearances) {
 
   els.countHeatmapChart.innerHTML = `
     <p class="count-heatmap-title">
-      <span>直前カウント</span>
-      <span>（B＝ボール、S＝ストライク）</span>
+      <span class="count-title-main">直前カウント</span>
+      <span class="count-title-note">（B＝ボール、S＝ストライク）</span>
     </p>
     <div class="count-heatmap-grid" role="img" aria-label="直前カウント別の打率ヒートマップです。">
       <div class="count-heatmap-corner"></div>
@@ -1444,10 +1444,11 @@ function renderCountHeatmap(plateAppearances) {
     <div class="count-heatmap-footer">
       <p class="muted">表示は打率です。カウント未入力の打数は ${stats.skippedAb} あります。</p>
       <div class="count-heatmap-legend" aria-label="色の意味">
-        <span><i class="is-good"></i>.300以上</span>
-        <span><i class="is-caution"></i>.200〜.299</span>
-        <span><i class="is-warning"></i>.100〜.199</span>
-        <span><i class="is-danger"></i>.100未満</span>
+        <span class="count-heatmap-legend-item is-good-label"><i class="is-good"></i>.300以上</span>
+        <span class="count-heatmap-legend-item is-caution-label"><i class="is-caution"></i>.200〜.299</span>
+        <span class="count-heatmap-legend-item is-warning-label"><i class="is-warning"></i>.100〜.199</span>
+        <span class="count-heatmap-legend-item is-danger-label"><i class="is-danger"></i>.100未満</span>
+        <span class="count-heatmap-mobile-note">（B＝ボール、S＝ストライク）</span>
       </div>
     </div>
   `;
