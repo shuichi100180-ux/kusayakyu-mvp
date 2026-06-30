@@ -2205,20 +2205,29 @@ th {
   line-height: 1.1;
 }
 
-.pitcher-strategy-note {
+.pitcher-strategy-note,
+.pitcher-video-note {
   background: #f7faf9;
   border-left: 4px solid var(--accent);
   margin-bottom: 12px;
   padding: 12px 14px;
 }
 
-.pitcher-strategy-note strong {
+.pitcher-strategy-note strong,
+.pitcher-video-note strong {
   display: block;
   margin-bottom: 4px;
 }
 
-.pitcher-strategy-note p {
+.pitcher-strategy-note p,
+.pitcher-video-note p {
   margin: 0;
+}
+
+.pitcher-video-note a {
+  color: var(--accent-strong);
+  font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .pitcher-history-scroll {

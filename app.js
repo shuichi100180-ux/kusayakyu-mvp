@@ -320,12 +320,15 @@ function normalizePitcherStrategies(value) {
       const text = typeof entry === "string"
         ? entry
         : String(entry?.text || "");
+      const videoUrl = typeof entry === "object" && entry
+        ? String(entry.videoUrl || "")
+        : "";
       const updatedAt = typeof entry === "object" && entry
         ? String(entry.updatedAt || "")
         : "";
-      return [key, { text, updatedAt }];
+      return [key, { text, videoUrl, updatedAt }];
     })
-    .filter(([key, entry]) => key && entry.text.trim()));
+    .filter(([key, entry]) => key && (entry.text.trim() || entry.videoUrl.trim())));
 }
 
 function readBackups() {
@@ -1105,6 +1108,17 @@ function pitcherStrategyText(key) {
   return String(state.pitcherStrategies?.[key]?.text || "");
 }
 
+function pitcherVideoUrl(key) {
+  return String(state.pitcherStrategies?.[key]?.videoUrl || "");
+}
+
+function pitcherVideoLinkHtml(url) {
+  const trimmed = String(url || "").trim();
+  if (!trimmed) return "未入力";
+  if (!/^https?:\/\//i.test(trimmed)) return escapeHtml(trimmed);
+  return `<a href="${escapeHtml(trimmed)}" target="_blank" rel="noopener noreferrer">${escapeHtml(trimmed)}</a>`;
+}
+
 function pitcherStrategyKeyForForm(form) {
   const pitcherNameValue = String(form?.elements?.pitcherName?.value || "").trim();
   if (!pitcherNameValue) return "";
@@ -1117,12 +1131,17 @@ function pitcherStrategyKeyForForm(form) {
 }
 
 function syncPitcherStrategyField(form) {
-  if (!form?.elements?.pitcherStrategy) return;
+  if (!form?.elements?.pitcherStrategy && !form?.elements?.pitcherVideoUrl) return;
   const key = pitcherStrategyKeyForForm(form);
-  setFieldValue(form, "pitcherStrategy", key ? pitcherStrategyText(key) : "");
+  if (form.elements.pitcherStrategy) {
+    setFieldValue(form, "pitcherStrategy", key ? pitcherStrategyText(key) : "");
+  }
+  if (form.elements.pitcherVideoUrl) {
+    setFieldValue(form, "pitcherVideoUrl", key ? pitcherVideoUrl(key) : "");
+  }
 }
 
-function withPitcherStrategy(nextState, pa, strategyValue) {
+function withPitcherStrategy(nextState, pa, strategyValue, videoUrlValue) {
   const normalizedState = normalizeState({
     ...nextState,
     pitcherStrategies: Object.prototype.hasOwnProperty.call(nextState, "pitcherStrategies")
@@ -1132,9 +1151,10 @@ function withPitcherStrategy(nextState, pa, strategyValue) {
   const strategies = { ...normalizedState.pitcherStrategies };
   const key = pitcherProfileKey(pa);
   const text = String(strategyValue || "").trim();
+  const videoUrl = String(videoUrlValue || "").trim();
 
-  if (text) {
-    strategies[key] = { text, updatedAt: new Date().toISOString() };
+  if (text || videoUrl) {
+    strategies[key] = { text, videoUrl, updatedAt: new Date().toISOString() };
   } else {
     delete strategies[key];
   }
@@ -2208,6 +2228,7 @@ function renderPitcherCards() {
     </span>
   `).join("");
   const strategy = pitcherStrategyText(selectedRow.key);
+  const videoUrl = pitcherVideoUrl(selectedRow.key);
   const history = pitcherPas.map((pa) => {
     const game = getGame(pa.gameId);
     const resultLabel = labelForResult(pa.result);
@@ -2257,6 +2278,10 @@ function renderPitcherCards() {
       <section class="pitcher-strategy-note">
         <strong>攻略法</strong>
         <p>${strategy ? escapeHtml(strategy).replace(/\n/g, "<br>") : "未入力"}</p>
+      </section>
+      <section class="pitcher-video-note">
+        <strong>対戦動画</strong>
+        <p>${pitcherVideoLinkHtml(videoUrl)}</p>
       </section>
       <div class="list-stack pitcher-history-scroll">
         ${history || `<div class="empty">この投手との打席はまだありません。</div>`}
@@ -2524,7 +2549,7 @@ function battedTypeForForm(pa) {
 }
 
 function setMobilePitcherFields(values = {}) {
-  ["pitcherName", "pitcherNumber", "pitcherHand", "pitchingForm", "straightVelocity", "breakingBall1", "breakingBall2", "breakingBall3", "pitcherStrategy"]
+  ["pitcherName", "pitcherNumber", "pitcherHand", "pitchingForm", "straightVelocity", "breakingBall1", "breakingBall2", "breakingBall3", "pitcherStrategy", "pitcherVideoUrl"]
     .forEach((name) => setFieldValue(els.mobilePaForm, name, values[name] || ""));
   syncMobilePitchTypeOptions();
 }
@@ -2540,6 +2565,7 @@ function mobilePitcherFieldValues() {
     breakingBall2: els.mobilePaForm.elements.breakingBall2.value,
     breakingBall3: els.mobilePaForm.elements.breakingBall3.value,
     pitcherStrategy: els.mobilePaForm.elements.pitcherStrategy.value,
+    pitcherVideoUrl: els.mobilePaForm.elements.pitcherVideoUrl.value,
   };
 }
 
@@ -2633,6 +2659,7 @@ function fillMobilePlateAppearanceForm(pa) {
 
   setFieldValue(els.mobilePaForm, "memo", pa.memo || "");
   setFieldValue(els.mobilePaForm, "pitcherStrategy", pitcherStrategyText(pitcherProfileKey(pa)));
+  setFieldValue(els.mobilePaForm, "pitcherVideoUrl", pitcherVideoUrl(pitcherProfileKey(pa)));
   syncMobileChoiceButtons();
   syncMobileRunnerOptions();
   syncMobileBattedBallFields();
@@ -2681,6 +2708,7 @@ function resetMobilePlateAppearanceForm(options = {}) {
         breakingBall2: els.mobilePaForm.elements.breakingBall2.value,
         breakingBall3: els.mobilePaForm.elements.breakingBall3.value,
         pitcherStrategy: els.mobilePaForm.elements.pitcherStrategy.value,
+        pitcherVideoUrl: els.mobilePaForm.elements.pitcherVideoUrl.value,
       }
     : null;
 
@@ -2902,6 +2930,7 @@ function fillPlateAppearanceForm(pa) {
   setFieldValue(els.paForm, "runScored", pa.runScored ?? 0);
   setFieldValue(els.paForm, "memo", pa.memo || "");
   setFieldValue(els.paForm, "pitcherStrategy", pitcherStrategyText(pitcherProfileKey(pa)));
+  setFieldValue(els.paForm, "pitcherVideoUrl", pitcherVideoUrl(pitcherProfileKey(pa)));
   syncBattedBallFields();
   renderPcPitcherPresets();
 }
@@ -3589,6 +3618,7 @@ els.paForm.addEventListener("submit", (event) => {
     plateAppearanceState,
     pa,
     form.elements.pitcherStrategy.value,
+    form.elements.pitcherVideoUrl.value,
   );
 
   if (commitState(nextState, existingPa ? "打席を更新しました" : "打席を保存しました", existingPa ? "打席更新" : "打席保存")) {
@@ -3640,6 +3670,7 @@ els.mobilePaForm.addEventListener("submit", (event) => {
     },
     pa,
     form.elements.pitcherStrategy.value,
+    form.elements.pitcherVideoUrl.value,
   );
 
   const saved = existingPa
