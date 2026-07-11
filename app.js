@@ -1634,6 +1634,7 @@ function fillMobileGameRegistrationFields(game) {
   setFieldValue(els.mobilePaForm, "battingOrder", game.battingOrder || "");
   setFieldValue(els.mobilePaForm, "position", game.position || "");
   setFieldValue(els.mobilePaForm, "defenseMemo", game.defenseMemo || "");
+  setFieldValue(els.mobilePaForm, "opponentOrder", game.opponentOrder || "");
   setFieldValue(els.mobilePaForm, "baserunningMemo", game.baserunningMemo || "");
   setFieldValue(els.mobilePaForm, "gameMemo", game.gameMemo || "");
 }
@@ -1872,6 +1873,7 @@ function renderRecentPlateAppearances() {
 
   const memoRows = [
     ["守備の振り返り", game.defenseMemo],
+    ["相手チームのオーダー", game.opponentOrder],
     ["走塁の振り返り", game.baserunningMemo],
     ["試合メモ", game.gameMemo],
   ];
@@ -2899,6 +2901,7 @@ function fillGameForm(game) {
   setFieldValue(els.gameForm, "battingOrder", game.battingOrder || "");
   setFieldValue(els.gameForm, "position", game.position || "");
   setFieldValue(els.gameForm, "defenseMemo", game.defenseMemo || "");
+  setFieldValue(els.gameForm, "opponentOrder", game.opponentOrder || "");
   setFieldValue(els.gameForm, "baserunningMemo", game.baserunningMemo || "");
   setFieldValue(els.gameForm, "gameMemo", game.gameMemo || "");
 }
@@ -3140,6 +3143,7 @@ function gameFromForm(form, existingGame = null) {
     battingOrder: data.get("battingOrder") || "",
     position: data.get("position") || "",
     defenseMemo: String(data.get("defenseMemo") || "").trim(),
+    opponentOrder: String(data.get("opponentOrder") || "").trim(),
     baserunningMemo: String(data.get("baserunningMemo") || "").trim(),
     gameMemo: String(data.get("gameMemo") || "").trim(),
     createdAt: existingGame?.createdAt || now,

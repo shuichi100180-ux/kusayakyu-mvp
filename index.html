@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=92" />
+    <link rel="stylesheet" href="./styles.css?v=93" />
   </head>
   <body>
     <header class="app-header">
@@ -154,6 +154,10 @@
               <label class="memo-row">
                 守備の振り返り
                 <textarea name="defenseMemo" rows="3" placeholder="捕球、送球、判断、声かけなど"></textarea>
+              </label>
+              <label class="memo-row">
+                相手チームのオーダー
+                <textarea name="opponentOrder" rows="3" placeholder="打順、守備位置、選手名など"></textarea>
               </label>
               <label class="memo-row">
                 走塁の振り返り
@@ -571,6 +575,10 @@
               <label>
                 守備の振り返り
                 <textarea name="defenseMemo" rows="3" placeholder="捕球、送球、判断、声かけなど"></textarea>
+              </label>
+              <label>
+                相手チームのオーダー
+                <textarea name="opponentOrder" rows="3" placeholder="打順、守備位置、選手名など"></textarea>
               </label>
               <label>
                 走塁の振り返り
@@ -1245,6 +1253,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=80"></script>
+    <script src="./app.js?v=81"></script>
   </body>
 </html>
