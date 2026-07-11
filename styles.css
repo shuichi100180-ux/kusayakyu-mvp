@@ -1238,6 +1238,18 @@ main {
   flex-wrap: wrap;
 }
 
+.surface-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.home-year-select {
+  min-height: 36px;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+
 .form-grid {
   display: grid;
   gap: 13px;

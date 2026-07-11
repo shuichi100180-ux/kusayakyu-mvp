@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=93" />
+    <link rel="stylesheet" href="./styles.css?v=94" />
   </head>
   <body>
     <header class="app-header">
@@ -36,7 +36,10 @@
           <section class="surface">
             <div class="surface-header">
               <h3>試合一覧</h3>
-              <button class="text-button" data-edit-selected-game="recent" type="button">編集</button>
+              <div class="surface-header-actions">
+                <select id="homeYearSelect" class="text-button home-year-select" aria-label="試合一覧の年"></select>
+                <button class="text-button" data-edit-selected-game="recent" type="button">編集</button>
+              </div>
             </div>
             <div id="recentGames" class="list-stack recent-games-scroll"></div>
           </section>
@@ -1253,6 +1256,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=81"></script>
+    <script src="./app.js?v=82"></script>
   </body>
 </html>

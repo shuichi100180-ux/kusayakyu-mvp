@@ -125,6 +125,7 @@ let editingPaId = "";
 let mobileEditingGameId = "";
 let mobileEditingPaId = "";
 let selectedMemoGameId = "";
+let selectedHomeYear = "all";
 let selectedEntryGameId = "";
 let selectedPitcherKey = "";
 let selectedPitcherOpponent = "";
@@ -148,6 +149,7 @@ const els = {
   pitcherMainBody: $("#pitcherMainBody"),
   pitcherMainSummary: $("#pitcherMainSummary"),
   recentGames: $("#recentGames"),
+  homeYearSelect: $("#homeYearSelect"),
   recentPlateAppearances: $("#recentPlateAppearances"),
   gameForm: $("#gameForm"),
   opponentSelect: $("#opponentSelect"),
@@ -843,7 +845,7 @@ function sortByAvgRows(rows) {
 }
 
 function selectedMemoGame() {
-  const games = sortedGames();
+  const games = homeGames();
   if (!games.length) return null;
 
   const selected = games.find((game) => game.id === selectedMemoGameId);
@@ -851,6 +853,32 @@ function selectedMemoGame() {
 
   selectedMemoGameId = games[0].id;
   return games[0];
+}
+
+function gameYear(game) {
+  const year = String(game?.date || "").slice(0, 4);
+  return /^\d{4}$/.test(year) ? year : "";
+}
+
+function homeGames() {
+  const games = sortedGames();
+  if (selectedHomeYear === "all") return games;
+  return games.filter((game) => gameYear(game) === selectedHomeYear);
+}
+
+function renderHomeYearOptions() {
+  if (!els.homeYearSelect) return;
+
+  const years = [...new Set(sortedGames().map(gameYear).filter(Boolean))].sort((a, b) => b.localeCompare(a));
+  if (selectedHomeYear !== "all" && !years.includes(selectedHomeYear)) {
+    selectedHomeYear = "all";
+  }
+
+  els.homeYearSelect.innerHTML = [
+    '<option value="all">すべて</option>',
+    ...years.map((year) => `<option value="${year}">${year}年</option>`),
+  ].join("");
+  els.homeYearSelect.value = selectedHomeYear;
 }
 
 function selectedEntryGame() {
@@ -1829,7 +1857,7 @@ function syncRecentGamesHeight() {
 }
 
 function renderRecentGames() {
-  const games = sortedGames();
+  const games = homeGames();
 
   if (!games.length) {
     selectedMemoGameId = "";
@@ -2293,6 +2321,7 @@ function renderPitcherCards() {
 }
 
 function renderHome() {
+  renderHomeYearOptions();
   renderRecentGames();
   renderRecentPlateAppearances();
 }
@@ -3438,6 +3467,12 @@ els.recentGames.addEventListener("click", (event) => {
   selectedMemoGameId = button.dataset.memoGame;
   renderRecentGames();
   renderRecentPlateAppearances();
+});
+
+els.homeYearSelect?.addEventListener("change", () => {
+  selectedHomeYear = els.homeYearSelect.value || "all";
+  selectedMemoGameId = "";
+  renderHome();
 });
 
 els.gameForm.addEventListener("invalid", () => {
