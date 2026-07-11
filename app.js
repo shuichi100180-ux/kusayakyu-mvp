@@ -126,6 +126,7 @@ let mobileEditingGameId = "";
 let mobileEditingPaId = "";
 let selectedMemoGameId = "";
 let selectedHomeYear = "all";
+let selectedAnalysisYear = "";
 let selectedEntryGameId = "";
 let selectedPitcherKey = "";
 let selectedPitcherOpponent = "";
@@ -150,6 +151,7 @@ const els = {
   pitcherMainSummary: $("#pitcherMainSummary"),
   recentGames: $("#recentGames"),
   homeYearSelect: $("#homeYearSelect"),
+  analysisYearSelect: $("#analysisYearSelect"),
   recentPlateAppearances: $("#recentPlateAppearances"),
   gameForm: $("#gameForm"),
   opponentSelect: $("#opponentSelect"),
@@ -879,6 +881,28 @@ function renderHomeYearOptions() {
     ...years.map((year) => `<option value="${year}">${year}年</option>`),
   ].join("");
   els.homeYearSelect.value = selectedHomeYear;
+}
+
+function analysisPlateAppearances() {
+  if (selectedAnalysisYear === "all") return state.plateAppearances;
+  return state.plateAppearances.filter((pa) => gameYear(getGame(pa.gameId)) === selectedAnalysisYear);
+}
+
+function renderAnalysisYearOptions() {
+  if (!els.analysisYearSelect) return;
+
+  const years = [...new Set(sortedGames().map(gameYear).filter(Boolean))].sort((a, b) => b.localeCompare(a));
+  if (!selectedAnalysisYear) {
+    selectedAnalysisYear = years[0] || "all";
+  } else if (selectedAnalysisYear !== "all" && !years.includes(selectedAnalysisYear)) {
+    selectedAnalysisYear = years[0] || "all";
+  }
+
+  els.analysisYearSelect.innerHTML = [
+    '<option value="all">すべて</option>',
+    ...years.map((year) => `<option value="${year}">${year}年</option>`),
+  ].join("");
+  els.analysisYearSelect.value = selectedAnalysisYear;
 }
 
 function selectedEntryGame() {
@@ -2114,31 +2138,33 @@ function renderPitcherMainTable(tbody, summary, rows) {
 }
 
 function renderAnalysis() {
-  const stats = calculateStats(state.plateAppearances);
-  const pitcherRows = groupPitcherStats(state.plateAppearances);
+  renderAnalysisYearOptions();
+  const plateAppearances = analysisPlateAppearances();
+  const stats = calculateStats(plateAppearances);
+  const pitcherRows = groupPitcherStats(plateAppearances);
   renderMetrics(els.analysisMetrics, stats);
   renderBattedDirectionChart(
     els.battedDirectionChart,
     els.battedDirectionSummary,
-    state.plateAppearances,
+    plateAppearances,
     "全体",
   );
   renderBattedDirectionChart(
     els.battedHitDirectionChart,
     els.battedHitDirectionSummary,
-    state.plateAppearances.filter(isBattedHit),
+    plateAppearances.filter(isBattedHit),
     "安打",
     "out",
   );
   renderBattedDirectionChart(
     els.battedOutDirectionChart,
     els.battedOutDirectionSummary,
-    state.plateAppearances.filter(isBattedOut),
+    plateAppearances.filter(isBattedOut),
     "凡打",
     "hit",
   );
   setMobileBattedDirectionView(els.battedDirectionGrid?.classList.contains("is-showing-out") ? "out" : "hit");
-  renderPitchTypeOutcomeChart(state.plateAppearances);
+  renderPitchTypeOutcomeChart(plateAppearances);
   renderPitcherMainTable(
     els.pitcherMainBody,
     els.pitcherMainSummary,
@@ -2150,18 +2176,18 @@ function renderAnalysis() {
   );
   renderStatsTable(
     els.pitchTypeStatsBody,
-    sortPitchTypeRows(groupStats(state.plateAppearances, (pa) => pa.pitchType, "球種未選択")),
+    sortPitchTypeRows(groupStats(plateAppearances, (pa) => pa.pitchType, "球種未選択")),
     { includeWalks: true },
   );
   renderStatsTable(
     els.courseStatsBody,
-    sortByAvgRows(groupStats(state.plateAppearances, (pa) => pa.course, "コース未選択")),
+    sortByAvgRows(groupStats(plateAppearances, (pa) => pa.course, "コース未選択")),
   );
-  renderCourseSupplement(state.plateAppearances);
-  renderCountHeatmap(state.plateAppearances);
+  renderCourseSupplement(plateAppearances);
+  renderCountHeatmap(plateAppearances);
   renderStatsTable(
     els.countStatsBody,
-    sortByAvgRows(groupStats(state.plateAppearances, (pa) => normalizeCountLabel(pa.count), "カウント未選択")),
+    sortByAvgRows(groupStats(plateAppearances, (pa) => normalizeCountLabel(pa.count), "カウント未選択")),
   );
 }
 
@@ -3473,6 +3499,11 @@ els.homeYearSelect?.addEventListener("change", () => {
   selectedHomeYear = els.homeYearSelect.value || "all";
   selectedMemoGameId = "";
   renderHome();
+});
+
+els.analysisYearSelect?.addEventListener("change", () => {
+  selectedAnalysisYear = els.analysisYearSelect.value || "all";
+  renderAnalysis();
 });
 
 els.gameForm.addEventListener("invalid", () => {

@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
-    <link rel="stylesheet" href="./styles.css?v=96" />
+    <link rel="stylesheet" href="./styles.css?v=98" />
   </head>
   <body>
     <header class="app-header">
@@ -889,11 +889,16 @@
 
       <section class="tab-panel" id="analysisPanel">
         <div class="section-heading">
-          <div>
-            <p class="eyebrow">Analysis</p>
-            <h2>打撃成績</h2>
+          <div class="analysis-heading">
+            <div class="analysis-title-line">
+              <div>
+                <p class="eyebrow">Analysis</p>
+                <h2>打撃成績</h2>
+              </div>
+              <select id="analysisYearSelect" class="text-button analysis-year-select" aria-label="個人成績の年"></select>
+            </div>
+            <p class="muted">対投手別、球種別、コース別、カウント別に集計します。</p>
           </div>
-          <p class="muted">対投手別、球種別、コース別、カウント別に集計します。</p>
         </div>
 
         <div class="metric-grid" id="analysisMetrics"></div>
@@ -1256,6 +1261,6 @@ with check ((select auth.uid()) = user_id);</code></pre>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./app.js?v=84"></script>
+    <script src="./app.js?v=86"></script>
   </body>
 </html>
