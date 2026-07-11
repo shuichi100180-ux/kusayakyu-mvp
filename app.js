@@ -1206,6 +1206,112 @@ function pitcherVideoLinksForDisplay(key, pitcherPas = []) {
     );
 }
 
+function pitcherAnalysisExample(pitcherPas) {
+  const validPas = pitcherPas.filter((pa) => pa.pitchType && normalizeCountLabel(pa.count));
+  const pitchTypes = [...new Set(validPas.map((pa) => pa.pitchType))]
+    .sort((a, b) => {
+      const countA = validPas.filter((pa) => pa.pitchType === a).length;
+      const countB = validPas.filter((pa) => pa.pitchType === b).length;
+      return countB - countA || a.localeCompare(b, "ja");
+    })
+    .slice(0, 5);
+  const countRows = ["0S-0B", "0S-1B", "1S-0B", "1S-1B", "1S-2B", "2S-1B", "2S-2B", "2S-3B"];
+  const totalGames = new Set(pitcherPas.map((pa) => pa.gameId).filter(Boolean)).size;
+  const pitchTotals = pitchTypes.map((pitchType) => ({
+    pitchType,
+    count: validPas.filter((pa) => pa.pitchType === pitchType).length,
+  }));
+  const totalPitches = pitchTotals.reduce((sum, row) => sum + row.count, 0);
+  const maxCell = Math.max(1, ...countRows.flatMap((count) => pitchTypes.map((pitchType) =>
+    validPas.filter((pa) => pa.pitchType === pitchType && normalizeCountLabel(pa.count) === count).length,
+  )));
+
+  const heatmap = pitchTypes.length
+    ? `
+      <div class="pitcher-analysis-heatmap-wrap">
+        <table class="pitcher-analysis-heatmap">
+          <thead>
+            <tr>
+              <th>カウント<br><small>（ストライク-ボール）</small></th>
+              ${pitchTypes.map((pitchType) => `<th>${escapeHtml(pitchType)}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${countRows.map((count) => `
+              <tr>
+                <th>${escapeHtml(count)}</th>
+                ${pitchTypes.map((pitchType) => {
+                  const cellCount = validPas.filter((pa) => pa.pitchType === pitchType && normalizeCountLabel(pa.count) === count).length;
+                  const totalForCount = validPas.filter((pa) => normalizeCountLabel(pa.count) === count).length;
+                  const percent = totalForCount ? Math.round((cellCount / totalForCount) * 100) : 0;
+                  const intensity = cellCount ? Math.max(0.12, cellCount / maxCell) : 0;
+                  return `<td style="--heat-intensity:${intensity}" title="${escapeHtml(`${count}の${pitchType}：${cellCount}打席`)}">${percent}%</td>`;
+                }).join("")}
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+        <div class="pitcher-analysis-scale"><span>少ない</span><i></i><span>多い</span></div>
+      </div>
+    `
+    : `<div class="empty">カウントと勝負球の球種が入力された打席がありません。</div>`;
+
+  const pitchBars = pitchTotals.length
+    ? pitchTotals.map((row, index) => `
+        <div class="pitcher-analysis-pitch-row">
+          <span class="pitcher-analysis-rank">${index + 1}</span>
+          <strong>${escapeHtml(row.pitchType)}</strong>
+          <span class="pitcher-analysis-bar"><i style="width:${totalPitches ? (row.count / totalPitches) * 100 : 0}%"></i></span>
+          <b>${totalPitches ? ((row.count / totalPitches) * 100).toFixed(1) : "0.0"}%</b>
+          <small>(${row.count}球)</small>
+        </div>
+      `).join("")
+    : `<p class="muted">球種データがありません。</p>`;
+
+  const trendNotes = [];
+  const firstCountRows = validPas.filter((pa) => ["0S-0B", "0S-1B"].includes(normalizeCountLabel(pa.count)));
+  const firstCountPitch = pitchTypes
+    .map((pitchType) => ({ pitchType, count: firstCountRows.filter((pa) => pa.pitchType === pitchType).length }))
+    .sort((a, b) => b.count - a.count)[0];
+  if (firstCountPitch?.count) trendNotes.push(`序盤カウントは${firstCountPitch.pitchType}が多めです。`);
+  const twoStrikeRows = validPas.filter((pa) => normalizeCountLabel(pa.count).startsWith("2S-"));
+  const twoStrikePitch = pitchTypes
+    .map((pitchType) => ({ pitchType, count: twoStrikeRows.filter((pa) => pa.pitchType === pitchType).length }))
+    .sort((a, b) => b.count - a.count)[0];
+  if (twoStrikePitch?.count) trendNotes.push(`追い込まれると${twoStrikePitch.pitchType}が増える傾向があります。`);
+  if (!trendNotes.length) trendNotes.push("打席数が増えると、カウントごとの傾向を表示します。");
+
+  return `
+    <section class="pitcher-analysis-example" aria-label="投手傾向分析例">
+      <div class="pitcher-analysis-heading">
+        <span class="pitcher-analysis-mark">1</span>
+        <div>
+          <h4>分析例｜カウント × 球種ヒートマップ</h4>
+          <p>記録済みの勝負球を、カウント別に球種ごとの割合で表示しています。</p>
+        </div>
+      </div>
+      <div class="pitcher-analysis-summary">
+        <div><small>総打席</small><strong>${pitcherPas.length}</strong></div>
+        <div><small>対戦試合</small><strong>${totalGames}</strong></div>
+        <div><small>記録球数</small><strong>${totalPitches}</strong></div>
+      </div>
+      ${heatmap}
+      <div class="pitcher-analysis-bottom">
+        <div class="pitcher-analysis-pitches">
+          <h5>多い球種（全体）</h5>
+          ${pitchBars}
+          <div class="pitcher-analysis-total">合計 ${totalPitches}球</div>
+        </div>
+        <div class="pitcher-analysis-trends">
+          <h5>傾向メモ</h5>
+          ${trendNotes.map((note) => `<p>${escapeHtml(note)}</p>`).join("")}
+        </div>
+      </div>
+      <p class="pitcher-analysis-footnote">※勝負球とカウントが入力された打席を集計</p>
+    </section>
+  `;
+}
+
 function pitcherStrategyKeyForForm(form) {
   const pitcherNameValue = String(form?.elements?.pitcherName?.value || "").trim();
   if (!pitcherNameValue) return "";
@@ -2405,6 +2511,7 @@ function renderPitcherCards() {
         <strong>攻略法</strong>
         <p>${strategy ? escapeHtml(strategy).replace(/\n/g, "<br>") : "未入力"}</p>
       </section>
+      ${pitcherAnalysisExample(pitcherPas)}
       <section class="pitcher-video-note">
         <strong>対戦動画</strong>
         <div class="pitcher-video-links">

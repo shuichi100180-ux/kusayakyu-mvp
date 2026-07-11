@@ -2305,6 +2305,246 @@ th {
   border-color: rgba(18, 115, 91, 0.45);
 }
 
+.pitcher-analysis-example {
+  margin-bottom: 12px;
+  border: 1px solid #d7e4ed;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(23, 64, 103, 0.08);
+  overflow: hidden;
+}
+
+.pitcher-analysis-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #d7e4ed;
+  background: #f5f9fc;
+  padding: 12px 14px;
+}
+
+.pitcher-analysis-mark {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #167c68;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.pitcher-analysis-heading h4,
+.pitcher-analysis-heading p,
+.pitcher-analysis-pitches h5,
+.pitcher-analysis-trends h5 {
+  margin: 0;
+}
+
+.pitcher-analysis-heading h4 {
+  color: #153d70;
+  font-size: 17px;
+}
+
+.pitcher-analysis-heading p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.pitcher-analysis-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px 14px 0;
+}
+
+.pitcher-analysis-summary div {
+  display: grid;
+  gap: 3px;
+  min-height: 60px;
+  border: 1px solid #dce8e9;
+  border-radius: 8px;
+  background: #fbfefd;
+  padding: 8px 10px;
+}
+
+.pitcher-analysis-summary small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.pitcher-analysis-summary strong {
+  color: #153d70;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.pitcher-analysis-heatmap-wrap {
+  padding: 14px;
+  overflow-x: auto;
+}
+
+.pitcher-analysis-heatmap {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.pitcher-analysis-heatmap th,
+.pitcher-analysis-heatmap td {
+  border: 1px solid #ffffff;
+  padding: 9px 5px;
+  text-align: center;
+}
+
+.pitcher-analysis-heatmap thead th {
+  color: #153d70;
+  background: #ffffff;
+  font-size: 13px;
+}
+
+.pitcher-analysis-heatmap thead th:first-child {
+  width: 132px;
+  text-align: left;
+}
+
+.pitcher-analysis-heatmap thead small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.pitcher-analysis-heatmap tbody th {
+  width: 132px;
+  color: #153d70;
+  background: #eef2f5;
+  font-size: 14px;
+}
+
+.pitcher-analysis-heatmap tbody td {
+  background: rgb(18 150 148 / calc(var(--heat-intensity) * 0.9));
+  color: #153d70;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.pitcher-analysis-heatmap tbody td[style*="0.12"] {
+  background: #f0f5fa;
+  color: #153d70;
+}
+
+.pitcher-analysis-scale {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.pitcher-analysis-scale i {
+  display: block;
+  width: 140px;
+  height: 8px;
+  background: linear-gradient(90deg, #eaf2fa, #65a8df, #0a9d8d);
+}
+
+.pitcher-analysis-bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  padding: 0 14px 14px;
+}
+
+.pitcher-analysis-pitches,
+.pitcher-analysis-trends {
+  min-width: 0;
+  border: 1px solid #dce8e9;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.pitcher-analysis-pitches h5,
+.pitcher-analysis-trends h5 {
+  color: #153d70;
+  font-size: 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #dce8e9;
+}
+
+.pitcher-analysis-pitch-row {
+  display: grid;
+  grid-template-columns: 24px minmax(72px, 0.75fr) minmax(70px, 1fr) 48px 42px;
+  align-items: center;
+  gap: 6px;
+  min-height: 31px;
+  border-bottom: 1px dashed #dce8e9;
+  color: #153d70;
+  font-size: 12px;
+}
+
+.pitcher-analysis-rank {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #1b6da8;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.pitcher-analysis-bar {
+  display: block;
+  height: 9px;
+  background: #edf3f8;
+}
+
+.pitcher-analysis-bar i {
+  display: block;
+  height: 100%;
+  background: #178f9a;
+}
+
+.pitcher-analysis-pitch-row b {
+  text-align: right;
+}
+
+.pitcher-analysis-pitch-row small {
+  color: var(--muted);
+}
+
+.pitcher-analysis-total {
+  margin-top: 8px;
+  color: #153d70;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.pitcher-analysis-trends p {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: #eefaf7;
+  color: #153d70;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pitcher-analysis-footnote {
+  margin: 0;
+  padding: 0 14px 12px;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: right;
+}
+
 @media (max-width: 950px) {
   .pitcher-video-links {
     grid-template-columns: repeat(3, minmax(0, 1fr));
