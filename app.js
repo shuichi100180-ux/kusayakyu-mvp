@@ -125,7 +125,7 @@ let editingPaId = "";
 let mobileEditingGameId = "";
 let mobileEditingPaId = "";
 let selectedMemoGameId = "";
-let selectedHomeYear = "all";
+let selectedHomeOpponent = "all";
 let selectedAnalysisYear = "";
 let selectedEntryGameId = "";
 let selectedPitcherKey = "";
@@ -151,7 +151,7 @@ const els = {
   pitcherMainBody: $("#pitcherMainBody"),
   pitcherMainSummary: $("#pitcherMainSummary"),
   recentGames: $("#recentGames"),
-  homeYearSelect: $("#homeYearSelect"),
+  homeOpponentSelect: $("#homeOpponentSelect"),
   analysisYearSelect: $("#analysisYearSelect"),
   recentPlateAppearances: $("#recentPlateAppearances"),
   gameForm: $("#gameForm"),
@@ -875,23 +875,26 @@ function gameYear(game) {
 
 function homeGames() {
   const games = sortedGames();
-  if (selectedHomeYear === "all") return games;
-  return games.filter((game) => gameYear(game) === selectedHomeYear);
+  if (selectedHomeOpponent === "all") return games;
+  return games.filter((game) => String(game.opponent || "").trim() === selectedHomeOpponent);
 }
 
-function renderHomeYearOptions() {
-  if (!els.homeYearSelect) return;
+function renderHomeOpponentOptions() {
+  if (!els.homeOpponentSelect) return;
 
-  const years = [...new Set(sortedGames().map(gameYear).filter(Boolean))].sort((a, b) => b.localeCompare(a));
-  if (selectedHomeYear !== "all" && !years.includes(selectedHomeYear)) {
-    selectedHomeYear = "all";
+  const opponents = [...new Set(sortedGames()
+    .map((game) => String(game.opponent || "").trim())
+    .filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "ja"));
+  if (selectedHomeOpponent !== "all" && !opponents.includes(selectedHomeOpponent)) {
+    selectedHomeOpponent = "all";
   }
 
-  els.homeYearSelect.innerHTML = [
+  els.homeOpponentSelect.innerHTML = [
     '<option value="all">すべて</option>',
-    ...years.map((year) => `<option value="${year}">${year}年</option>`),
+    ...opponents.map((opponent) => `<option value="${escapeHtml(opponent)}">${escapeHtml(opponent)}</option>`),
   ].join("");
-  els.homeYearSelect.value = selectedHomeYear;
+  els.homeOpponentSelect.value = selectedHomeOpponent;
 }
 
 function analysisPlateAppearances() {
@@ -2424,7 +2427,7 @@ function renderPitcherCards() {
 }
 
 function renderHome() {
-  renderHomeYearOptions();
+  renderHomeOpponentOptions();
   renderRecentGames();
   renderRecentPlateAppearances();
 }
@@ -3572,8 +3575,8 @@ els.recentGames.addEventListener("click", (event) => {
   renderRecentPlateAppearances();
 });
 
-els.homeYearSelect?.addEventListener("change", () => {
-  selectedHomeYear = els.homeYearSelect.value || "all";
+els.homeOpponentSelect?.addEventListener("change", () => {
+  selectedHomeOpponent = els.homeOpponentSelect.value || "all";
   selectedMemoGameId = "";
   renderHome();
 });
