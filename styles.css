@@ -2279,7 +2279,7 @@ th {
 
 .pitcher-video-links {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(9, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -2303,6 +2303,12 @@ th {
 .pitcher-video-button:hover {
   background: var(--accent-soft);
   border-color: rgba(18, 115, 91, 0.45);
+}
+
+@media (max-width: 950px) {
+  .pitcher-video-links {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .pitcher-history-scroll {
