@@ -1920,14 +1920,14 @@ function renderRecentPlateAppearances() {
   const game = selectedMemoGame();
 
   if (!game) {
-    els.recentPlateAppearances.innerHTML = `<div class="empty">試合を登録すると、守備・走塁・試合メモがここに表示されます。</div>`;
+    els.recentPlateAppearances.innerHTML = `<div class="empty">試合を登録すると、守備メモ・オーダー・走塁メモ・試合メモがここに表示されます。</div>`;
     return;
   }
 
   const memoRows = [
-    ["守備の振り返り", game.defenseMemo],
-    ["相手チームのオーダー", game.opponentOrder],
-    ["走塁の振り返り", game.baserunningMemo],
+    ["守備メモ", game.defenseMemo],
+    ["オーダー", game.opponentOrder],
+    ["走塁メモ", game.baserunningMemo],
     ["試合メモ", game.gameMemo],
   ];
 
