@@ -1217,7 +1217,11 @@ function pitcherAnalysisExample(pitcherPas) {
       return countB - countA || a.localeCompare(b, "ja");
     })
     .slice(0, 4);
-  const countRows = ["0S-0B", "0S-1B", "1S-0B", "1S-1B", "1S-2B", "2S-1B", "2S-2B", "2S-3B"];
+  const countRows = [
+    "0S-0B", "0S-1B", "0S-2B", "0S-3B",
+    "1S-0B", "1S-1B", "1S-2B", "1S-3B",
+    "2S-0B", "2S-1B", "2S-2B", "2S-3B",
+  ];
   const totalGames = new Set(pitcherPas.map((pa) => pa.gameId).filter(Boolean)).size;
   const pitchTotals = pitchTypes.map((pitchType) => ({
     pitchType,
