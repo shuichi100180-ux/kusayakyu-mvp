@@ -1244,6 +1244,11 @@ main {
   gap: 10px;
 }
 
+.surface-header-actions .text-button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 .home-year-select {
   min-height: 36px;
   padding-top: 7px;
