@@ -2334,7 +2334,7 @@ function renderPitcherCards() {
             <option value="all">すべて</option>
             ${pitcherYears.map((year) => `<option value="${year}">${year}年</option>`).join("")}
           </select>
-          <span class="pill">${selectedRow.pa}打席</span>
+          <span class="pill">${pitcherStatsPas.length}打席</span>
         </div>
       </div>
       <div class="pitcher-history-stats" aria-label="${escapeHtml(selectedRow.pitcher)}との過去成績">
