@@ -1214,7 +1214,7 @@ function pitcherAnalysisExample(pitcherPas) {
       const countB = validPas.filter((pa) => pa.pitchType === b).length;
       return countB - countA || a.localeCompare(b, "ja");
     })
-    .slice(0, 5);
+    .slice(0, 4);
   const countRows = ["0S-0B", "0S-1B", "1S-0B", "1S-1B", "1S-2B", "2S-1B", "2S-2B", "2S-3B"];
   const totalGames = new Set(pitcherPas.map((pa) => pa.gameId).filter(Boolean)).size;
   const pitchTotals = pitchTypes.map((pitchType) => ({
@@ -1291,9 +1291,8 @@ function pitcherAnalysisExample(pitcherPas) {
         </div>
       </div>
       <div class="pitcher-analysis-summary">
-        <div><small>総打席</small><strong>${pitcherPas.length}</strong></div>
-        <div><small>対戦試合</small><strong>${totalGames}</strong></div>
-        <div><small>記録球数</small><strong>${totalPitches}</strong></div>
+        <div><small>対象試合数</small><strong>${totalGames}</strong></div>
+        <div><small>打席数</small><strong>${pitcherPas.length}</strong></div>
       </div>
       ${heatmap}
       <div class="pitcher-analysis-bottom">
