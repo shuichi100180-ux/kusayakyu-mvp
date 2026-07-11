@@ -130,6 +130,7 @@ let selectedAnalysisYear = "";
 let selectedEntryGameId = "";
 let selectedPitcherKey = "";
 let selectedPitcherOpponent = "";
+let selectedPitcherYear = "all";
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
@@ -2227,6 +2228,7 @@ function renderPitcherCards() {
   if (!allRows.length) {
     selectedPitcherKey = "";
     selectedPitcherOpponent = "";
+    selectedPitcherYear = "all";
     els.pitcherOpponentFilter.innerHTML = `<option value="">投手データなし</option>`;
     els.pitcherOpponentFilter.disabled = true;
     els.pitcherCards.innerHTML = `<div class="empty">打席入力で相手投手を登録すると、ここに対戦履歴が出ます。</div>`;
@@ -2260,6 +2262,13 @@ function renderPitcherCards() {
   }).join("");
 
   const pitcherPas = sortedPlateAppearances().filter((pa) => pitcherProfileKey(pa) === selectedRow.key);
+  const pitcherYears = [...new Set(sortedGames().map(gameYear).filter(Boolean))].sort((a, b) => b.localeCompare(a));
+  if (selectedPitcherYear !== "all" && !pitcherYears.includes(selectedPitcherYear)) {
+    selectedPitcherYear = "all";
+  }
+  const pitcherStatsPas = selectedPitcherYear === "all"
+    ? pitcherPas
+    : pitcherPas.filter((pa) => gameYear(getGame(pa.gameId)) === selectedPitcherYear);
   const pitcherProfileItems = [
     ["利き手", uniquePitcherValues(pitcherPas, (pa) => [pa.pitcherHand])],
     ["フォーム", uniquePitcherValues(pitcherPas, (pa) => [pa.pitchingForm])],
@@ -2271,7 +2280,7 @@ function renderPitcherCards() {
       <strong>${escapeHtml(value)}</strong>
     </span>
   `).join("");
-  const pitcherRates = withRates(selectedRow.stats);
+  const pitcherRates = withRates(calculateStats(pitcherStatsPas));
   const pitcherStats = [
     ["打率", formatRate(pitcherRates.avg)],
     ["出塁率", formatRate(pitcherRates.obp)],
@@ -2320,7 +2329,13 @@ function renderPitcherCards() {
     <section class="surface pitcher-history">
       <div class="surface-header">
         <h3>${escapeHtml(selectedRow.pitcher)}の投手データ</h3>
-        <span class="pill">${selectedRow.pa}打席</span>
+        <div class="pitcher-history-actions">
+          <select id="pitcherYearFilter" class="text-button pitcher-year-select" aria-label="投手データの成績年">
+            <option value="all">すべて</option>
+            ${pitcherYears.map((year) => `<option value="${year}">${year}年</option>`).join("")}
+          </select>
+          <span class="pill">${selectedRow.pa}打席</span>
+        </div>
       </div>
       <div class="pitcher-history-stats" aria-label="${escapeHtml(selectedRow.pitcher)}との過去成績">
         ${pitcherStats}
@@ -2344,6 +2359,8 @@ function renderPitcherCards() {
       </div>
     </section>
   `;
+  const pitcherYearFilter = els.pitcherCards.querySelector("#pitcherYearFilter");
+  if (pitcherYearFilter) pitcherYearFilter.value = selectedPitcherYear;
 }
 
 function renderHome() {
@@ -3813,6 +3830,13 @@ els.pitcherCards.addEventListener("click", (event) => {
 els.pitcherOpponentFilter.addEventListener("change", () => {
   selectedPitcherOpponent = els.pitcherOpponentFilter.value;
   selectedPitcherKey = "";
+  renderPitcherCards();
+});
+
+els.pitcherCards.addEventListener("change", (event) => {
+  const select = event.target.closest("#pitcherYearFilter");
+  if (!select) return;
+  selectedPitcherYear = select.value || "all";
   renderPitcherCards();
 });
 

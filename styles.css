@@ -2182,6 +2182,20 @@ th {
   margin-bottom: 0;
 }
 
+.pitcher-history-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pitcher-year-select {
+  width: auto;
+  min-width: 112px;
+  min-height: 36px;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+
 .pitcher-history-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
