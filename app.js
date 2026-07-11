@@ -331,9 +331,19 @@ function normalizePitcherStrategies(value) {
       const updatedAt = typeof entry === "object" && entry
         ? String(entry.updatedAt || "")
         : "";
-      return [key, { text, videoUrl, updatedAt }];
+      const videoLinks = typeof entry === "object" && Array.isArray(entry.videoLinks)
+        ? entry.videoLinks
+          .map((link) => ({
+            url: String(link?.url || "").trim(),
+            gameId: String(link?.gameId || "").trim(),
+            date: String(link?.date || "").trim(),
+            updatedAt: String(link?.updatedAt || "").trim(),
+          }))
+          .filter((link) => link.url)
+        : [];
+      return [key, { text, videoUrl, videoLinks, updatedAt }];
     })
-    .filter(([key, entry]) => key && (entry.text.trim() || entry.videoUrl.trim())));
+    .filter(([key, entry]) => key && (entry.text.trim() || entry.videoUrl.trim() || entry.videoLinks.length)));
 }
 
 function readBackups() {
@@ -1162,14 +1172,35 @@ function pitcherStrategyText(key) {
 }
 
 function pitcherVideoUrl(key) {
-  return String(state.pitcherStrategies?.[key]?.videoUrl || "");
+  const entry = state.pitcherStrategies?.[key];
+  if (entry?.videoUrl) return String(entry.videoUrl);
+  const latest = [...(entry?.videoLinks || [])].sort((a, b) =>
+    (b.date || "").localeCompare(a.date || "") || (b.updatedAt || "").localeCompare(a.updatedAt || ""),
+  )[0];
+  return String(latest?.url || "");
 }
 
-function pitcherVideoLinkHtml(url) {
-  const trimmed = String(url || "").trim();
-  if (!trimmed) return "未入力";
-  if (!/^https?:\/\//i.test(trimmed)) return escapeHtml(trimmed);
-  return `<a href="${escapeHtml(trimmed)}" target="_blank" rel="noopener noreferrer">${escapeHtml(trimmed)}</a>`;
+function monthLabel(date) {
+  const match = String(date || "").match(/^(\d{4})-(\d{1,2})/);
+  return match ? `${match[1]}年${Number(match[2])}月` : "対戦動画";
+}
+
+function pitcherVideoLinksForDisplay(key, pitcherPas = []) {
+  const entry = state.pitcherStrategies?.[key] || {};
+  const links = Array.isArray(entry.videoLinks) ? [...entry.videoLinks] : [];
+  if (!links.length && entry.videoUrl) {
+    const latestPa = [...pitcherPas].sort((a, b) => {
+      const dateA = getGame(a.gameId)?.date || "";
+      const dateB = getGame(b.gameId)?.date || "";
+      return dateB.localeCompare(dateA) || (b.updatedAt || "").localeCompare(a.updatedAt || "");
+    })[0];
+    links.push({ url: entry.videoUrl, gameId: latestPa?.gameId || "", date: getGame(latestPa?.gameId)?.date || "" });
+  }
+  return links
+    .filter((link) => /^https?:\/\//i.test(String(link.url || "").trim()))
+    .sort((a, b) =>
+      (b.date || "").localeCompare(a.date || "") || (b.updatedAt || "").localeCompare(a.updatedAt || ""),
+    );
 }
 
 function pitcherStrategyKeyForForm(form) {
@@ -1205,9 +1236,30 @@ function withPitcherStrategy(nextState, pa, strategyValue, videoUrlValue) {
   const key = pitcherProfileKey(pa);
   const text = String(strategyValue || "").trim();
   const videoUrl = String(videoUrlValue || "").trim();
+  const previous = strategies[key] || {};
+  const videoLinks = Array.isArray(previous.videoLinks) ? [...previous.videoLinks] : [];
+  const game = normalizedState.games.find((item) => item.id === pa.gameId);
+  const linkIndex = videoLinks.findIndex((link) => link.gameId && link.gameId === pa.gameId);
 
-  if (text || videoUrl) {
-    strategies[key] = { text, videoUrl, updatedAt: new Date().toISOString() };
+  if (videoUrl) {
+    const nextLink = {
+      url: videoUrl,
+      gameId: pa.gameId || "",
+      date: game?.date || "",
+      updatedAt: new Date().toISOString(),
+    };
+    if (linkIndex >= 0) videoLinks[linkIndex] = nextLink;
+    else videoLinks.push(nextLink);
+  } else if (linkIndex >= 0) {
+    videoLinks.splice(linkIndex, 1);
+  }
+
+  const latestVideoUrl = [...videoLinks].sort((a, b) =>
+    (b.date || "").localeCompare(a.date || "") || (b.updatedAt || "").localeCompare(a.updatedAt || ""),
+  )[0]?.url || "";
+
+  if (text || latestVideoUrl || videoLinks.length) {
+    strategies[key] = { text, videoUrl: latestVideoUrl, videoLinks, updatedAt: new Date().toISOString() };
   } else {
     delete strategies[key];
   }
@@ -2293,7 +2345,7 @@ function renderPitcherCards() {
     </span>
   `).join("");
   const strategy = pitcherStrategyText(selectedRow.key);
-  const videoUrl = pitcherVideoUrl(selectedRow.key);
+  const videoLinks = pitcherVideoLinksForDisplay(selectedRow.key, pitcherPas);
   const history = pitcherPas.map((pa) => {
     const game = getGame(pa.gameId);
     const resultLabel = labelForResult(pa.result);
@@ -2352,7 +2404,15 @@ function renderPitcherCards() {
       </section>
       <section class="pitcher-video-note">
         <strong>対戦動画</strong>
-        <p>${pitcherVideoLinkHtml(videoUrl)}</p>
+        <div class="pitcher-video-links">
+          ${videoLinks.length
+            ? videoLinks.map((link) => `
+                <a class="pitcher-video-button" href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">
+                  ${escapeHtml(monthLabel(link.date || getGame(link.gameId)?.date))}
+                </a>
+              `).join("")
+            : "<span class=\"muted\">未入力</span>"}
+        </div>
       </section>
       <div class="list-stack pitcher-history-scroll">
         ${history || `<div class="empty">この投手との打席はまだありません。</div>`}

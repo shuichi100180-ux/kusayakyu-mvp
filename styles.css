@@ -2277,10 +2277,32 @@ th {
   margin: 0;
 }
 
-.pitcher-video-note a {
+.pitcher-video-links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.pitcher-video-button {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
   color: var(--accent-strong);
+  font-size: 13px;
   font-weight: 800;
-  overflow-wrap: anywhere;
+  padding: 8px 6px;
+  text-align: center;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pitcher-video-button:hover {
+  background: var(--accent-soft);
+  border-color: rgba(18, 115, 91, 0.45);
 }
 
 .pitcher-history-scroll {
