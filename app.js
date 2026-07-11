@@ -1207,11 +1207,13 @@ function pitcherVideoLinksForDisplay(key, pitcherPas = []) {
 }
 
 function pitcherAnalysisExample(pitcherPas) {
-  const validPas = pitcherPas.filter((pa) => pa.pitchType && normalizeCountLabel(pa.count));
-  const pitchTypes = [...new Set(validPas.map((pa) => pa.pitchType))]
+  // 打席結果では絞り込まず、エラーを含む全打席を対象にする。
+  const countPas = pitcherPas.filter((pa) => normalizeCountLabel(pa.count));
+  const typedPas = countPas.filter((pa) => pa.pitchType);
+  const pitchTypes = [...new Set(typedPas.map((pa) => pa.pitchType))]
     .sort((a, b) => {
-      const countA = validPas.filter((pa) => pa.pitchType === a).length;
-      const countB = validPas.filter((pa) => pa.pitchType === b).length;
+      const countA = typedPas.filter((pa) => pa.pitchType === a).length;
+      const countB = typedPas.filter((pa) => pa.pitchType === b).length;
       return countB - countA || a.localeCompare(b, "ja");
     })
     .slice(0, 4);
@@ -1219,11 +1221,11 @@ function pitcherAnalysisExample(pitcherPas) {
   const totalGames = new Set(pitcherPas.map((pa) => pa.gameId).filter(Boolean)).size;
   const pitchTotals = pitchTypes.map((pitchType) => ({
     pitchType,
-    count: validPas.filter((pa) => pa.pitchType === pitchType).length,
+    count: typedPas.filter((pa) => pa.pitchType === pitchType).length,
   }));
   const totalPitches = pitchTotals.reduce((sum, row) => sum + row.count, 0);
   const maxCell = Math.max(1, ...countRows.flatMap((count) => pitchTypes.map((pitchType) =>
-    validPas.filter((pa) => pa.pitchType === pitchType && normalizeCountLabel(pa.count) === count).length,
+    countPas.filter((pa) => pa.pitchType === pitchType && normalizeCountLabel(pa.count) === count).length,
   )));
 
   const heatmap = pitchTypes.length
@@ -1241,8 +1243,8 @@ function pitcherAnalysisExample(pitcherPas) {
               <tr>
                 <th>${escapeHtml(count)}</th>
                 ${pitchTypes.map((pitchType) => {
-                  const cellCount = validPas.filter((pa) => pa.pitchType === pitchType && normalizeCountLabel(pa.count) === count).length;
-                  const totalForCount = validPas.filter((pa) => normalizeCountLabel(pa.count) === count).length;
+                  const cellCount = countPas.filter((pa) => pa.pitchType === pitchType && normalizeCountLabel(pa.count) === count).length;
+                  const totalForCount = countPas.filter((pa) => normalizeCountLabel(pa.count) === count).length;
                   const percent = totalForCount ? Math.round((cellCount / totalForCount) * 100) : 0;
                   const intensity = cellCount ? Math.max(0.12, cellCount / maxCell) : 0;
                   return `<td style="--heat-intensity:${intensity}" title="${escapeHtml(`${count}の${pitchType}：${cellCount}打席`)}">${percent}%</td>`;
@@ -1269,12 +1271,12 @@ function pitcherAnalysisExample(pitcherPas) {
     : `<p class="muted">球種データがありません。</p>`;
 
   const trendNotes = [];
-  const firstCountRows = validPas.filter((pa) => ["0S-0B", "0S-1B"].includes(normalizeCountLabel(pa.count)));
+  const firstCountRows = countPas.filter((pa) => ["0S-0B", "0S-1B"].includes(normalizeCountLabel(pa.count)));
   const firstCountPitch = pitchTypes
     .map((pitchType) => ({ pitchType, count: firstCountRows.filter((pa) => pa.pitchType === pitchType).length }))
     .sort((a, b) => b.count - a.count)[0];
   if (firstCountPitch?.count) trendNotes.push(`序盤カウントは${firstCountPitch.pitchType}が多めです。`);
-  const twoStrikeRows = validPas.filter((pa) => normalizeCountLabel(pa.count).startsWith("2S-"));
+  const twoStrikeRows = countPas.filter((pa) => normalizeCountLabel(pa.count).startsWith("2S-"));
   const twoStrikePitch = pitchTypes
     .map((pitchType) => ({ pitchType, count: twoStrikeRows.filter((pa) => pa.pitchType === pitchType).length }))
     .sort((a, b) => b.count - a.count)[0];
@@ -1286,7 +1288,7 @@ function pitcherAnalysisExample(pitcherPas) {
       <div class="pitcher-analysis-heading">
         <span class="pitcher-analysis-mark">1</span>
         <div>
-          <h4>分析例｜カウント × 球種ヒートマップ</h4>
+          <h4>カウント × 球種ヒートマップ</h4>
         </div>
       </div>
       <div class="pitcher-analysis-summary">
