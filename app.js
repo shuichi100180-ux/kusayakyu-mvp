@@ -1287,7 +1287,6 @@ function pitcherAnalysisExample(pitcherPas) {
         <span class="pitcher-analysis-mark">1</span>
         <div>
           <h4>分析例｜カウント × 球種ヒートマップ</h4>
-          <p>記録済みの勝負球を、カウント別に球種ごとの割合で表示しています。</p>
         </div>
       </div>
       <div class="pitcher-analysis-summary">
@@ -1306,7 +1305,6 @@ function pitcherAnalysisExample(pitcherPas) {
           ${trendNotes.map((note) => `<p>${escapeHtml(note)}</p>`).join("")}
         </div>
       </div>
-      <p class="pitcher-analysis-footnote">※勝負球とカウントが入力された打席を集計</p>
     </section>
   `;
 }
