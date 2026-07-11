@@ -1250,6 +1250,8 @@ main {
 }
 
 .home-year-select {
+  width: auto;
+  min-width: 112px;
   min-height: 36px;
   padding-top: 7px;
   padding-bottom: 7px;
