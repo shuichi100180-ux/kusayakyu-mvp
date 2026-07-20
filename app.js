@@ -2794,6 +2794,7 @@ function clearPcPlateAppearanceDetails() {
   setFieldValue(els.paForm, "stolenBase", "なし");
   setFieldValue(els.paForm, "runScored", "0");
   setFieldValue(els.paForm, "memo", "");
+  setFieldValue(els.paForm, "pitcherVideoUrl", "");
   syncBattedBallFields();
 }
 
@@ -2899,7 +2900,8 @@ function clearMobilePlateAppearanceFields(options = {}) {
   setMobileChoice("course", "");
   setMobileChoice("battedDirection", "");
   setMobileChoice("battedType", "");
-  if (pitcherValues) setMobilePitcherFields(pitcherValues);
+  if (pitcherValues) setMobilePitcherFields({ ...pitcherValues, pitcherVideoUrl: "" });
+  else setFieldValue(els.mobilePaForm, "pitcherVideoUrl", "");
   syncMobilePitchTypeOptions();
   syncMobileRunnerOptions();
   syncMobileBattedBallFields();
