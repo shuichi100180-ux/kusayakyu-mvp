@@ -1180,8 +1180,15 @@ function pitcherStrategyText(key) {
   return String(state.pitcherStrategies?.[key]?.text || "");
 }
 
-function pitcherVideoUrl(key) {
+function pitcherVideoUrl(key, gameId = "") {
   const entry = state.pitcherStrategies?.[key];
+  if (gameId) {
+    const gameDate = getGame(gameId)?.date || "";
+    const matching = [...(entry?.videoLinks || [])]
+      .filter((link) => link.gameId === gameId || (!link.gameId && link.date === gameDate))
+      .sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""))[0];
+    return String(matching?.url || "");
+  }
   if (entry?.videoUrl) return String(entry.videoUrl);
   const latest = [...(entry?.videoLinks || [])].sort((a, b) =>
     (b.date || "").localeCompare(a.date || "") || (b.updatedAt || "").localeCompare(a.updatedAt || ""),
@@ -1344,7 +1351,9 @@ function syncPitcherStrategyField(form) {
     setFieldValue(form, "pitcherStrategy", key ? pitcherStrategyText(key) : "");
   }
   if (form.elements.pitcherVideoUrl) {
-    setFieldValue(form, "pitcherVideoUrl", isEditingExistingPa && key ? pitcherVideoUrl(key) : "");
+    setFieldValue(form, "pitcherVideoUrl", isEditingExistingPa && key
+      ? pitcherVideoUrl(key, form.elements.gameId?.value || "")
+      : "");
   }
 }
 
@@ -2920,7 +2929,7 @@ function fillMobilePlateAppearanceForm(pa) {
 
   setFieldValue(els.mobilePaForm, "memo", pa.memo || "");
   setFieldValue(els.mobilePaForm, "pitcherStrategy", pitcherStrategyText(pitcherProfileKey(pa)));
-  setFieldValue(els.mobilePaForm, "pitcherVideoUrl", pitcherVideoUrl(pitcherProfileKey(pa)));
+  setFieldValue(els.mobilePaForm, "pitcherVideoUrl", pitcherVideoUrl(pitcherProfileKey(pa), pa.gameId));
   syncMobileChoiceButtons();
   syncMobileRunnerOptions();
   syncMobileBattedBallFields();
@@ -3205,7 +3214,7 @@ function fillPlateAppearanceForm(pa) {
   setFieldValue(els.paForm, "runScored", pa.runScored ?? 0);
   setFieldValue(els.paForm, "memo", pa.memo || "");
   setFieldValue(els.paForm, "pitcherStrategy", pitcherStrategyText(pitcherProfileKey(pa)));
-  setFieldValue(els.paForm, "pitcherVideoUrl", pitcherVideoUrl(pitcherProfileKey(pa)));
+  setFieldValue(els.paForm, "pitcherVideoUrl", pitcherVideoUrl(pitcherProfileKey(pa), pa.gameId));
   syncBattedBallFields();
   renderPcPitcherPresets();
 }
