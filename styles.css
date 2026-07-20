@@ -876,6 +876,18 @@ main {
   line-height: 1;
 }
 
+.count-heatmap-count,
+.count-heatmap-detail {
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.count-heatmap-detail {
+  font-size: 10px;
+  font-weight: 700;
+}
+
 .count-heatmap-cell.is-good {
   background: #ff6d5f;
   color: #ffffff;
@@ -3553,6 +3565,15 @@ th {
 
   .count-heatmap-cell strong {
     font-size: 22px;
+  }
+
+  .count-heatmap-count,
+  .count-heatmap-detail {
+    font-size: 9px;
+  }
+
+  .count-heatmap-detail {
+    font-size: 8px;
   }
 
   .analysis-main-pair .course-supplement-chart,
