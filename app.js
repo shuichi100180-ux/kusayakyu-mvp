@@ -1187,7 +1187,16 @@ function pitcherVideoUrl(key, gameId = "") {
     const matching = [...(entry?.videoLinks || [])]
       .filter((link) => link.gameId === gameId || (!link.gameId && link.date === gameDate))
       .sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""))[0];
-    return String(matching?.url || "");
+    if (matching?.url) return String(matching.url);
+
+    // 打席ごとに背番号などが異なる過去データでも、同じ試合のリンクを引き継ぐ。
+    const opponent = String(key).split("||")[0];
+    const sameGameLink = Object.entries(state.pitcherStrategies || {})
+      .filter(([profileKey]) => String(profileKey).split("||")[0] === opponent)
+      .flatMap(([, profile]) => Array.isArray(profile?.videoLinks) ? profile.videoLinks : [])
+      .filter((link) => link.gameId === gameId || (!link.gameId && link.date === gameDate))
+      .sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""))[0];
+    return String(sameGameLink?.url || "");
   }
   if (entry?.videoUrl) return String(entry.videoUrl);
   const latest = [...(entry?.videoLinks || [])].sort((a, b) =>
