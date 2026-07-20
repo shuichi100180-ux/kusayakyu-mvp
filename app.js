@@ -1360,7 +1360,7 @@ function syncPitcherStrategyField(form) {
     setFieldValue(form, "pitcherStrategy", key ? pitcherStrategyText(key) : "");
   }
   if (form.elements.pitcherVideoUrl) {
-    setFieldValue(form, "pitcherVideoUrl", isEditingExistingPa && key
+    setFieldValue(form, "pitcherVideoUrl", isEditingExistingPa && key && form.elements.result?.value
       ? pitcherVideoUrl(key, form.elements.gameId?.value || "")
       : "");
   }
@@ -2938,7 +2938,9 @@ function fillMobilePlateAppearanceForm(pa) {
 
   setFieldValue(els.mobilePaForm, "memo", pa.memo || "");
   setFieldValue(els.mobilePaForm, "pitcherStrategy", pitcherStrategyText(pitcherProfileKey(pa)));
-  setFieldValue(els.mobilePaForm, "pitcherVideoUrl", pitcherVideoUrl(pitcherProfileKey(pa), pa.gameId));
+  setFieldValue(els.mobilePaForm, "pitcherVideoUrl", pa.result
+    ? pitcherVideoUrl(pitcherProfileKey(pa), pa.gameId)
+    : "");
   syncMobileChoiceButtons();
   syncMobileRunnerOptions();
   syncMobileBattedBallFields();
@@ -3223,7 +3225,9 @@ function fillPlateAppearanceForm(pa) {
   setFieldValue(els.paForm, "runScored", pa.runScored ?? 0);
   setFieldValue(els.paForm, "memo", pa.memo || "");
   setFieldValue(els.paForm, "pitcherStrategy", pitcherStrategyText(pitcherProfileKey(pa)));
-  setFieldValue(els.paForm, "pitcherVideoUrl", pitcherVideoUrl(pitcherProfileKey(pa), pa.gameId));
+  setFieldValue(els.paForm, "pitcherVideoUrl", pa.result
+    ? pitcherVideoUrl(pitcherProfileKey(pa), pa.gameId)
+    : "");
   syncBattedBallFields();
   renderPcPitcherPresets();
 }
