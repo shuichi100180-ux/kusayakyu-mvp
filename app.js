@@ -3031,8 +3031,17 @@ function saveMobileGameFromRegistration() {
   renderMobileGameSelect();
   renderMobilePitcherPresets();
   syncPitcherStrategyField(els.mobilePaForm);
-  els.mobilePaForm.querySelector(".mobile-pitcher-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  scrollToMobilePitcherCard();
   return true;
+}
+
+function scrollToMobilePitcherCard() {
+  const pitcherCard = els.mobilePaForm?.querySelector(".mobile-pitcher-card");
+  if (!pitcherCard) return;
+
+  const tabsHeight = document.querySelector(".tabs")?.getBoundingClientRect().height || 0;
+  const targetTop = window.scrollY + pitcherCard.getBoundingClientRect().top - tabsHeight - 8;
+  window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
 }
 
 function startMobileGameEdit(gameId) {
