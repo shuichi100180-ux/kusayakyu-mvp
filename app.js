@@ -2027,8 +2027,9 @@ function renderMobilePitcherPresets() {
     return;
   }
 
+  const selectedKey = pitcherStrategyKeyForForm(els.mobilePaForm);
   els.mobilePitcherPresets.innerHTML = rows.map((row) => `
-    <button class="mobile-pitcher-button" data-mobile-pitcher-key="${escapeHtml(row.key)}" type="button">
+    <button class="mobile-pitcher-button${row.key === selectedKey ? " is-selected" : ""}" data-mobile-pitcher-key="${escapeHtml(row.key)}" type="button" aria-pressed="${row.key === selectedKey}">
       <strong>${escapeHtml(row.pitcher)}</strong>
       <span>${escapeHtml(row.opponent)} / 背番号 ${escapeHtml(row.number)}</span>
     </button>
@@ -2906,6 +2907,7 @@ function fillMobilePlateAppearanceForm(pa) {
   setFieldValue(els.mobilePaForm, "breakingBall1", breakingBalls[0] || "");
   setFieldValue(els.mobilePaForm, "breakingBall2", breakingBalls[1] || "");
   setFieldValue(els.mobilePaForm, "breakingBall3", breakingBalls[2] || "");
+  renderMobilePitcherPresets();
   syncMobilePitchTypeOptions(pa.pitchType || "");
   setFieldValue(els.mobilePaForm, "count", normalizeCountLabel(pa.count));
   setMobileChoice("course", pa.course || "");
