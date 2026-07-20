@@ -972,6 +972,12 @@ function findPlateAppearanceForGameSlot(gameId, slot) {
     .find((pa) => pa.gameId === gameId && plateAppearanceSlot(pa) === slot) || null;
 }
 
+function firstPlateAppearanceForGame(gameId) {
+  return ["第1打席", "第2打席", "第3打席", "第4打席"]
+    .map((slot) => findPlateAppearanceForGameSlot(gameId, slot))
+    .find(Boolean) || null;
+}
+
 function latestPaForPitcher(row) {
   return sortedPlateAppearances().find((pa) => pitcherProfileKey(pa) === row.key) || row.plateAppearances[0] || null;
 }
@@ -3027,7 +3033,11 @@ function saveMobileGameFromRegistration() {
 
   mobileEditingGameId = "";
   resetMobileGameRegistrationFields();
-  resetMobilePlateAppearanceForm({ gameId: game.id });
+  const firstPa = existingGame ? firstPlateAppearanceForGame(game.id) : null;
+  resetMobilePlateAppearanceForm({
+    gameId: game.id,
+    plateAppearance: firstPa ? plateAppearanceSlot(firstPa) : undefined,
+  });
   renderMobileGameSelect();
   renderMobilePitcherPresets();
   syncPitcherStrategyField(els.mobilePaForm);
@@ -3748,7 +3758,14 @@ els.mobilePaForm.addEventListener("invalid", () => {
 els.gameSelect.addEventListener("change", () => {
   editingPaId = "";
   renderPcPitcherPresets();
-  syncPitcherStrategyField(els.paForm);
+  const firstPa = firstPlateAppearanceForGame(els.gameSelect.value);
+  if (firstPa) {
+    editingPaId = firstPa.id;
+    fillPlateAppearanceForm(firstPa);
+  } else {
+    resetPlateAppearanceForm();
+    syncPitcherStrategyField(els.paForm);
+  }
   renderEditState();
 });
 
@@ -3794,12 +3811,18 @@ els.mobileGameSelect.addEventListener("change", () => {
   }
 
   selectedEntryGameId = selectedValue;
-  setMobileChoice("plateAppearance", nextPlateAppearanceForGame(selectedValue));
   syncMobileGameMode();
   renderMobileGameSummary();
   renderMobilePitcherPresets();
   syncPitcherStrategyField(els.mobilePaForm);
-  syncMobilePlateAppearanceSelection({ clearWhenEmpty: true, preservePitcherWhenEmpty: false });
+  const firstPa = firstPlateAppearanceForGame(selectedValue);
+  setMobileChoice("plateAppearance", firstPa ? plateAppearanceSlot(firstPa) : nextPlateAppearanceForGame(selectedValue));
+  if (firstPa) {
+    mobileEditingPaId = firstPa.id;
+    fillMobilePlateAppearanceForm(firstPa);
+  } else {
+    syncMobilePlateAppearanceSelection({ clearWhenEmpty: true, preservePitcherWhenEmpty: false });
+  }
 });
 
 els.mobileGameSaveButton.addEventListener("click", saveMobileGameFromRegistration);
@@ -3858,9 +3881,19 @@ els.gameForm.addEventListener("submit", (event) => {
       };
 
   if (commitState(nextState, existingGame ? "試合を更新しました" : "試合を保存しました", existingGame ? "試合更新" : "試合保存")) {
+    const firstPa = existingGame ? firstPlateAppearanceForGame(game.id) : null;
     editingGameId = "";
     resetGameForm();
+    if (firstPa) {
+      editingPaId = firstPa.id;
+      fillPlateAppearanceForm(firstPa);
+    } else {
+      editingPaId = "";
+    }
     renderEditState();
+    if (firstPa) {
+      els.paForm.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }
 });
 
