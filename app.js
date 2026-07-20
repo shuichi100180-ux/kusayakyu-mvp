@@ -3957,6 +3957,7 @@ els.mobilePaForm.addEventListener("submit", (event) => {
     mobileEditingPaId = "";
     resetMobilePlateAppearanceForm({ gameId: pa.gameId, previousPa: pa });
     switchTab("mobile");
+    scrollToMobilePitcherCard();
   }
 });
 
