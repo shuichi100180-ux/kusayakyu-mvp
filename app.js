@@ -1213,6 +1213,19 @@ function monthLabel(date) {
 function pitcherVideoLinksForDisplay(key, pitcherPas = []) {
   const entry = state.pitcherStrategies?.[key] || {};
   const links = Array.isArray(entry.videoLinks) ? [...entry.videoLinks] : [];
+  if (!links.length) {
+    const opponent = String(key).split("||")[0];
+    const gameIds = new Set(pitcherPas.map((pa) => pa.gameId).filter(Boolean));
+    const gameDates = new Set(pitcherPas.map((pa) => getGame(pa.gameId)?.date).filter(Boolean));
+    const sameOpponentLinks = Object.entries(state.pitcherStrategies || {})
+      .filter(([profileKey]) => String(profileKey).split("||")[0] === opponent)
+      .flatMap(([, profile]) => Array.isArray(profile?.videoLinks) ? profile.videoLinks : [])
+      .filter((link) => gameIds.has(link.gameId) || (!link.gameId && gameDates.has(link.date)))
+      .sort((a, b) =>
+        (b.date || "").localeCompare(a.date || "") || (b.updatedAt || "").localeCompare(a.updatedAt || ""),
+      );
+    links.push(...sameOpponentLinks);
+  }
   if (!links.length && entry.videoUrl) {
     const latestPa = [...pitcherPas].sort((a, b) => {
       const dateA = getGame(a.gameId)?.date || "";
