@@ -1329,15 +1329,20 @@ function pitcherStrategyKeyForForm(form) {
 function syncPitcherStrategyField(form) {
   if (!form?.elements?.pitcherStrategy && !form?.elements?.pitcherVideoUrl) return;
   const key = pitcherStrategyKeyForForm(form);
+  const isEditingExistingPa = form === els.paForm
+    ? Boolean(editingPaId)
+    : form === els.mobilePaForm
+      ? Boolean(mobileEditingPaId)
+      : false;
   if (form.elements.pitcherStrategy) {
     setFieldValue(form, "pitcherStrategy", key ? pitcherStrategyText(key) : "");
   }
   if (form.elements.pitcherVideoUrl) {
-    setFieldValue(form, "pitcherVideoUrl", key ? pitcherVideoUrl(key) : "");
+    setFieldValue(form, "pitcherVideoUrl", isEditingExistingPa && key ? pitcherVideoUrl(key) : "");
   }
 }
 
-function withPitcherStrategy(nextState, pa, strategyValue, videoUrlValue) {
+function withPitcherStrategy(nextState, pa, strategyValue, videoUrlValue, options = {}) {
   const normalizedState = normalizeState({
     ...nextState,
     pitcherStrategies: Object.prototype.hasOwnProperty.call(nextState, "pitcherStrategies")
@@ -1362,7 +1367,7 @@ function withPitcherStrategy(nextState, pa, strategyValue, videoUrlValue) {
     };
     if (linkIndex >= 0) videoLinks[linkIndex] = nextLink;
     else videoLinks.push(nextLink);
-  } else if (linkIndex >= 0) {
+  } else if (linkIndex >= 0 && options.removeExistingVideoLink !== false) {
     videoLinks.splice(linkIndex, 1);
   }
 
@@ -3879,6 +3884,7 @@ els.paForm.addEventListener("submit", (event) => {
     pa,
     form.elements.pitcherStrategy.value,
     form.elements.pitcherVideoUrl.value,
+    { removeExistingVideoLink: Boolean(existingPa) },
   );
 
   if (commitState(nextState, existingPa ? "打席を更新しました" : "打席を保存しました", existingPa ? "打席更新" : "打席保存")) {
@@ -3931,6 +3937,7 @@ els.mobilePaForm.addEventListener("submit", (event) => {
     pa,
     form.elements.pitcherStrategy.value,
     form.elements.pitcherVideoUrl.value,
+    { removeExistingVideoLink: Boolean(existingPa) },
   );
 
   const saved = existingPa
