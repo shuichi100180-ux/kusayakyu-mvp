@@ -2780,9 +2780,10 @@ function clearPcPlateAppearanceDetails() {
 }
 
 function syncPcPlateAppearanceFromSlotSelection() {
-  if (!els.pcPitcherSelect?.value) return;
-
-  const pa = selectedPcPitcherPlateAppearance({ fallbackToLatest: false });
+  const pa = findPlateAppearanceForGameSlot(
+    els.paForm.elements.gameId.value,
+    els.paForm.elements.plateAppearance.value,
+  );
   if (pa) {
     editingPaId = pa.id;
     fillPlateAppearanceForm(pa);
