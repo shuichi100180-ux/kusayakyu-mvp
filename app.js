@@ -3275,13 +3275,16 @@ function showValidationFailure(title) {
 }
 
 function syncBattedBallFields() {
-  const shouldSkipBattedBall = skipsBattedBall(els.paForm.elements.result.value);
+  const result = els.paForm.elements.result.value;
+  const shouldSkipBattedBall = skipsBattedBall(result);
   const direction = els.paForm.elements.battedDirection;
   const type = els.paForm.elements.battedType;
 
   if (shouldSkipBattedBall) {
     direction.value = "";
     type.value = "";
+  } else if (result === "sacBunt") {
+    type.value = "バント";
   }
 
   direction.disabled = shouldSkipBattedBall;
@@ -3298,6 +3301,8 @@ function syncMobileBattedBallFields() {
     setFieldValue(els.mobilePaForm, "battedType", "");
     updateMobileChoiceButtons("battedDirection");
     updateMobileChoiceButtons("battedType");
+  } else if (result === "sacBunt") {
+    setMobileChoice("battedType", "バント");
   }
 
   els.mobileBattedFields.classList.toggle("is-disabled", skipBattedBall);
