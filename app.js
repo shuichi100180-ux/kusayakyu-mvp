@@ -3031,7 +3031,7 @@ function saveMobileGameFromRegistration() {
   renderMobileGameSelect();
   renderMobilePitcherPresets();
   syncPitcherStrategyField(els.mobilePaForm);
-  els.mobilePaForm.querySelector(".mobile-result-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  els.mobilePaForm.querySelector(".mobile-pitcher-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
   return true;
 }
 
