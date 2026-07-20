@@ -754,7 +754,7 @@ function resultDef(pa) {
 }
 
 function skipsBattedBall(result) {
-  return ["strikeout", "walk"].includes(result);
+  return ["strikeout", "walk", "hbp"].includes(result);
 }
 
 function stolenBaseSummary(value) {
