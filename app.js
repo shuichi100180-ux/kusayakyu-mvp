@@ -1454,7 +1454,7 @@ function renderMetrics(target, stats) {
     metric("出塁率", formatRate(withRateValues.obp), `${stats.bb}四球・${stats.hbp}死球`, "obp"),
     metric("長打率", formatRate(withRateValues.slg), `${stats.tb}塁打`, "slg"),
     metric("OPS", formatRate(withRateValues.ops), "出塁率 + 長打率", "ops"),
-    metric("得点圏打率", formatRate(withRateValues.rispAvg), `${stats.rispH}安打 / ${stats.rispAb}打数`, "risp-avg"),
+    metric("得点圏打率", formatRate(withRateValues.rispAvg), `${stats.rispAb}打数 / ${stats.rispH}安打`, "risp-avg"),
     metric("単打", formatNumber(stats.singles), "", "singles"),
     metric("二塁打", formatNumber(stats.doubles), "", "doubles"),
     metric("三塁打", formatNumber(stats.triples), "", "triples"),
