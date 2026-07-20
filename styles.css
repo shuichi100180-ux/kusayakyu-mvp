@@ -3606,8 +3606,12 @@ th {
 
   .analysis-main-pair .course-name,
   .analysis-main-pair .course-detail {
-    font-size: 8px;
+    font-size: 7px;
     line-height: 1.05;
+  }
+
+  .analysis-main-pair .course-detail {
+    white-space: nowrap;
   }
 
   .analysis-main-pair .course-count {

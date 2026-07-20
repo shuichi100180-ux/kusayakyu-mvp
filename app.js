@@ -1646,7 +1646,7 @@ function countHeatmapStats(plateAppearances) {
     balls,
     Object.fromEntries(COUNT_HEATMAP_STRIKES.map((strikes) => [
       strikes,
-      { ab: 0, h: 0, long: 0, k: 0 },
+      { ab: 0, h: 0, long: 0 },
     ])),
   ]));
   let totalAb = 0;
@@ -1667,7 +1667,6 @@ function countHeatmapStats(plateAppearances) {
     cell.ab += 1;
     if (def.hit) cell.h += 1;
     if (def.double || def.triple || def.homer) cell.long += 1;
-    if (pa.result === "strikeout") cell.k += 1;
   });
 
   return { cells, totalAb, skippedAb };
@@ -1701,11 +1700,11 @@ function renderCountHeatmap(plateAppearances) {
       return `
         <div
           class="count-heatmap-cell ${countHeatmapTone(avg, row.ab)}"
-          title="${escapeHtml(`${label}：${row.ab}打数 ${row.h}安打 打率 ${formatRate(avg)} 長打 ${row.long} 三振 ${row.k}`)}"
+          title="${escapeHtml(`${label}：${row.ab}打数 ${row.h}安打 打率 ${formatRate(avg)} 長打 ${row.long}`)}"
         >
           <span class="count-heatmap-count">${row.ab}-${row.h}</span>
           <strong>${formatRate(avg)}</strong>
-          <span class="count-heatmap-detail">長打 ${row.long} / 三振 ${row.k}</span>
+          <span class="count-heatmap-detail">長打 ${row.long}</span>
         </div>
       `;
     }).join("");
@@ -1727,7 +1726,7 @@ function renderCountHeatmap(plateAppearances) {
       ${bodyCells}
     </div>
     <div class="count-heatmap-footer">
-      <p class="muted">表示は「打数-安打 / 打率 / 長打・三振」です。カウント未入力の打数は ${stats.skippedAb} あります。</p>
+      <p class="muted">表示は「打数-安打 / 打率 / 長打」です。カウント未入力の打数は ${stats.skippedAb} あります。</p>
       <div class="count-heatmap-legend" aria-label="色の意味">
         <span class="count-heatmap-legend-item is-good-label"><i class="is-good"></i>.300以上</span>
         <span class="count-heatmap-legend-item is-caution-label"><i class="is-caution"></i>.200〜.299</span>
